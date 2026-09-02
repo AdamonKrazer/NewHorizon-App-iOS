@@ -351,7 +351,9 @@ assets:
 	fi
 	echo '[Amethyst v$(VERSION)] assets - end'
 
-payload: reynard native dep_mg java jre assets
+# Native/Java targets do not require the built Gecko framework. Keep them first
+# so the default serial CI build catches their errors before the long Gecko build.
+payload: native dep_mg java jre assets reynard
 	echo '[Amethyst v$(VERSION)] payload - start'
 	$(call METHOD_DIRCHECK,$(WORKINGDIR)/AngelAuraAmethyst.app/libs)
 	$(call METHOD_DIRCHECK,$(WORKINGDIR)/AngelAuraAmethyst.app/libs_caciocavallo)

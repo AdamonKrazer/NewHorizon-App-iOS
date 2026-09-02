@@ -268,6 +268,10 @@ static int nh_bind_surface_to_slot(
     OSType pixel_format = IOSurfaceGetPixelFormat(surface);
     EGLint internal_format = pixel_format == 'BGRA'
             ? NH_GL_BGRA_EXT : NH_GL_RGBA;
+    /* The optional IOSurface usage hint is simulator-only and is not defined
+     * by our bundled ANGLE headers. Omitting it does not change the device's
+     * IOSurface GPU import or its fence synchronization.
+     * See ANGLE's extensions/EGL_ANGLE_iosurface_client_buffer.txt. */
     const EGLint attributes[] = {
         EGL_WIDTH, width,
         EGL_HEIGHT, height,
@@ -276,7 +280,6 @@ static int nh_bind_surface_to_slot(
         EGL_TEXTURE_FORMAT, EGL_TEXTURE_RGBA,
         EGL_TEXTURE_TYPE_ANGLE, NH_GL_UNSIGNED_BYTE,
         EGL_TEXTURE_INTERNAL_FORMAT_ANGLE, internal_format,
-        EGL_IOSURFACE_USAGE_HINT_ANGLE, EGL_IOSURFACE_READ_HINT_ANGLE,
         EGL_NONE,
     };
 
