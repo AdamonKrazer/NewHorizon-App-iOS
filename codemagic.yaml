@@ -1,0 +1,86 @@
+workflows:
+  new-horizon-ios:
+    name: New Horizon iOS
+    instance_type: mac_mini_m2
+    max_build_duration: 120
+
+    environment:
+      xcode: 26.4
+      java: 8
+      vars:
+        BUNDLE_ID: "com.newhorizon.minecraft.ios"
+        HOMEBREW_NO_AUTO_UPDATE: "1"
+
+    cache:
+      cache_paths:
+        - $CM_BUILD_DIR/depends
+        - $HOME/.cargo/registry
+        - $HOME/.cargo/git
+
+    scripts:
+      - name: Prepare source and build tools
+        script: |
+          #!/bin/bash
+          set -euo pipefail
+
+          cd "$CM_BUILD_DIR"
+          git submodule sync --recursive
+          git submodule update --init --recursive --jobs 4
+
+          if ! command -v cmake >/dev/null 2>&1; then
+            brew install cmake
+          fi
+          if ! command -v wget >/dev/null 2>&1; then
+            brew install wget
+          fi
+          if ! command -v ldid >/dev/null 2>&1; then
+            brew install ldid
+          fi
+
+          if ! command -v rustup >/dev/null 2>&1; then
+            curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \
+              | sh -s -- -y --profile minimal
+          fi
+
+          export PATH="$HOME/.cargo/bin:/opt/homebrew/bin:$PATH"
+          if ! rustup show active-toolchain >/dev/null 2>&1; then
+            rustup default stable
+          fi
+
+          JAVA8_HOME="$(/usr/libexec/java_home -v 1.8)"
+          printf 'PATH=%s\n' "$PATH" >> "$CM_ENV"
+          printf 'JAVA_HOME=%s\n' "$JAVA8_HOME" >> "$CM_ENV"
+          printf 'BOOTJDK=%s/bin\n' "$JAVA8_HOME" >> "$CM_ENV"
+
+          xcodebuild -version
+          "$JAVA8_HOME/bin/javac" -version
+          rustc --version
+          cmake --version
+
+      - name: Build New Horizon IPA
+        script: |
+          #!/bin/bash
+          set -euo pipefail
+
+          cd "$CM_BUILD_DIR"
+          export PATH="$HOME/.cargo/bin:/opt/homebrew/bin:$PATH"
+          make all PLATFORM=2 RELEASE=1 BOOTJDK="$BOOTJDK"
+
+      - name: Verify generated package
+        script: |
+          #!/bin/bash
+          set -euo pipefail
+
+          cd "$CM_BUILD_DIR"
+          IPA_PATH="$(find artifacts -maxdepth 1 -type f -name '*.ipa' -print -quit)"
+          if [ -z "$IPA_PATH" ]; then
+            echo "The build completed without producing an IPA." >&2
+            exit 1
+          fi
+          ls -lh "$IPA_PATH"
+
+    artifacts:
+      - artifacts/*.ipa
+      - artifacts/*.tipa
+      - artifacts/*.dSYM/**
+      - Natives/build/reynard/DerivedData/Logs/**/*.xcactivitylog
