@@ -1,13 +1,15 @@
 diff --git a/widget/uikit/nsAppShell.mm b/widget/uikit/nsAppShell.mm
-index 13436918..5e45a3d3 100644
+index 13436918..3c27dae3 100644
 --- a/widget/uikit/nsAppShell.mm
 +++ b/widget/uikit/nsAppShell.mm
-@@ -5,3 +5,4 @@
+@@ -5,3 +5,6 @@
  #import <UIKit/UIApplication.h>
 +#import <UIKit/UIScene.h>
++#import <UIKit/UISceneConfiguration.h>
++#import <UIKit/UISceneSession.h>
  #import <UIKit/UIScreen.h>
  #import <UIKit/UIWindow.h>
-@@ -48,34 +48,84 @@ static void ApplicationWillTerminate(bool aCallExit);
+@@ -48,34 +51,84 @@ static void ApplicationWillTerminate(bool aCallExit);
  // Acts as a delegate for the UIApplication
  
  @interface AppShellDelegate : NSObject <UIApplicationDelegate> {

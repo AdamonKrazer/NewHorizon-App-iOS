@@ -18,7 +18,7 @@ if [ "$(uname -s)" != "Darwin" ]; then
     exit 1
 fi
 
-for command in git python3 rustup xcodebuild; do
+for command in git python3 rustup xcodebuild xcrun; do
     if ! command -v "$command" >/dev/null 2>&1; then
         echo "Missing Reynard build dependency: $command" >&2
         exit 1
@@ -66,6 +66,23 @@ while IFS= read -r patch_file; do
         exit 1
     fi
 done < "$patch_list"
+
+# Check the actual imports from the patched source before the long Gecko/Rust
+# build. UIKit's scene, session and configuration interfaces have separate
+# headers; UIApplication.h only forward-declares the latter two classes.
+echo "Checking Reynard UIKit scene declarations before compiling Gecko"
+ios_sdk_path="$(xcrun --sdk iphoneos --show-sdk-path)"
+{
+    sed -n '/^#import <UIKit\//p' "$FIREFOX_DIR/widget/uikit/nsAppShell.mm"
+    printf '%s\n' \
+        'UISceneConfiguration *NHReynardSceneConfigurationCheck(UISceneSession *session) {' \
+        '    return [[UISceneConfiguration alloc] initWithName:@"Default Configuration" sessionRole:session.role];' \
+        '}'
+} | xcrun --sdk iphoneos clang++ \
+    -target arm64-apple-ios14.0 \
+    -isysroot "$ios_sdk_path" \
+    -fobjc-arc -fsyntax-only -x objective-c++ \
+    -Werror=receiver-forward-class -Werror=objc-method-access -
 
 REYNARD_CONFIGURATION="$CONFIGURATION" \
     "$REYNARD_DIR/tools/development/build-gecko.sh" --auto-clobber
