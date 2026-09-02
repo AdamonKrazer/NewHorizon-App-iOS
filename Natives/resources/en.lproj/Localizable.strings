@@ -256,6 +256,8 @@
 "preference.detail.auto_ram" = "Enables automatic RAM adjuster";
 "preference.title.newhorizon_low_memory" = "New Horizon low-memory mode";
 "preference.detail.newhorizon_low_memory" = "Uses compact JVM, mod and LTW settings for devices with limited memory";
+"preference.title.newhorizon_local_test" = "Quick local test (superflat)";
+"preference.detail.newhorizon_local_test" = "Play bypasses the server and creates or reopens a Creative/Peaceful superflat world through the GPU-only LTW path";
 "preference.warn.auto_ram" = "Disabling this option on an unjailbroken device can create instability if altered. Proceed with caution.";
 "preference.title.allocated_memory" = "Memory allocation (MB)";
 "preference.detail.allocated_memory" = "Controls how much memory is given to Minecraft";

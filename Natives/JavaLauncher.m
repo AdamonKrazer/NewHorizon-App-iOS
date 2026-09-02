@@ -216,6 +216,7 @@ int launchJVM(NSString *username, id launchTarget, int width, int height, int mi
     NSString *libjlipath11 = [NSString stringWithFormat:@"%@/lib/libjli.dylib", javaHome]; // java 11+
     BOOL isJava8 = [fm fileExistsAtPath:libjlipath8];
     BOOL lowMemoryProfile = getPrefBool(@"java.newhorizon_low_memory");
+    BOOL localTestProfile = !launchJar && getPrefBool(@"java.newhorizon_local_test");
 
     const char *rendererName = getenv("POJAV_RENDERER");
     if (rendererName && !strcmp(rendererName, RENDERER_NAME_LTW)) {
@@ -274,6 +275,14 @@ int launchJVM(NSString *username, id launchTarget, int width, int height, int mi
     //margv[++margc] = "-Dorg.lwjgl.util.NoChecks=true";
     margv[++margc] = "-Dlog4j2.formatMsgNoLookups=true";
     margv[++margc] = lowMemoryProfile ? "-Dnewhorizon.lowPressure=true" : "-Dnewhorizon.lowPressure=false";
+    margv[++margc] = localTestProfile
+        ? "-Dnewhorizon.localWorldTest=true"
+        : "-Dnewhorizon.localWorldTest=false";
+    if (localTestProfile) {
+        margv[++margc] = "-Dnewhorizon.localWorldName=New_Horizon_GPU_Test";
+        margv[++margc] = "-Dnewhorizon.localWorldDisplayName=New Horizon - Teste GPU";
+        NSLog(@"[NewHorizon/Test] Local superflat GPU test mode enabled; server auto-connect bypassed");
+    }
     if (lowMemoryProfile && !isJava8) {
         margv[++margc] = "-XX:+UseSerialGC";
         margv[++margc] = "-XX:NewSize=32M";

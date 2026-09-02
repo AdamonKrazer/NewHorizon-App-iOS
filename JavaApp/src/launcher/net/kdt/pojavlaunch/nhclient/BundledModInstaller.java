@@ -15,7 +15,7 @@ import java.util.Locale;
 
 /** Synchronizes the cross-platform mods owned by the New Horizon launcher. */
 public final class BundledModInstaller {
-    private static final String SESSION_TARGET = "newhorizon_session_flow-1.0.1.jar";
+    private static final String SESSION_TARGET = "newhorizon_session_flow-1.0.3.jar";
     private static final String LOW_MEMORY_ENGINE = "newhorizon_lowmemory_engine-0.1.0.jar";
     private static final int COPY_BUFFER_SIZE = 32 * 1024;
 
@@ -42,8 +42,8 @@ public final class BundledModInstaller {
                 "webdisplays-2.0.2-1.20.1.jar", expected);
         install(sourceDirectory, modsDirectory,
                 lowMemory
-                        ? "newhorizon_session_flow-1.0.1-low-memory.jar"
-                        : "newhorizon_session_flow-1.0.1-base.jar",
+                        ? "newhorizon_session_flow-1.0.3-low-memory.jar"
+                        : "newhorizon_session_flow-1.0.3-base.jar",
                 SESSION_TARGET, expected);
         if (lowMemory) {
             install(sourceDirectory, modsDirectory,

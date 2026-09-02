@@ -355,6 +355,12 @@
                 @"type": self.typeSwitch,
                 @"enableCondition": whenNotInGame
             },
+            @{@"key": @"newhorizon_local_test",
+                @"hasDetail": @YES,
+                @"icon": @"square.grid.3x3.fill",
+                @"type": self.typeSwitch,
+                @"enableCondition": whenNotInGame
+            },
             @{@"key": @"allocated_memory",
                 @"hasDetail": @YES,
                 @"icon": @"memorychip",

@@ -65,6 +65,7 @@
                 NSProcessInfo.processInfo.physicalMemory <= (6ULL << 30) ||
                 !getEntitlementValue(@"com.apple.developer.kernel.increased-memory-limit")
             ),
+            @"newhorizon_local_test": @NO,
             @"allocated_memory": [NSNumber numberWithFloat:roundf((NSProcessInfo.processInfo.physicalMemory / 1048576) * 0.25)]
         }.mutableCopy,
         @"internal": @{

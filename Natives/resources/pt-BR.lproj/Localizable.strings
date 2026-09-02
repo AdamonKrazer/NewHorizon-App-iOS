@@ -157,6 +157,8 @@
 "preference.detail.auto_ram" = "Ativa o ajuste automático de RAM";
 "preference.title.newhorizon_low_memory" = "Modo de pouca memória New Horizon";
 "preference.detail.newhorizon_low_memory" = "Usa configurações compactas da JVM, dos mods e do LTW em aparelhos com pouca memória";
+"preference.title.newhorizon_local_test" = "Modo teste rápido (superplano)";
+"preference.detail.newhorizon_local_test" = "Ao tocar em Jogar, ignora o servidor e cria ou reabre um mundo superplano em Criativo/Pacífico usando o LTW pela GPU";
 "preference.title.allocated_memory" = "Alocação de memória (MB)";
 "preference.detail.allocated_memory" = "Controla o quanto de RAM será usado pelo Minecraft";
 "preference.title.custom_env" = "Variáveis ambientais";
