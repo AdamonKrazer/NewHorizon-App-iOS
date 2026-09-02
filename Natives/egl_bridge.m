@@ -12,11 +12,8 @@
 
 #include "EGL/egl.h"
 #include "EGL/eglext.h"
-#include "GL/osmesa.h"
-
 #include "glfw_keycodes.h"
 #include "ctxbridges/bridge_tbl.h"
-#include "ctxbridges/osmesa_internal.h"
 #include "utils.h"
 
 int clientAPI;
@@ -49,23 +46,15 @@ int pojavInit(BOOL useStackQueue) {
 }
 
 int pojavInitOpenGL() {
-    NSString *renderer = NSProcessInfo.processInfo.environment[@"POJAV_RENDERER"];
-    BOOL isAuto = [renderer isEqualToString:@"auto"];
-    if (isAuto || [renderer isEqualToString:@ RENDERER_NAME_GL4ES]) {
-        // At this point, if renderer is still auto (unspecified major version), pick gl4es
-        renderer = @ RENDERER_NAME_GL4ES;
-        setenv("POJAV_RENDERER", renderer.UTF8String, 1);
-        set_gl_bridge_tbl();
-    } else if ([renderer isEqualToString:@ RENDERER_NAME_MOBILEGLUES]) {
-        renderer = @ RENDERER_NAME_MOBILEGLUES;
-        setenv("POJAV_RENDERER", renderer.UTF8String, 1);
-        set_gl_bridge_tbl();
-    } else if ([renderer isEqualToString:@ RENDERER_NAME_MTL_ANGLE]) {
-        set_gl_bridge_tbl();
-    } else if ([renderer hasPrefix:@"libOSMesa"]) {
-        setenv("GALLIUM_DRIVER","zink",1);
-        set_osm_bridge_tbl();
+    NSString *requested = NSProcessInfo.processInfo.environment[@"POJAV_RENDERER"];
+    NSString *renderer = @ RENDERER_NAME_LTW;
+    if (requested.length > 0 && ![requested isEqualToString:renderer]) {
+        NSLog(@"[NewHorizon/LTW] Native bridge rejected renderer %@; GPU path is mandatory",
+            requested);
     }
+    setenv("POJAV_RENDERER", renderer.UTF8String, 1);
+    unsetenv("GALLIUM_DRIVER");
+    set_gl_bridge_tbl();
     JNI_LWJGL_changeRenderer(renderer.UTF8String);
     // Preload renderer library
     dlopen([NSString stringWithFormat:@"@rpath/%@", renderer].UTF8String, RTLD_GLOBAL);

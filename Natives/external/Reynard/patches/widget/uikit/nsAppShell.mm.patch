@@ -1,0 +1,90 @@
+diff --git a/widget/uikit/nsAppShell.mm b/widget/uikit/nsAppShell.mm
+index 13436918..88f50ab2 100644
+--- a/widget/uikit/nsAppShell.mm
++++ b/widget/uikit/nsAppShell.mm
+@@ -48,34 +48,84 @@ static void ApplicationWillTerminate(bool aCallExit);
+ // Acts as a delegate for the UIApplication
+ 
+ @interface AppShellDelegate : NSObject <UIApplicationDelegate> {
++  id<UIApplicationDelegate> mHostDelegate;
+ }
+ @property(strong, nonatomic) UIWindow* window;
+ @end
+ 
+ @implementation AppShellDelegate
+ 
++- (instancetype)init {
++  self = [super init];
++  if (self) {
++    Class hostDelegateClass = NSClassFromString(@"AppDelegate");
++    if (hostDelegateClass && hostDelegateClass != self.class) {
++      mHostDelegate = [[hostDelegateClass alloc] init];
++    }
++  }
++  return self;
++}
++
+ - (BOOL)application:(UIApplication*)application
+     didFinishLaunchingWithOptions:(NSDictionary*)launchOptions {
+   ALOG("[AppShellDelegate application:didFinishLaunchingWithOptions:]");
+-
++  SEL selector = @selector(application:didFinishLaunchingWithOptions:);
++  if ([mHostDelegate respondsToSelector:selector]) {
++    return [mHostDelegate application:application
++        didFinishLaunchingWithOptions:launchOptions];
++  }
+   return YES;
+ }
+ 
++- (UISceneConfiguration*)application:(UIApplication*)application
++    configurationForConnectingSceneSession:(UISceneSession*)connectingSceneSession
++                                    options:(UISceneConnectionOptions*)options {
++  SEL selector = @selector(application:configurationForConnectingSceneSession:options:);
++  if ([mHostDelegate respondsToSelector:selector]) {
++    return [mHostDelegate application:application
++        configurationForConnectingSceneSession:connectingSceneSession
++        options:options];
++  }
++  return [[UISceneConfiguration alloc]
++      initWithName:@"Default Configuration"
++       sessionRole:connectingSceneSession.role];
++}
++
++- (void)application:(UIApplication*)application
++    didDiscardSceneSessions:(NSSet<UISceneSession*>*)sceneSessions {
++  SEL selector = @selector(application:didDiscardSceneSessions:);
++  if ([mHostDelegate respondsToSelector:selector]) {
++    [mHostDelegate application:application didDiscardSceneSessions:sceneSessions];
++  }
++}
++
+ - (void)applicationWillTerminate:(UIApplication*)application {
+   ALOG("[AppShellDelegate applicationWillTerminate:]");
++  if ([mHostDelegate respondsToSelector:_cmd]) {
++    [mHostDelegate applicationWillTerminate:application];
++  }
+   ApplicationWillTerminate(/* aCallExit */ false);
+ }
+ 
+ - (void)applicationDidBecomeActive:(UIApplication*)application {
+   ALOG("[AppShellDelegate applicationDidBecomeActive:]");
++  if ([mHostDelegate respondsToSelector:_cmd]) {
++    [mHostDelegate applicationDidBecomeActive:application];
++  }
+ }
+ 
+ - (void)applicationWillResignActive:(UIApplication*)application {
+   ALOG("[AppShellDelegate applicationWillResignActive:]");
++  if ([mHostDelegate respondsToSelector:_cmd]) {
++    [mHostDelegate applicationWillResignActive:application];
++  }
+ }
+ 
+ - (void)applicationDidReceiveMemoryWarning:(UIApplication*)application {
+   ALOG("[AppShellDelegate applicationDidReceiveMemoryWarning:]");
++  if ([mHostDelegate respondsToSelector:_cmd]) {
++    [mHostDelegate applicationDidReceiveMemoryWarning:application];
++  }
+   NS_NotifyOfMemoryPressure(MemoryPressureState::LowMemory);
+ }
+ @end

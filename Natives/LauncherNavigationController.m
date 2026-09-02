@@ -10,6 +10,7 @@
 #import "LauncherPreferences.h"
 #import "MinecraftResourceDownloadTask.h"
 #import "MinecraftResourceUtils.h"
+#import "NewHorizonClient.h"
 #import "PickTextField.h"
 #import "PLPickerView.h"
 #import "PLProfiles.h"
@@ -36,6 +37,10 @@ static void *ProgressObserverContext = &ProgressObserverContext;
 @property(nonatomic) UIButton* buttonInstall;
 @property(nonatomic) UIBarButtonItem* buttonInstallItem;
 @property(nonatomic) int profileSelectedAt;
+@property(nonatomic) NSURLSessionDownloadTask *productionForgeInstallerTask;
+@property(nonatomic) AFURLSessionManager *productionForgeDownloadManager;
+
+- (void)downloadProductionForgeInstaller;
 
 @end
 
@@ -284,6 +289,25 @@ static void *ProgressObserverContext = &ProgressObserverContext;
         return;
     }
 
+    NSMutableDictionary *profile = PLProfiles.current.selectedProfile;
+    if (profile == nil) {
+        showDialog(localize(@"Error", nil),
+            localize(@"new_horizon.production_profile_missing", nil));
+        return;
+    }
+    if (![profile[@"lastVersionId"] isEqualToString:NHProductionVersionID]) {
+        NSLog(@"[NHForgeBootstrap] Restoring production profile from %@ to %@",
+            profile[@"lastVersionId"], NHProductionVersionID);
+        profile[@"lastVersionId"] = NHProductionVersionID;
+        [PLProfiles.current save];
+    }
+    NHRemoveObsoleteClientMarkers();
+
+    if (!NHProductionVersionIsInstalled()) {
+        [self downloadProductionForgeInstaller];
+        return;
+    }
+
     if (BaseAuthenticator.current == nil) {
         // Present the account selector if none selected
         UIViewController *view = [(UINavigationController *)self.splitViewController.viewControllers[0]
@@ -294,7 +318,7 @@ static void *ProgressObserverContext = &ProgressObserverContext;
 
     [self setInteractionEnabled:NO forDownloading:YES];
 
-    NSString *versionId = PLProfiles.current.profiles[self.versionTextField.text][@"lastVersionId"];
+    NSString *versionId = NHProductionVersionID;
     NSDictionary *object = [remoteVersionList filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"(id == %@)", versionId]].firstObject;
     if (!object) {
         object = @{
@@ -322,6 +346,56 @@ static void *ProgressObserverContext = &ProgressObserverContext;
                 context:ProgressObserverContext];
         });
     });
+}
+
+- (void)downloadProductionForgeInstaller {
+    if (self.productionForgeInstallerTask != nil) return;
+
+    NSString *coordinate = NHProductionForgeInstallerVersion;
+    NSString *urlString = [NSString stringWithFormat:
+        @"https://maven.minecraftforge.net/net/minecraftforge/forge/%1$@/forge-%1$@-installer.jar",
+        coordinate];
+    NSString *outputPath = [NSTemporaryDirectory() stringByAppendingPathComponent:
+        [NSString stringWithFormat:@"new-horizon-forge-%@-installer.jar", coordinate]];
+    NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:urlString]
+        cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:120.0];
+
+    [self setInteractionEnabled:NO forDownloading:YES];
+    self.progressText.text = localize(@"new_horizon.forge_downloading", nil);
+    self.productionForgeDownloadManager = [AFURLSessionManager new];
+    __weak LauncherNavigationController *weakSelf = self;
+    self.productionForgeInstallerTask = [self.productionForgeDownloadManager
+        downloadTaskWithRequest:request
+        progress:^(NSProgress *progress) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                LauncherNavigationController *strongSelf = weakSelf;
+                if (strongSelf == nil) return;
+                strongSelf.progressViewMain.progress = progress.fractionCompleted;
+                strongSelf.progressText.text = [NSString stringWithFormat:
+                    localize(@"new_horizon.forge_downloading_progress", nil),
+                    (int)(progress.fractionCompleted * 100.0)];
+            });
+        } destination:^NSURL *(NSURL *temporaryURL, NSURLResponse *response) {
+            [NSFileManager.defaultManager removeItemAtPath:outputPath error:nil];
+            return [NSURL fileURLWithPath:outputPath];
+        } completionHandler:^(NSURLResponse *response, NSURL *fileURL, NSError *error) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                LauncherNavigationController *strongSelf = weakSelf;
+                if (strongSelf == nil) return;
+                strongSelf.productionForgeInstallerTask = nil;
+                strongSelf.productionForgeDownloadManager = nil;
+                [strongSelf setInteractionEnabled:YES forDownloading:YES];
+                if (error != nil || fileURL == nil) {
+                    NSString *message = error.localizedDescription ?:
+                        localize(@"new_horizon.forge_download_failed", nil);
+                    showDialog(localize(@"Error", nil), message);
+                    return;
+                }
+                [strongSelf enterModInstallerWithPath:fileURL.path
+                    hitEnterAfterWindowShown:YES];
+            });
+        }];
+    [self.productionForgeInstallerTask resume];
 }
 
 - (void)performInstallOrShowDetails:(id)sender {

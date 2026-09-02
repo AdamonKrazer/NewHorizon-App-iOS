@@ -49,7 +49,7 @@ target_link_libraries(awt_xawt
 
 set(CMAKE_FRAMEWORK_PATH "${CMAKE_CURRENT_LIST_DIR}/resources/Frameworks")
 
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -rpath @executable_path/Frameworks -rpath @loader_path/Frameworks")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-export_dynamic -rpath @executable_path/Frameworks -rpath @loader_path/Frameworks")
 set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -rpath @executable_path/Frameworks -rpath @loader_path/Frameworks")
 
 # ANGLE wrapper for 1.17+
@@ -62,6 +62,80 @@ target_link_libraries(tinygl4angle
   "-F'${CMAKE_CURRENT_LIST_DIR}/resources/Frameworks'"
   "-framework libEGL"
   "-framework libGLESv2"
+)
+
+# Reynard/MCEF GPU bridge. Gecko's WebRender front buffer remains an
+# IOSurface and is bound directly into MCEF's triple-buffered ANGLE textures;
+# there is deliberately no CPU pixel transport in this target.
+add_library(gecko_mcef_jni SHARED
+  gecko_mcef_jni.c
+)
+target_include_directories(gecko_mcef_jni PRIVATE
+  "${CMAKE_CURRENT_LIST_DIR}/external/mesa"
+  "${JAVA_HOME}/include"
+  "${JAVA_HOME}/include/darwin"
+  "${JAVA_HOME}/include/linux"
+)
+target_link_libraries(gecko_mcef_jni
+  "${GLOBAL_LDFLAGS}"
+  "-F'${CMAKE_CURRENT_LIST_DIR}/resources/Frameworks'"
+  "-framework CoreFoundation"
+  "-framework IOSurface"
+  "-framework libEGL"
+  "-framework libGLESv2"
+)
+
+# LTW (Large Thin Wrapper) - OpenGL core-to-OpenGL ES wrapper.
+# The source list mirrors LTW's Android build and stays separate so renderer
+# updates can be imported without rewriting the launcher build definition.
+set(LTW_DIR "${CMAKE_CURRENT_LIST_DIR}/external/LTW/ltw/src/main/tinywrapper")
+set(LTW_INCLUDES
+  "${LTW_DIR}"
+  "${LTW_DIR}/GL"
+  "${CMAKE_CURRENT_LIST_DIR}/cmake/ltw_compat"
+  "${LTW_DIR}/glsl_optimizer/include"
+  "${LTW_DIR}/glsl_optimizer/src"
+  "${LTW_DIR}/vgpu_shaderconv"
+  "${LTW_DIR}/unordered_map"
+  "${CMAKE_CURRENT_LIST_DIR}/external/MobileGlues/src/main/cpp/include"
+)
+
+include(cmake/ltw_sources.cmake)
+
+add_library(glsl_optimizer STATIC ${GLSL_OPTIMIZER_SRC})
+target_include_directories(glsl_optimizer PRIVATE ${LTW_INCLUDES})
+set_target_properties(glsl_optimizer PROPERTIES
+  POSITION_INDEPENDENT_CODE ON
+  CXX_STANDARD 17
+  CXX_STANDARD_REQUIRED ON
+  C_STANDARD 11
+  C_STANDARD_REQUIRED ON
+)
+target_compile_definitions(glsl_optimizer PRIVATE
+  _LIB NOMINMAX _USE_MATH_DEFINES __STDC_NO_THREADS__
+  __STDC_LIMIT_MACROS __STDC_FORMAT_MACROS __STDC_CONSTANT_MACROS
+  HAVE_TIMESPEC_GET HAVE_STRUCT_TIMESPEC
+  VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK=VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK_EXT
+)
+
+add_library(ltw SHARED ${LTW_CORE_SRC})
+target_include_directories(ltw PRIVATE ${LTW_INCLUDES})
+target_link_libraries(ltw
+  "${GLOBAL_LDFLAGS}"
+  glsl_optimizer
+  "-F'${CMAKE_CURRENT_LIST_DIR}/resources/Frameworks'"
+  "-framework libEGL"
+  "-framework libGLESv2"
+)
+set_target_properties(ltw PROPERTIES
+  C_STANDARD 11
+  C_STANDARD_REQUIRED ON
+)
+target_compile_definitions(ltw PRIVATE
+  _LIB NOMINMAX _USE_MATH_DEFINES __STDC_NO_THREADS__
+  __STDC_LIMIT_MACROS __STDC_FORMAT_MACROS __STDC_CONSTANT_MACROS
+  UTL_ARCH_LITTLE_ENDIAN UNIX
+  HAVE_OPENGL HAVE_OPENGL_ES_1 HAVE_OPENGL_ES_2
 )
 
 # AFNetworking
@@ -107,7 +181,6 @@ add_executable(AngelAuraAmethyst
   authenticator/MicrosoftAuthenticator.m
 
   ctxbridges/gl_bridge.m
-  ctxbridges/osm_bridge.m
  
   customcontrols/ControlButton.m
   customcontrols/ControlDrawer.m
@@ -158,6 +231,8 @@ add_executable(AngelAuraAmethyst
   MinecraftOptionUtils.m
   MinecraftResourceDownloadTask.m
   MinecraftResourceUtils.m
+  NewHorizonClient.m
+  NewHorizonServerAuth.m
   PickTextField.m
   PLLogOutputView.m
   PLPickerView.m
@@ -197,6 +272,7 @@ target_link_libraries(AngelAuraAmethyst
   "-framework GameController"
   "-framework IOKit"
   "-framework QuartzCore"
+  "-framework Security"
   "-framework UIKit"
   "-framework UniformTypeIdentifiers"
   "-framework UnzipKit"

@@ -1,0 +1,15 @@
+diff --git a/gfx/2d/moz.build b/gfx/2d/moz.build
+index d89cbdf3d268..81cdbbceb22e 100644
+--- a/gfx/2d/moz.build
++++ b/gfx/2d/moz.build
+@@ -75,6 +75,10 @@ if CONFIG["MOZ_WIDGET_TOOLKIT"] in ("cocoa", "uikit"):
+         "NativeFontResourceMac.cpp",
+         "ScaledFontMac.cpp",
+     ]
++    if CONFIG["MOZ_WIDGET_TOOLKIT"] == "uikit":
++        SOURCES += [
++            "MacIOSurfaceIOS.mm",
++        ]
+ elif CONFIG["MOZ_WIDGET_TOOLKIT"] == "windows":
+     EXPORTS.mozilla.gfx += [
+         "DWriteSettings.h",

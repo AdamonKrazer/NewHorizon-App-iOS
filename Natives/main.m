@@ -1,4 +1,5 @@
 #import <mach-o/dyld.h>
+#import <dlfcn.h>
 #import <spawn.h>
 #import <sys/sysctl.h>
 #import <UIKit/UIKit.h>
@@ -29,6 +30,27 @@
 int ptrace(int, pid_t, caddr_t, int);
 #define fm NSFileManager.defaultManager
 extern char** environ;
+
+/*
+ * Kept in the application executable so GeckoView remains app-extension-safe.
+ * The Reynard framework resolves this symbol dynamically only for MinePad's
+ * interactive overlay; off-screen WebDisplays rendering never enters UIKit.
+ */
+__attribute__((used, visibility("default")))
+void *nh_reynard_root_view(void) {
+    UIApplication *application = UIApplication.sharedApplication;
+    for (UIScene *scene in application.connectedScenes) {
+        if (![scene isKindOfClass:UIWindowScene.class]) continue;
+        for (UIWindow *window in ((UIWindowScene *)scene).windows) {
+            if (window.isKeyWindow && window.rootViewController.view != nil) {
+                return (__bridge void *)window.rootViewController.view;
+            }
+        }
+    }
+    UIWindow *window = application.delegate.window;
+    return window.rootViewController.view == nil
+        ? NULL : (__bridge void *)window.rootViewController.view;
+}
 
 void printEntitlementAvailability(NSString *key) {
     NSLog(@"* %@: %@", key, getEntitlementValue(key) ? @"YES" : @"NO");
@@ -335,6 +357,27 @@ int main(int argc, char *argv[]) {
     }
 
     @autoreleasepool {
-        return UIApplicationMain(argc, argv, nil, NSStringFromClass([AppDelegate class]));
+        /*
+         * Reynard owns UIApplicationMain because Gecko must install its process
+         * bootstrap before UIKit creates the first scene.  Keep GeckoView
+         * dynamically loaded so the Amethyst native launcher can still be
+         * built independently, but fail closed when the browser payload is
+         * missing: the MCEF bridge has no CPU/WebKit fallback by design.
+         */
+        void *geckoView = dlopen(
+            "@rpath/GeckoView.framework/GeckoView", RTLD_NOW | RTLD_GLOBAL);
+        if (geckoView == NULL) {
+            NSLog(@"[NewHorizon/Reynard] Unable to load GeckoView: %s", dlerror());
+            return EXIT_FAILURE;
+        }
+
+        typedef int32_t (*NHReynardMainFunction)(int32_t, char **);
+        NHReynardMainFunction reynardMain =
+            (NHReynardMainFunction)dlsym(geckoView, "NHReynardMain");
+        if (reynardMain == NULL) {
+            NSLog(@"[NewHorizon/Reynard] NHReynardMain is missing: %s", dlerror());
+            return EXIT_FAILURE;
+        }
+        return (int)reynardMain((int32_t)argc, argv);
     }
 }

@@ -7,6 +7,8 @@
 /Natives/AngelAuraAmethyst
 /Natives/build
 /Natives/external/UnzipKit
+/Natives/external/Reynard/engine/firefox/
+/Natives/external/Reynard/support/idevice/
 .DS_Store
 xcshareddata/
 xcuserdata/

@@ -178,12 +178,14 @@
 "preference.title.renderer.release.gl4es" = "holy gl4es";
 "preference.title.renderer.release.angle" = "ANGLE";
 "preference.title.renderer.release.mg" = "MobileGlues";
+"preference.title.renderer.release.ltw" = "LTW";
 "preference.title.renderer.release.zink" = "Zink";
 
 "preference.title.renderer.debug.auto" = "Auto: gl4es or ANGLE";
 "preference.title.renderer.debug.gl4es" = "holy gl4es - exports OpenGL 2.1";
 "preference.title.renderer.debug.angle" = "ANGLE (1.17+) - exports OpenGL 3.2 (Core Profile, limited)";
 "preference.title.renderer.debug.mg" = "MobileGlues (1.17+) - exports OpenGL 4.0, EXPERIMENTAL";
+"preference.title.renderer.debug.ltw" = "LTW (1.17+) - OpenGL core-to-ES wrapper, EXPERIMENTAL";
 "preference.title.renderer.debug.zink" = "Zink (Mesa 21.0) - exports OpenGL 4.1";
 
 "preference.detail.renderer" = "Change the OpenGL render engine to use. Zink is temporarily disabled on iOS 16 and later to diagnose issues.";
@@ -252,6 +254,8 @@
 "preference.placeholder.env_variables" = "Specify variables...";
 "preference.title.auto_ram" = "Auto RAM";
 "preference.detail.auto_ram" = "Enables automatic RAM adjuster";
+"preference.title.newhorizon_low_memory" = "New Horizon low-memory mode";
+"preference.detail.newhorizon_low_memory" = "Uses compact JVM, mod and LTW settings for devices with limited memory";
 "preference.warn.auto_ram" = "Disabling this option on an unjailbroken device can create instability if altered. Proceed with caution.";
 "preference.title.allocated_memory" = "Memory allocation (MB)";
 "preference.detail.allocated_memory" = "Controls how much memory is given to Minecraft";
@@ -332,3 +336,22 @@
 "controller_configurator.section.footer.menu_mappings" = "Bindings when the mouse is not locked, such as on the title screen or in the pause menu.";
 "controller_configurator.section.controller_style" = "Controller type";
 "controller_configurator.section.footer.controller_style" = "Show different controller button names in this configurator.";
+"new_horizon.server_auth.login_setup" = "Set server login password";
+"new_horizon.server_auth.register_setup" = "Set server registration password";
+"new_horizon.server_auth.password_message" = "Stored only in this device's Keychain. It is sent to New Horizon when you tap Login or Register in game.";
+"new_horizon.server_auth.password_hint" = "Server password";
+"new_horizon.server_auth.invalid" = "Use 1–122 characters without spaces, control characters, surrogates, or §.";
+"new_horizon.server_auth.login" = "Login";
+"new_horizon.server_auth.register" = "Register";
+"new_horizon.server_auth.game_not_ready_title" = "Game not ready";
+"new_horizon.server_auth.game_not_ready" = "Join the New Horizon server before sending the authentication command.";
+"new_horizon.server_auth.chat_open_failed" = "The Minecraft chat did not open in time.";
+"new_horizon.server_auth.input_unavailable" = "Minecraft is not accepting text input yet.";
+"new_horizon.server_auth.submit_unconfirmed" = "Minecraft did not confirm that the command was submitted.";
+"new_horizon.server_auth.sent_title" = "Command sent";
+"new_horizon.server_auth.login_sent" = "The login command was sent to New Horizon.";
+"new_horizon.server_auth.register_sent" = "The registration command was sent to New Horizon.";
+"new_horizon.production_profile_missing" = "No launcher profile is selected. Create or select a profile and try again.";
+"new_horizon.forge_downloading" = "Downloading the required New Horizon Forge client…";
+"new_horizon.forge_downloading_progress" = "Downloading the required New Horizon Forge client… %d%%";
+"new_horizon.forge_download_failed" = "The pinned Forge 1.20.1-47.4.0 installer could not be downloaded.";

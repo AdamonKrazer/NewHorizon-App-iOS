@@ -170,7 +170,12 @@ int launchJVM(NSString *username, id launchTarget, int width, int height, int mi
         }
 
         // Setup POJAV_RENDERER
-        NSString *renderer = [PLProfiles resolveKeyForCurrentProfile:@"renderer"];
+        NSString *savedRenderer = [PLProfiles resolveKeyForCurrentProfile:@"renderer"];
+        NSString *renderer = @ RENDERER_NAME_LTW;
+        if (savedRenderer.length > 0 && ![savedRenderer isEqualToString:renderer]) {
+            NSLog(@"[NewHorizon/LTW] Ignoring incompatible renderer %@; GPU production path is %@",
+                savedRenderer, renderer);
+        }
         NSLog(@"[JavaLauncher] RENDERER is set to %@\n", renderer);
         setenv("POJAV_RENDERER", renderer.UTF8String, 1);
         // Setup gameDir
@@ -207,6 +212,26 @@ int launchJVM(NSString *username, id launchTarget, int width, int height, int mi
     setenv("JAVA_HOME", javaHome.UTF8String, 1);
     NSLog(@"[JavaLauncher] JAVA_HOME has been set to %@", javaHome);
 
+    NSString *libjlipath8 = [NSString stringWithFormat:@"%@/lib/jli/libjli.dylib", javaHome]; // java 8
+    NSString *libjlipath11 = [NSString stringWithFormat:@"%@/lib/libjli.dylib", javaHome]; // java 11+
+    BOOL isJava8 = [fm fileExistsAtPath:libjlipath8];
+    BOOL lowMemoryProfile = getPrefBool(@"java.newhorizon_low_memory");
+
+    const char *rendererName = getenv("POJAV_RENDERER");
+    if (rendererName && !strcmp(rendererName, RENDERER_NAME_LTW)) {
+        setenv("LIBGL_ES", "3", 1);
+        setenv("LIBGL_NOERROR", "1", 1);
+        if (lowMemoryProfile) {
+            setenv("NH_LTW_LOW_MEMORY_EGL", "1", 1);
+            setenv("NH_LTW_LOW_MEMORY_GL_CAPS", "1", 1);
+            setenv("NH_LTW_LOW_BPP", "1", 1);
+        } else {
+            unsetenv("NH_LTW_LOW_MEMORY_EGL");
+            unsetenv("NH_LTW_LOW_MEMORY_GL_CAPS");
+            unsetenv("NH_LTW_LOW_BPP");
+        }
+    }
+
     int allocmem;
     if (getPrefBool(@"java.auto_ram")) {
         CGFloat autoRatio = getEntitlementValue(@"com.apple.private.memorystatus") ? 0.4 : 0.25;
@@ -226,7 +251,8 @@ int launchJVM(NSString *username, id launchTarget, int width, int height, int mi
     }
 
     // Setup options.txt
-    [MinecraftOptionUtils setupOptionsAtGameDir:gameDir];
+    [MinecraftOptionUtils setupOptionsAtGameDir:gameDir
+                               lowMemoryProfile:lowMemoryProfile];
     
     int margc = -1;
     const char *margv[1000];
@@ -247,6 +273,26 @@ int launchJVM(NSString *username, id launchTarget, int width, int height, int mi
     margv[++margc] = "-Dorg.lwjgl.system.allocator=system";
     //margv[++margc] = "-Dorg.lwjgl.util.NoChecks=true";
     margv[++margc] = "-Dlog4j2.formatMsgNoLookups=true";
+    margv[++margc] = lowMemoryProfile ? "-Dnewhorizon.lowPressure=true" : "-Dnewhorizon.lowPressure=false";
+    if (lowMemoryProfile && !isJava8) {
+        margv[++margc] = "-XX:+UseSerialGC";
+        margv[++margc] = "-XX:NewSize=32M";
+        margv[++margc] = "-XX:MaxNewSize=48M";
+        margv[++margc] = "-XX:MinHeapFreeRatio=15";
+        margv[++margc] = "-XX:MaxHeapFreeRatio=30";
+        margv[++margc] = "-XX:-ShrinkHeapInSteps";
+        margv[++margc] = "-XX:SoftRefLRUPolicyMSPerMB=0";
+        margv[++margc] = "-XX:MaxDirectMemorySize=64M";
+        margv[++margc] = "-XX:ReservedCodeCacheSize=16M";
+        margv[++margc] = "-XX:InitialCodeCacheSize=2M";
+        margv[++margc] = "-XX:TieredStopAtLevel=1";
+        margv[++margc] = "-XX:CICompilerCount=1";
+        margv[++margc] = "-XX:ActiveProcessorCount=2";
+        margv[++margc] = "-Dio.netty.allocator.type=unpooled";
+        margv[++margc] = "-Dio.netty.allocator.numDirectArenas=0";
+        margv[++margc] = "-Dio.netty.noPreferDirect=true";
+        margv[++margc] = "-Dio.netty.recycler.maxCapacityPerThread=0";
+    }
 
     // Preset OpenGL libname
     const char *glLibName = getenv("POJAV_RENDERER");
@@ -277,9 +323,6 @@ int launchJVM(NSString *username, id launchTarget, int width, int height, int mi
     margv[++margc] = "-Dfml.earlyprogresswindow=false";
 
     // Load java
-    NSString *libjlipath8 = [NSString stringWithFormat:@"%@/lib/jli/libjli.dylib", javaHome]; // java 8
-    NSString *libjlipath11 = [NSString stringWithFormat:@"%@/lib/libjli.dylib", javaHome]; // java 11+
-    BOOL isJava8 = [fm fileExistsAtPath:libjlipath8];
     setenv("INTERNAL_JLI_PATH", (isJava8 ? libjlipath8 : libjlipath11).UTF8String, 1);
     void* libjli = dlopen(getenv("INTERNAL_JLI_PATH"), RTLD_GLOBAL);
 

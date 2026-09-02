@@ -8,6 +8,7 @@
 #import "LauncherPreferences.h"
 #import "LauncherPreferencesViewController.h"
 #import "LauncherProfilesViewController.h"
+#import "NewHorizonServerAuth.h"
 #import "PLProfiles.h"
 #import "UIButton+AFNetworking.h"
 #import "UIImageView+AFNetworking.h"
@@ -76,6 +77,17 @@
           title:localize(@"launcher.menu.execute_jar", nil)
           imageName:@"MenuInstallJar" action:^{
         [contentNavigationController performSelector:@selector(enterModInstaller)];
+    }]];
+
+    [self.options addObject:(id)[LauncherMenuCustomItem
+        title:localize(@"new_horizon.server_auth.login_setup", nil)
+        imageName:@"lock.fill" action:^{
+        NHServerAuthPresentSetup(self, NO);
+    }]];
+    [self.options addObject:(id)[LauncherMenuCustomItem
+        title:localize(@"new_horizon.server_auth.register_setup", nil)
+        imageName:@"person.badge.key.fill" action:^{
+        NHServerAuthPresentSetup(self, YES);
     }]];
     
     // TODO: Finish log-uploading service integration

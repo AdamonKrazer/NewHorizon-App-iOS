@@ -349,6 +349,12 @@
                 @"warnKey": @"auto_ram_warn",
                 @"requestReload": @YES
             },
+            @{@"key": @"newhorizon_low_memory",
+                @"hasDetail": @YES,
+                @"icon": @"gauge.with.dots.needle.33percent",
+                @"type": self.typeSwitch,
+                @"enableCondition": whenNotInGame
+            },
             @{@"key": @"allocated_memory",
                 @"hasDetail": @YES,
                 @"icon": @"memorychip",

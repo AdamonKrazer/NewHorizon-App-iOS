@@ -1,0 +1,25 @@
+diff --git a/gfx/gl/SharedSurfaceIO.cpp b/gfx/gl/SharedSurfaceIO.cpp
+index 08fb6ffe0f35..38b67ee4af57 100644
+--- a/gfx/gl/SharedSurfaceIO.cpp
++++ b/gfx/gl/SharedSurfaceIO.cpp
+@@ -8,6 +8,7 @@
+ #include "MozFramebuffer.h"
+ #include "ScopedGLHelpers.h"
+ #include "mozilla/gfx/MacIOSurface.h"
++#include "mozilla/layers/IOSurfacePort.h"
+ #include "mozilla/layers/LayersSurfaces.h"  // for SurfaceDescriptor, etc
+ #include "mozilla/layers/LayersTypes.h"
+ 
+@@ -95,8 +96,10 @@ Maybe<layers::SurfaceDescriptor>
+ SharedSurface_IOSurface::ToSurfaceDescriptor() {
+   const bool isOpaque = false;  // RGBA
+   return Some(layers::SurfaceDescriptorMacIOSurface(
+-      mIOSurf->GetIOSurfaceID(), isOpaque, mIOSurf->GetYUVColorSpace(),
+-      mIOSurf->GetTransferFunction(), (layers::GpuFence*)nullptr));
++      mIOSurf->GetIOSurfaceID(),
++      layers::IOSurfacePort::FromSurface(mIOSurf->GetIOSurfaceRef()), isOpaque,
++      mIOSurf->GetYUVColorSpace(), mIOSurf->GetTransferFunction(),
++      (layers::GpuFence*)nullptr));
+ }
+ 
+ }  // namespace gl

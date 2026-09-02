@@ -3,11 +3,14 @@
 
 @interface MinecraftOptionUtils ()
 @property(nonatomic) NSMutableArray<NSString *> *lineList;
+- (void)synchronizeNewHorizonLowMemoryProfile:(BOOL)enabled
+                                      gameDir:(NSString *)gameDir;
 @end
 
 @implementation MinecraftOptionUtils
 
-+ (void)setupOptionsAtGameDir:(NSString *)gameDir {
++ (void)setupOptionsAtGameDir:(NSString *)gameDir
+             lowMemoryProfile:(BOOL)lowMemoryProfile {
     NSAssert(windowWidth > 0 && windowHeight > 0, @"called before setting windowWidth/windowHeight?");
     MinecraftOptionUtils *options = [MinecraftOptionUtils sharedInstance];
     options.optionsPath = [gameDir stringByAppendingPathComponent:@"options.txt"];
@@ -21,6 +24,8 @@
     [options setDefaultForKey:@"particles" value:@"1"];
     [options setDefaultForKey:@"renderDistance" value:@"2"];
     [options setDefaultForKey:@"simulationDistance" value:@"5"];
+    [options synchronizeNewHorizonLowMemoryProfile:lowMemoryProfile
+                                        gameDir:gameDir];
     [options save];
 }
 
@@ -49,8 +54,8 @@
         return;
     }
 
-    self.lineList = [contents componentsSeparatedByCharactersInSet:
-                                  [NSCharacterSet newlineCharacterSet]];
+    self.lineList = [[contents componentsSeparatedByCharactersInSet:
+                                  [NSCharacterSet newlineCharacterSet]] mutableCopy];
 }
 
 - (void)ensureLoaded {
@@ -109,6 +114,83 @@
 
     if (indexes.count > 0) {
         [self.lineList removeObjectsAtIndexes:indexes];
+    }
+}
+
+- (void)synchronizeNewHorizonLowMemoryProfile:(BOOL)enabled
+                                      gameDir:(NSString *)gameDir {
+    NSDictionary<NSString *, NSString *> *targets = @{
+        @"renderDistance": @"5",
+        @"simulationDistance": @"5",
+        @"entityDistanceScaling": @"0.5",
+        @"mipmapLevels": @"0",
+        @"biomeBlendRadius": @"0",
+        @"graphicsMode": @"0",
+        @"graphics": @"0",
+        @"particles": @"2",
+        @"clouds": @"false",
+        @"cloudStatus": @"false",
+        @"entityShadows": @"false",
+    };
+    NSSet<NSString *> *numericCaps = [NSSet setWithArray:@[
+        @"renderDistance", @"simulationDistance", @"entityDistanceScaling",
+        @"mipmapLevels", @"biomeBlendRadius",
+    ]];
+    NSString *snapshotPath = [gameDir stringByAppendingPathComponent:
+        @"config/newhorizon-low-pressure-options.json"];
+    NSData *snapshotData = [NSData dataWithContentsOfFile:snapshotPath];
+    NSMutableDictionary *snapshot = snapshotData == nil ? nil :
+        [NSJSONSerialization JSONObjectWithData:snapshotData
+            options:NSJSONReadingMutableContainers error:nil];
+    if (![snapshot isKindOfClass:NSMutableDictionary.class]) {
+        snapshot = [@{@"active": @NO, @"options": @{}} mutableCopy];
+    }
+    BOOL wasActive = [snapshot[@"active"] boolValue];
+
+    if (enabled) {
+        if (!wasActive) {
+            NSMutableDictionary *saved = [NSMutableDictionary new];
+            for (NSString *key in targets) {
+                saved[key] = [self getValueForKey:key] ?: NSNull.null;
+            }
+            snapshot[@"active"] = @YES;
+            snapshot[@"options"] = saved;
+            NSData *data = [NSJSONSerialization dataWithJSONObject:snapshot
+                options:NSJSONWritingPrettyPrinted error:nil];
+            [NSFileManager.defaultManager createDirectoryAtPath:
+                snapshotPath.stringByDeletingLastPathComponent
+                withIntermediateDirectories:YES attributes:nil error:nil];
+            [data writeToFile:snapshotPath options:NSDataWritingAtomic error:nil];
+        }
+        for (NSString *key in targets) {
+            NSString *target = targets[key];
+            NSString *current = [self getValueForKey:key];
+            if ([numericCaps containsObject:key] && current != nil) {
+                NSScanner *scanner = [NSScanner scannerWithString:current];
+                double currentValue = 0;
+                if ([scanner scanDouble:&currentValue] && scanner.isAtEnd) {
+                    target = [NSString stringWithFormat:@"%g",
+                        MIN(currentValue, target.doubleValue)];
+                }
+            }
+            [self setKey:key value:target];
+        }
+        NSLog(@"[NHLowPressureOptions] Applied compact Minecraft options");
+    } else if (wasActive) {
+        NSDictionary *saved = snapshot[@"options"];
+        for (NSString *key in targets) {
+            id value = saved[key];
+            if (value == nil || value == NSNull.null) {
+                [self removeValueForKey:key];
+            } else {
+                [self setKey:key value:value];
+            }
+        }
+        snapshot[@"active"] = @NO;
+        NSData *data = [NSJSONSerialization dataWithJSONObject:snapshot
+            options:NSJSONWritingPrettyPrinted error:nil];
+        [data writeToFile:snapshotPath options:NSDataWritingAtomic error:nil];
+        NSLog(@"[NHLowPressureOptions] Restored player Minecraft options");
     }
 }
 

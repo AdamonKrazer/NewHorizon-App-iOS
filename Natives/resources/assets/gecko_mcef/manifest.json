@@ -1,0 +1,24 @@
+{
+  "manifest_version": 2,
+  "name": "New Horizon MCEF bridge",
+  "version": "1.0",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "mcef-bridge@newhorizon.local"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["bridge.js"],
+      "run_at": "document_start",
+      "all_frames": true
+    }
+  ],
+  "permissions": [
+    "<all_urls>",
+    "nativeMessaging",
+    "nativeMessagingFromContent",
+    "geckoViewAddons"
+  ]
+}

@@ -9,7 +9,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-	<string>Amethyst</string>
+	<string>New Horizon Minecraft</string>
 	<key>CFBundleExecutable</key>
 	<string>AngelAuraAmethyst</string>
 	<key>CFBundleIcons</key>
@@ -74,7 +74,7 @@
 		</dict>
 	</dict>
 	<key>CFBundleIdentifier</key>
-	<string>org.angelauramc.amethyst</string>
+	<string>com.newhorizon.minecraft.ios</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
@@ -89,10 +89,10 @@
 	<array>
 		<dict>
 			<key>CFBundleURLName</key>
-			<string>org.angelauramc.amethyst.urlscheme</string>
+			<string>com.newhorizon.minecraft.ios.urlscheme</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>amethyst</string>
+				<string>newhorizon</string>
 			</array>
 		</dict>
 	</array>
@@ -128,9 +128,9 @@
 		<string>_altserver._tcp</string>
 	</array>
 	<key>NSLocalNetworkUsageDescription</key>
-	<string>Angel Aura Amethyst uses the local network to find and communicate with AltServer and LAN servers.</string>
+	<string>New Horizon Minecraft uses the local network to find AltServer, LAN servers, and browser-backed in-game displays.</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>Angel Aura Amethyst uses the microphone to enable support for voice chat mods.</string>
+	<string>New Horizon Minecraft uses the microphone for voice chat mods and browser media.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

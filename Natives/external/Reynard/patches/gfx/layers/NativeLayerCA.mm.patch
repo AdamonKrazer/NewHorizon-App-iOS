@@ -1,0 +1,232 @@
+diff --git a/gfx/layers/NativeLayerCA.mm b/gfx/layers/NativeLayerCA.mm
+index c53dbcec..f9c7a78a 100644
+--- a/gfx/layers/NativeLayerCA.mm
++++ b/gfx/layers/NativeLayerCA.mm
+@@ -167,6 +167,7 @@ NativeLayerRootCA::~NativeLayerRootCA() {
+ 
+   [mOnscreenRootCALayer release];
+   [mOffscreenRootCALayer release];
++  [mPictureInPictureSourceLayer release];
+ }
+ 
+ already_AddRefed<NativeLayer> NativeLayerRootCA::CreateLayer(
+@@ -320,6 +321,18 @@ bool NativeLayerRootCA::CommitToScreen() {
+     EmitTelemetryForVideoLowPower(videoLowPower);
+   }
+ 
++  const bool pictureInPictureChanged = UpdatePictureInPictureSource(lock);
++  const bool compositorSurfaceChanged = UpdateCompositorSurface(lock);
++  if (pictureInPictureChanged || compositorSurfaceChanged) {
++    MutexAutoUnlock unlock(mMutex);
++    if (pictureInPictureChanged) {
++      DispatchPictureInPictureSourceChanged();
++    }
++    if (compositorSurfaceChanged) {
++      DispatchCompositorSurfaceChanged();
++    }
++  }
++
+   return true;
+ }
+ 
+@@ -496,6 +509,83 @@ void NativeLayerRootCA::SetWindowIsFullscreen(bool aFullscreen) {
+   }
+ }
+ 
++CFTypeRefPtr<IOSurfaceRef> NativeLayerRootCA::CopyCompositorSurface(
++    uint64_t* aVersion, gfx::IntSize* aSize) {
++  MutexAutoLock lock(mMutex);
++  if (aVersion) {
++    *aVersion = mCompositorSurfaceVersion;
++  }
++  if (aSize) {
++    *aSize = mCompositorSurface
++                 ? gfx::IntSize(IOSurfaceGetWidth(mCompositorSurface.get()),
++                                IOSurfaceGetHeight(mCompositorSurface.get()))
++                 : gfx::IntSize();
++  }
++  return mCompositorSurface;
++}
++
++void NativeLayerRootCA::SetCompositorSurfaceChangedCallback(
++    std::function<void()>&& aCallback) {
++  MutexAutoLock lock(mMutex);
++  mCompositorSurfaceChangedCallback = std::move(aCallback);
++}
++
++CFTypeRefPtr<IOSurfaceRef> NativeLayerRootCA::FindCompositorSurface(
++    const MutexAutoLock& aProofOfLock) {
++  CFTypeRefPtr<IOSurfaceRef> selected;
++  size_t selectedArea = 0;
++  for (const auto& layer : mSublayers) {
++    CFTypeRefPtr<IOSurfaceRef> surface = layer->CopyFrontSurface();
++    if (!surface || IOSurfaceGetPlaneCount(surface.get()) != 0) {
++      continue;
++    }
++    const size_t width = IOSurfaceGetWidth(surface.get());
++    const size_t height = IOSurfaceGetHeight(surface.get());
++    const size_t area = width * height;
++    if (area >= selectedArea) {
++      selected = std::move(surface);
++      selectedArea = area;
++    }
++  }
++  return selected;
++}
++
++bool NativeLayerRootCA::UpdateCompositorSurface(
++    const MutexAutoLock& aProofOfLock) {
++  CFTypeRefPtr<IOSurfaceRef> surface = FindCompositorSurface(aProofOfLock);
++  const IOSurfaceID oldID = mCompositorSurface
++                                ? IOSurfaceGetID(mCompositorSurface.get())
++                                : 0;
++  const IOSurfaceID newID = surface ? IOSurfaceGetID(surface.get()) : 0;
++  if (oldID == newID) {
++    return false;
++  }
++  mCompositorSurface = std::move(surface);
++  ++mCompositorSurfaceVersion;
++  if (mCompositorSurfaceNotificationPending) {
++    return false;
++  }
++  mCompositorSurfaceNotificationPending = true;
++  return true;
++}
++
++void NativeLayerRootCA::DispatchCompositorSurfaceChanged() {
++  RefPtr<NativeLayerRootCA> self = this;
++  NS_DispatchToMainThread(NS_NewRunnableFunction(
++      "NativeLayerRootCA::DispatchCompositorSurfaceChanged",
++      [self = std::move(self)]() {
++        std::function<void()> callback;
++        {
++          MutexAutoLock lock(self->mMutex);
++          self->mCompositorSurfaceNotificationPending = false;
++          callback = self->mCompositorSurfaceChangedCallback;
++        }
++        if (callback) {
++          callback();
++        }
++      }));
++}
++
+ /* static */ bool IsCGColorOpaqueBlack(CGColorRef aColor) {
+   if (CGColorEqualToColor(aColor, CGColorGetConstantColor(kCGColorBlack))) {
+     return true;
+@@ -926,6 +1016,10 @@ bool NativeLayerCA::ShouldSpecializeVideo(const MutexAutoLock& aProofOfLock) {
+     return false;
+   }
+ 
++  if (IsPictureInPictureEligibleSurface(aProofOfLock)) {
++    return true;
++  }
++
+   // DRM video is supported in macOS 10.15 and beyond, and such video must use
+   // a specialized video layer.
+   if (mIsDRM) {
+@@ -1242,6 +1336,22 @@ gfx::IntRect NativeLayerCA::CurrentSurfaceDisplayRect() {
+   return mDisplayRect;
+ }
+ 
++CFTypeRefPtr<IOSurfaceRef> NativeLayerCA::CopyFrontSurface() {
++  MutexAutoLock lock(mMutex);
++  if (mSurfaceToPresent) {
++    return mSurfaceToPresent;
++  }
++  if (mSurfaceHandler) {
++    if (auto frontSurface = mSurfaceHandler->FrontSurface()) {
++      return frontSurface->mSurface;
++    }
++  }
++  if (mTextureHost) {
++    return mTextureHost->GetSurface()->GetIOSurfaceRef();
++  }
++  return nullptr;
++}
++
+ void NativeLayerCA::SetDisplayRect(const gfx::IntRect& aDisplayRect) {
+   MutexAutoLock lock(mMutex);
+   MOZ_ASSERT(!mSurfaceHandler, "Setting display rect will have no effect.");
+@@ -1526,7 +1636,8 @@ bool NativeLayerCARepresentation::EnqueueSurface(IOSurfaceRef aSurfaceRef) {
+   AVSampleBufferDisplayLayer* videoLayer =
+       (AVSampleBufferDisplayLayer*)mContentCALayer;
+ 
+-  if (@available(macOS 11.0, iOS 14.0, *)) {
++  if ([videoLayer
++          respondsToSelector:@selector(requiresFlushToResumeDecoding)]) {
+     if (videoLayer.requiresFlushToResumeDecoding) {
+       [videoLayer flush];
+     }
+@@ -1640,6 +1751,11 @@ bool NativeLayerCARepresentation::EnqueueSurface(IOSurfaceRef aSurfaceRef) {
+   if (osValue != noErr) {
+     MOZ_ASSERT(sampleBuffer == nullptr,
+                "Failed call shouldn't allocate memory.");
++    // A reconstructed IOSurface can transiently fail format validation. The
++    // next surface remains usable by the same display layer.
++    if (osValue == kCMSampleBufferError_InvalidMediaFormat) {
++      return true;
++    }
+ #ifdef NIGHTLY_BUILD
+     if (StaticPrefs::gfx_core_animation_specialize_video_log()) {
+       NSLog(@"VIDEO_LOG: EnqueueSurface failed on allocating sample buffer.");
+@@ -1681,6 +1797,9 @@ bool NativeLayerCARepresentation::ApplyChanges(
+     bool aSurfaceIsFlipped, gfx::SamplingFilter aSamplingFilter,
+     bool aSpecializeVideo, const CFTypeRefPtr<IOSurfaceRef>& aFrontSurface,
+     const Maybe<gfx::DeviceColor>& aColor, bool aIsDRM, bool aIsVideo) {
++  bool useSpecializedVideo =
++      aSpecializeVideo && !mPictureInPictureFailureLatched;
++
+   // If we have an OnlyVideo update, handle it and early exit.
+   if (aUpdate == UpdateType::OnlyVideo) {
+     // If we don't have any updates to do, exit early with success. This is
+@@ -1694,13 +1813,14 @@ bool NativeLayerCARepresentation::ApplyChanges(
+                "Shouldn't attempt a OnlyVideo update in this case.");
+ 
+     bool updateSucceeded = false;
+-    if (aSpecializeVideo) {
++    if (useSpecializedVideo) {
+       IOSurfaceRef surface = aFrontSurface.get();
+       updateSucceeded = EnqueueSurface(surface);
+ 
+       if (updateSucceeded) {
+         mMutatedFrontSurface = false;
+       } else {
++        mPictureInPictureFailureLatched = true;
+         // Set mMutatedSpecializeVideo, which will ensure that the next update
+         // will rebuild the video layer.
+         mMutatedSpecializeVideo = true;
+@@ -1761,7 +1881,7 @@ bool NativeLayerCARepresentation::ApplyChanges(
+       mRoundedClipCALayer.backgroundColor =
+           CGColorCreateForDeviceColor(*aColor);
+     } else {
+-      if (aSpecializeVideo) {
++      if (useSpecializedVideo) {
+ #ifdef NIGHTLY_BUILD
+         if (aIsVideo &&
+             StaticPrefs::gfx_core_animation_specialize_video_log()) {
+@@ -1810,7 +1930,7 @@ bool NativeLayerCARepresentation::ApplyChanges(
+     }
+   }
+ 
+-  if (aSpecializeVideo && mMutatedIsDRM) {
++  if (useSpecializedVideo && mMutatedIsDRM) {
+     ((AVSampleBufferDisplayLayer*)mContentCALayer).preventsCapture = aIsDRM;
+   }
+ 
+@@ -1996,7 +2116,7 @@ bool NativeLayerCARepresentation::ApplyChanges(
+     // *next* update will clear the video layer and setup a regular layer.
+ 
+     IOSurfaceRef surface = aFrontSurface.get();
+-    if (aSpecializeVideo) {
++    if (useSpecializedVideo) {
+       // If we just rebuilt our layer, ensure the first frame is visible by
+       // forcing the layer contents to display that frame. Our call to
+       // enqueueSampleBuffer will handle future async updates to the layer;
+@@ -2012,6 +2132,7 @@ bool NativeLayerCARepresentation::ApplyChanges(
+         // Set mMutatedSpecializeVideo, which will ensure that the next update
+         // will rebuild the video layer.
+         mMutatedSpecializeVideo = true;
++        mPictureInPictureFailureLatched = true;
+ #ifdef NIGHTLY_BUILD
+         if (StaticPrefs::gfx_core_animation_specialize_video_log()) {
+           NSLog(@"VIDEO_LOG: EnqueueSurface failed in All update.");

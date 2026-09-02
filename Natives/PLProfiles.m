@@ -14,7 +14,7 @@ static PLProfiles* current;
         @"profiles": @{
             @"(Default)": @{
                 @"name": @"(Default)",
-                @"lastVersionId": @"latest-release"
+                @"lastVersionId": @"1.20.1-forge-47.4.0"
             }
         },
         @"selectedProfile": @"(Default)"

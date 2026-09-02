@@ -18,7 +18,7 @@
             @"debug_logging": @(!CONFIG_RELEASE),
         }.mutableCopy,
         @"video": @{ // Video & Audio
-            @"renderer": @"auto",
+            @"renderer": @ RENDERER_NAME_LTW,
             @"resolution": @(100),
             @"max_framerate": @YES,
             @"performance_hud": @NO,
@@ -61,6 +61,10 @@
             @"java_args": @"",
             @"env_variables": @"",
             @"auto_ram": @(!getEntitlementValue(@"com.apple.private.memorystatus")),
+            @"newhorizon_low_memory": @(
+                NSProcessInfo.processInfo.physicalMemory <= (6ULL << 30) ||
+                !getEntitlementValue(@"com.apple.developer.kernel.increased-memory-limit")
+            ),
             @"allocated_memory": [NSNumber numberWithFloat:roundf((NSProcessInfo.processInfo.physicalMemory / 1048576) * 0.25)]
         }.mutableCopy,
         @"internal": @{

@@ -1,0 +1,31 @@
+diff --git a/widget/nsGUIEventIPC.h b/widget/nsGUIEventIPC.h
+index 199981100e3c..3534744e40f8 100644
+--- a/widget/nsGUIEventIPC.h
++++ b/widget/nsGUIEventIPC.h
+@@ -838,7 +838,8 @@ DEFINE_IPC_SERIALIZER_WITH_FIELDS(mozilla::ContentCache::TextRectArray, mStart,
+ DEFINE_IPC_SERIALIZER_WITH_FIELDS(mozilla::ContentCache, mCompositionStart,
+                                   mText, mSelection, mFirstCharRect, mCaret,
+                                   mTextRectArray,
+-                                  mLastCommitStringTextRectArray, mEditorRect);
++                                  mLastCommitStringTextRectArray,
++                                  mEditorRectIsEditable, mEditorRect);
+ 
+ // InputData.h
+ 
+@@ -1007,6 +1008,7 @@ struct ParamTraits<mozilla::PanGestureInput>
+     WriteParam(aWriter, aParam.mMayTriggerSwipe);
+     WriteParam(aWriter, aParam.mOverscrollBehaviorAllowsSwipe);
+     WriteParam(aWriter, aParam.mSimulateMomentum);
++    WriteParam(aWriter, aParam.mAllowFlingAcceleration);
+     WriteParam(aWriter, aParam.mIsNoLineOrPageDelta);
+   }
+ 
+@@ -1030,6 +1032,8 @@ struct ParamTraits<mozilla::PanGestureInput>
+                                &paramType::SetOverscrollBehaviorAllowsSwipe) &&
+            ReadBoolForBitfield(aReader, aResult,
+                                &paramType::SetSimulateMomentum) &&
++           ReadBoolForBitfield(aReader, aResult,
++                               &paramType::SetAllowFlingAcceleration) &&
+            ReadBoolForBitfield(aReader, aResult,
+                                &paramType::SetIsNoLineOrPageDelta);
+   }

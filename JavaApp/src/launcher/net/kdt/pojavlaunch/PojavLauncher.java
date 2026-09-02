@@ -12,8 +12,12 @@ import org.lwjgl.glfw.GLFW;
 import net.kdt.pojavlaunch.uikit.*;
 import net.kdt.pojavlaunch.utils.*;
 import net.kdt.pojavlaunch.value.*;
+import net.kdt.pojavlaunch.nhclient.BundledModInstaller;
+import net.kdt.pojavlaunch.nhclient.NHClientBootstrap;
 
 public class PojavLauncher {
+    private static final String NEW_HORIZON_PRODUCTION_VERSION =
+            "1.20.1-forge-47.4.0";
     private static float currProgress, maxProgress;
 
     public static void main(String[] args) throws Throwable {
@@ -74,6 +78,16 @@ public class PojavLauncher {
         }
 
         System.setProperty("org.lwjgl.vulkan.libname", "libMoltenVK.dylib");
+
+        // Keep the launcher-owned client patches and mods identical to the
+        // Android build before any game classes are appended to the loader.
+        BundledModInstaller.synchronize();
+        if (!NEW_HORIZON_PRODUCTION_VERSION.equals(args[1])) {
+            System.err.println("[NHForgeBootstrap] Rejected client route " + args[1]
+                    + "; launching " + NEW_HORIZON_PRODUCTION_VERSION);
+            args[1] = NEW_HORIZON_PRODUCTION_VERSION;
+        }
+        NHClientBootstrap.prepareRuntimeClient();
 
         MinecraftAccount account = MinecraftAccount.load(args[0]);
         JMinecraftVersionList.Version version = Tools.getVersionInfo(args[1]);

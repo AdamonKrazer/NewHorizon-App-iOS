@@ -1,0 +1,20 @@
+diff --git a/mobile/shared/modules/geckoview/GeckoViewWebExtension.sys.mjs b/mobile/shared/modules/geckoview/GeckoViewWebExtension.sys.mjs
+index 2f2120d2..b7f0217f 100644
+--- a/mobile/shared/modules/geckoview/GeckoViewWebExtension.sys.mjs
++++ b/mobile/shared/modules/geckoview/GeckoViewWebExtension.sys.mjs
+@@ -1166,8 +1166,13 @@ export var GeckoViewWebExtension = {
+       return null;
+     }
+ 
+-    if (uri.scheme !== "resource" || uri.host !== "android") {
+-      aCallback.onError(`Only resource://android/... URIs are allowed.`);
++    const isAndroidAsset = uri.scheme === "resource" && uri.host === "android";
++    const isEmbeddedBundle =
++      lazy.AddonSettings.IS_EMBEDDED && uri.scheme === "file";
++    if (!isAndroidAsset && !isEmbeddedBundle) {
++      aCallback.onError(
++        `Only packaged Android assets or embedded bundle folders are allowed.`
++      );
+       return null;
+     }
+ 

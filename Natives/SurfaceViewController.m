@@ -15,6 +15,7 @@
 #import "JavaLauncher.h"
 #import "LauncherPreferences.h"
 #import "MinecraftResourceUtils.h"
+#import "NewHorizonServerAuth.h"
 #import "PLProfiles.h"
 #import "SurfaceViewController.h"
 #import "TrackedTextField.h"
@@ -255,6 +256,7 @@ static GameSurfaceView* pojavWindow;
     }
 
     [self.rootView addSubview:self.inputTextField];
+    NHServerAuthInstallGameplayControls(self, self.rootView);
 
     [self performSelector:@selector(initCategory_LogView)];
 

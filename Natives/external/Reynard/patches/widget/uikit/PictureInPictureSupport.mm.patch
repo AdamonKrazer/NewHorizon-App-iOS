@@ -1,0 +1,102 @@
+diff --git a/widget/uikit/PictureInPictureSupport.mm b/widget/uikit/PictureInPictureSupport.mm
+new file mode 100644
+index 00000000..81c107fd
+--- /dev/null
++++ b/widget/uikit/PictureInPictureSupport.mm
+@@ -0,0 +1,96 @@
++/* This Source Code Form is subject to the terms of the Mozilla Public
++ * License, v. 2.0. If a copy of the MPL was not distributed with this
++ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
++
++/* This source code is introduced during the work of an iOS 13+ browser
++ * https://github.com/minh-ton/reynard-browser in Feb 2026. */
++
++#include "PictureInPictureSupport.h"
++
++#import <AVFoundation/AVFoundation.h>
++
++#include <utility>
++
++#include "mozilla/layers/NativeLayerCA.h"
++#include "mozilla/widget/EventDispatcher.h"
++#include "nsWindow.h"
++
++using namespace mozilla;
++using namespace mozilla::layers;
++using namespace mozilla::widget;
++
++namespace mozilla::widget {
++
++void InstallPictureInPictureSourceObserver(nsWindow* aWindow) {
++  NativeLayerRoot* nativeLayerRoot = aWindow->GetNativeLayerRoot();
++  NativeLayerRootCA* root =
++      nativeLayerRoot ? nativeLayerRoot->AsNativeLayerRootCA() : nullptr;
++  EventDispatcher* eventDispatcher = aWindow->GetEventDispatcher();
++  if (!root || !eventDispatcher) {
++    return;
++  }
++  RefPtr<EventDispatcher> dispatcher = eventDispatcher;
++  root->SetPictureInPictureSourceChangedCallback(
++      [dispatcher = std::move(dispatcher)]() {
++        dispatcher->DispatchToEmbedder(
++            u"GeckoView:PictureInPicture:SourceChanged"_ns);
++      });
++}
++
++AVSampleBufferDisplayLayer* GetPictureInPictureDisplayLayer(nsWindow* aWindow) {
++  if (!aWindow) {
++    return nil;
++  }
++  NativeLayerRoot* nativeLayerRoot = aWindow->GetNativeLayerRoot();
++  NativeLayerRootCA* root =
++      nativeLayerRoot ? nativeLayerRoot->AsNativeLayerRootCA() : nullptr;
++  if (!root) {
++    return nil;
++  }
++  return [(AVSampleBufferDisplayLayer*)root->CopyPictureInPictureSource()
++      autorelease];
++}
++
++void InstallCompositorSurfaceObserver(nsWindow* aWindow) {
++  NativeLayerRoot* nativeLayerRoot = aWindow->GetNativeLayerRoot();
++  NativeLayerRootCA* root =
++      nativeLayerRoot ? nativeLayerRoot->AsNativeLayerRootCA() : nullptr;
++  EventDispatcher* eventDispatcher = aWindow->GetEventDispatcher();
++  if (!root || !eventDispatcher) {
++    return;
++  }
++  RefPtr<EventDispatcher> dispatcher = eventDispatcher;
++  root->SetCompositorSurfaceChangedCallback(
++      [dispatcher = std::move(dispatcher)]() {
++        dispatcher->DispatchToEmbedder(
++            u"GeckoView:CompositorSurfaceChanged"_ns);
++      });
++}
++
++NSDictionary<NSString*, NSNumber*>* GetCompositorSurfaceInfo(
++    nsWindow* aWindow) {
++  if (!aWindow) {
++    return nil;
++  }
++  NativeLayerRoot* nativeLayerRoot = aWindow->GetNativeLayerRoot();
++  NativeLayerRootCA* root =
++      nativeLayerRoot ? nativeLayerRoot->AsNativeLayerRootCA() : nullptr;
++  if (!root) {
++    return nil;
++  }
++  uint64_t version = 0;
++  gfx::IntSize size;
++  CFTypeRefPtr<IOSurfaceRef> surface =
++      root->CopyCompositorSurface(&version, &size);
++  if (!surface || version == 0 || size.IsEmpty()) {
++    return nil;
++  }
++  return @{
++    @"surfaceId" : @(IOSurfaceGetID(surface.get())),
++    @"version" : @(version),
++    @"width" : @(size.width),
++    @"height" : @(size.height),
++  };
++}
++
++}  // namespace mozilla::widget

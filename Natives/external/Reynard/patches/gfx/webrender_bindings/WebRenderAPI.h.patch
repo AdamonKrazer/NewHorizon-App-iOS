@@ -1,0 +1,14 @@
+diff --git a/gfx/webrender_bindings/WebRenderAPI.h b/gfx/webrender_bindings/WebRenderAPI.h
+index 30d4da889a76..45a40a11106a 100644
+--- a/gfx/webrender_bindings/WebRenderAPI.h
++++ b/gfx/webrender_bindings/WebRenderAPI.h
+@@ -205,7 +205,8 @@ class TransactionBuilder final {
+   void AddRawFont(wr::FontKey aKey, wr::Vec<uint8_t>& aBytes, uint32_t aIndex);
+ 
+   void AddFontDescriptor(wr::FontKey aKey, wr::Vec<uint8_t>& aBytes,
+-                         uint32_t aIndex);
++                         uint32_t aIndex, bool aIsSystemFont,
++                         uint32_t aSystemFontTraits);
+ 
+   void DeleteFont(wr::FontKey aKey);
+ 

@@ -105,6 +105,7 @@ $(error PLATFORM is not valid.)
 endif
 
 POJAV_BUNDLE_DIR      ?= $(OUTPUTDIR)/AngelAuraAmethyst.app
+REYNARD_BUILD_DIR     ?= $(WORKINGDIR)/reynard
 POJAV_JRE8_DIR        ?= $(SOURCEDIR)/depends/java-8-openjdk
 POJAV_JRE17_DIR       ?= $(SOURCEDIR)/depends/java-17-openjdk
 POJAV_JRE21_DIR       ?= $(SOURCEDIR)/depends/java-21-openjdk
@@ -149,10 +150,10 @@ METHOD_PACKAGE = \
 		IPA_SUFFIX=".ipa"; \
 	fi; \
 	if [ '$(SLIMMED_ONLY)' = '0' ]; then \
-		zip --symlinks -r $(OUTPUTDIR)/org.angelauramc.amethyst-$(VERSION)-$(PLATFORM_NAME)$$IPA_SUFFIX Payload; \
+		zip --symlinks -r $(OUTPUTDIR)/com.newhorizon.minecraft.ios-$(VERSION)-$(PLATFORM_NAME)$$IPA_SUFFIX Payload; \
 	fi; \
 	if [ '$(SLIMMED)' = '1' ] || [ '$(SLIMMED_ONLY)' = '1' ]; then \
-		zip --symlinks -r $(OUTPUTDIR)/org.angelauramc.amethyst.slimmed-$(VERSION)-$(PLATFORM_NAME)$$IPA_SUFFIX Payload --exclude='Payload/AngelAuraAmethyst.app/java_runtimes/*'; \
+		zip --symlinks -r $(OUTPUTDIR)/com.newhorizon.minecraft.ios.slimmed-$(VERSION)-$(PLATFORM_NAME)$$IPA_SUFFIX Payload --exclude='Payload/AngelAuraAmethyst.app/java_runtimes/*'; \
 	fi
 
 # Function to download and unpack Java runtimes.
@@ -229,7 +230,9 @@ ifndef SDKPATH
 $(error You need to specify SDKPATH to the path of iPhoneOS.sdk. The SDK version should be 14.0 or newer.)
 endif
 
-all: clean native java jre assets payload package dsym
+all: clean
+	$(MAKE) package
+	$(MAKE) dsym_after_payload
 
 help:
 	echo 'Makefile to compile Angel Aura Amethyst'
@@ -239,6 +242,7 @@ help:
 	echo '    make help                           Displays this message'
 	echo '    make all                            Builds the entire app'
 	echo '    make native                         Builds the native app'
+	echo '    make reynard                        Builds GeckoView and its process helper'
 	echo '    make java                           Builds the Java app'
 	echo '    make jre                            Downloads/unpacks the iOS JREs'
 	echo '    make assets                         Compiles Assets.xcassets'
@@ -268,15 +272,23 @@ native: dep_mg
 		-DCMAKE_OSX_ARCHITECTURES=arm64 \
 		-DCMAKE_OSX_DEPLOYMENT_TARGET=14.0 \
 		-DCMAKE_C_FLAGS="-arch arm64" \
+		-DJAVA_HOME="$(BOOTJDK)/.." \
 		-DCONFIG_BRANCH="$(BRANCH)" \
 		-DCONFIG_COMMIT="$(COMMIT)" \
 		-DCONFIG_RELEASE=$(RELEASE) \
 		..
 
 	cmake --build $(WORKINGDIR) --config $(CMAKE_BUILD_TYPE) -j$(JOBS)
-	#	--target awt_headless awt_xawt libOSMesaOverride.dylib tinygl4angle AngelAuraAmethyst
+	#	--target awt_headless awt_xawt tinygl4angle ltw AngelAuraAmethyst
 	rm $(WORKINGDIR)/libawt_headless.dylib
 	echo '[Amethyst v$(VERSION)] native - end'
+
+reynard:
+	echo '[New Horizon] reynard - start (GPU IOSurface path only)'
+	REYNARD_BUILD_ROOT=$(REYNARD_BUILD_DIR) \
+	REYNARD_CONFIGURATION=$(CMAKE_BUILD_TYPE) \
+	sh $(SOURCEDIR)/Scripts/build-reynard.sh
+	echo '[New Horizon] reynard - end'
 
 java:
 	echo '[Amethyst v$(VERSION)] java - start'
@@ -339,14 +351,20 @@ assets:
 	fi
 	echo '[Amethyst v$(VERSION)] assets - end'
 
-payload: native dep_mg java jre assets
+payload: reynard native dep_mg java jre assets
 	echo '[Amethyst v$(VERSION)] payload - start'
 	$(call METHOD_DIRCHECK,$(WORKINGDIR)/AngelAuraAmethyst.app/libs)
 	$(call METHOD_DIRCHECK,$(WORKINGDIR)/AngelAuraAmethyst.app/libs_caciocavallo)
 	$(call METHOD_DIRCHECK,$(WORKINGDIR)/AngelAuraAmethyst.app/libs_caciocavallo17)
 	cp -R $(SOURCEDIR)/Natives/resources/en.lproj/LaunchScreen.storyboardc $(WORKINGDIR)/AngelAuraAmethyst.app/Base.lproj/ || exit 1
 	cp -R $(SOURCEDIR)/Natives/resources/* $(WORKINGDIR)/AngelAuraAmethyst.app/ || exit 1
+	mkdir -p $(WORKINGDIR)/AngelAuraAmethyst.app/Frameworks
+	mkdir -p $(WORKINGDIR)/AngelAuraAmethyst.app/PlugIns
 	cp $(WORKINGDIR)/*.dylib $(WORKINGDIR)/AngelAuraAmethyst.app/Frameworks/ || exit 1
+	cp -R $(REYNARD_BUILD_DIR)/GeckoView.framework $(WORKINGDIR)/AngelAuraAmethyst.app/Frameworks/ || exit 1
+	cp -R "$(REYNARD_BUILD_DIR)/Reynard Helper.appex" $(WORKINGDIR)/AngelAuraAmethyst.app/PlugIns/ || exit 1
+	plutil -replace CFBundleIdentifier -string com.newhorizon.minecraft.ios.Helper \
+		"$(WORKINGDIR)/AngelAuraAmethyst.app/PlugIns/Reynard Helper.appex/Info.plist"
 	cp -R $(SOURCEDIR)/JavaApp/libs/others/* $(WORKINGDIR)/AngelAuraAmethyst.app/libs/ || exit 1
 	cp $(SOURCEDIR)/JavaApp/build/*.jar $(WORKINGDIR)/AngelAuraAmethyst.app/libs/ || exit 1
 	cp -R $(SOURCEDIR)/JavaApp/libs/caciocavallo/* $(WORKINGDIR)/AngelAuraAmethyst.app/libs_caciocavallo || exit 1
@@ -356,6 +374,10 @@ payload: native dep_mg java jre assets
 	if [ '$(SLIMMED_ONLY)' != '1' ]; then \
 		cp -R $(OUTPUTDIR)/java_runtimes $(OUTPUTDIR)/Payload/AngelAuraAmethyst.app; \
 	fi
+	ldid -S "$(OUTPUTDIR)/Payload/AngelAuraAmethyst.app/Frameworks/GeckoView.framework/GeckoView"; \
+	ldid -S$(SOURCEDIR)/Natives/external/Reynard/browser/Helper/Entitlements/Reynard-Helper.entitlements \
+		"$(OUTPUTDIR)/Payload/AngelAuraAmethyst.app/PlugIns/Reynard Helper.appex/Reynard Helper"; \
+	ldid -S "$(OUTPUTDIR)/Payload/AngelAuraAmethyst.app/PlugIns/Reynard Helper.appex"; \
 	ldid -S $(OUTPUTDIR)/Payload/AngelAuraAmethyst.app; \
 	if [ '$(TROLLSTORE_JIT_ENT)' == '1' ]; then \
 		ldid -S$(SOURCEDIR)/entitlements.trollstore.xml $(OUTPUTDIR)/Payload/AngelAuraAmethyst.app/AngelAuraAmethyst; \
@@ -401,7 +423,7 @@ deploy:
 package: payload
 	echo '[Amethyst v$(VERSION)] package - start'
 	if [ '$(TEAMID)' != '-1' ] && [ '$(SIGNING_TEAMID)' != '-1' ] && [ -f '$(PROVISIONING)' ] && [ '$(DETECTPLAT)' = 'Darwin' ]; then \
-		printf '<?xml version="1.0" encoding="UTF-8"?>\n<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">\n<plist version="1.0">\n<dict>\n	<key>application-identifier</key>\n	<string>$(TEAMID).org.angelauramc.amethyst</string>\n	<key>com.apple.developer.team-identifier</key>\n	<string>$(TEAMID)</string>\n	<key>get-task-allow</key>\n	<true/>\n	<key>keychain-access-groups</key>\n	<array>\n	<string>$(TEAMID).*</string>\n	<string>com.apple.token</string>\n	</array>\n</dict>\n</plist>' > entitlements.codesign.xml; \
+		printf '<?xml version="1.0" encoding="UTF-8"?>\n<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">\n<plist version="1.0">\n<dict>\n	<key>application-identifier</key>\n	<string>$(TEAMID).com.newhorizon.minecraft.ios</string>\n	<key>com.apple.developer.team-identifier</key>\n	<string>$(TEAMID)</string>\n	<key>get-task-allow</key>\n	<true/>\n	<key>keychain-access-groups</key>\n	<array>\n	<string>$(TEAMID).*</string>\n	<string>com.apple.token</string>\n	</array>\n</dict>\n</plist>' > entitlements.codesign.xml; \
 		$(MAKE) codesign; \
 		rm -rf entitlements.codesign.xml; \
 	else \
@@ -413,6 +435,9 @@ package: payload
 	echo '[Amethyst v$(VERSION)] package - end'
 	
 dsym: payload
+	$(MAKE) dsym_after_payload
+
+dsym_after_payload:
 	echo '[Amethyst v$(VERSION)] dsym - start'
 	dsymutil --arch arm64 $(OUTPUTDIR)/Payload/AngelAuraAmethyst.app/AngelAuraAmethyst; \
 	rm -rf $(OUTPUTDIR)/AngelAuraAmethyst.dSYM; \
@@ -435,4 +460,4 @@ clean:
 
 		
 
-.PHONY: all clean check native java jre package dsym deploy help
+.PHONY: all clean check reynard native java jre package dsym dsym_after_payload deploy help
