@@ -10,6 +10,9 @@ PATCH_DIR="$REYNARD_DIR/patches"
 BUILD_ROOT="${REYNARD_BUILD_ROOT:-$SOURCE_DIR/Natives/build/reynard}"
 DERIVED_DATA="$BUILD_ROOT/DerivedData"
 CONFIGURATION="${REYNARD_CONFIGURATION:-Release}"
+# Match the launcher's deployment target and use the same baseline for the
+# early availability checks and the actual framework/helper compilation.
+IOS_DEPLOYMENT_TARGET=14.0
 FIREFOX_URL="https://github.com/mozilla-firefox/firefox.git"
 FIREFOX_TAG="$(tr -d '\000\r\n ' < "$REYNARD_DIR/engine/release.txt")"
 
@@ -30,7 +33,7 @@ xcrun swiftc -frontend -parse \
     "$REYNARD_DIR/browser/GeckoView/NewHorizonMCEFBridge.swift" \
     "$REYNARD_DIR/browser/GeckoView/NewHorizonThinUI.swift"
 xcrun swiftc -typecheck \
-    -sdk "$(xcrun --sdk iphoneos --show-sdk-path)" -target arm64-apple-ios14.0 \
+    -sdk "$(xcrun --sdk iphoneos --show-sdk-path)" -target "arm64-apple-ios${IOS_DEPLOYMENT_TARGET}" \
     "$REYNARD_DIR/browser/GeckoView/NewHorizonThinUI.swift"
 
 if [ ! -d "$FIREFOX_DIR/.git" ]; then
@@ -87,7 +90,7 @@ ios_sdk_path="$(xcrun --sdk iphoneos --show-sdk-path)"
         '    return [[UISceneConfiguration alloc] initWithName:@"Default Configuration" sessionRole:session.role];' \
         '}'
 } | xcrun --sdk iphoneos clang++ \
-    -target arm64-apple-ios14.0 \
+    -target "arm64-apple-ios${IOS_DEPLOYMENT_TARGET}" \
     -isysroot "$ios_sdk_path" \
     -fobjc-arc -fsyntax-only -x objective-c++ \
     -Werror=receiver-forward-class -Werror=objc-method-access -
@@ -102,6 +105,7 @@ xcodebuild \
     -configuration "$CONFIGURATION" \
     -sdk iphoneos \
     -destination 'generic/platform=iOS' \
+    IPHONEOS_DEPLOYMENT_TARGET="$IOS_DEPLOYMENT_TARGET" \
     SYMROOT="$DERIVED_DATA/Build/Products" \
     OBJROOT="$DERIVED_DATA/Build/Intermediates.noindex" \
     CODE_SIGNING_ALLOWED=NO \
