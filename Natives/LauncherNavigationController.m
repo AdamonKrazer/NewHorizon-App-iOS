@@ -295,15 +295,18 @@ static void *ProgressObserverContext = &ProgressObserverContext;
             localize(@"new_horizon.production_profile_missing", nil));
         return;
     }
-    if (![profile[@"lastVersionId"] isEqualToString:NHProductionVersionID]) {
-        NSLog(@"[NHForgeBootstrap] Restoring production profile from %@ to %@",
-            profile[@"lastVersionId"], NHProductionVersionID);
-        profile[@"lastVersionId"] = NHProductionVersionID;
+    BOOL thinClient = getPrefBool(@"java.newhorizon_thin_client") &&
+        !getPrefBool(@"java.newhorizon_local_test");
+    NSString *selectedVersion = thinClient ? @"1.20.1" : NHProductionVersionID;
+    if (![profile[@"lastVersionId"] isEqualToString:selectedVersion]) {
+        NSLog(@"[NHClientBootstrap] Selecting profile from %@ to %@",
+            profile[@"lastVersionId"], selectedVersion);
+        profile[@"lastVersionId"] = selectedVersion;
         [PLProfiles.current save];
     }
     NHRemoveObsoleteClientMarkers();
 
-    if (!NHProductionVersionIsInstalled()) {
+    if (!thinClient && !NHProductionVersionIsInstalled()) {
         [self downloadProductionForgeInstaller];
         return;
     }
@@ -318,7 +321,7 @@ static void *ProgressObserverContext = &ProgressObserverContext;
 
     [self setInteractionEnabled:NO forDownloading:YES];
 
-    NSString *versionId = NHProductionVersionID;
+    NSString *versionId = selectedVersion;
     NSDictionary *object = [remoteVersionList filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"(id == %@)", versionId]].firstObject;
     if (!object) {
         object = @{

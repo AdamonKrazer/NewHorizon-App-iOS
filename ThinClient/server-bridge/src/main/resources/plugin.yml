@@ -1,0 +1,8 @@
+name: NewHorizonThinBridge
+version: 0.1.0
+main: com.newhorizon.thinbridge.ThinBridgePlugin
+api-version: '1.20'
+authors: [NewHorizon]
+description: Bounded surface and display bridge for the New Horizon thin client.
+
+

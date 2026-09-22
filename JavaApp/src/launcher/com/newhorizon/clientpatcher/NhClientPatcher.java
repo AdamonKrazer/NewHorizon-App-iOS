@@ -122,6 +122,40 @@ public final class NhClientPatcher {
                             bytes = transformed;
                             changes.put(transformer, changes.get(transformer) + 1);
                         }
+                    } else if (PatchProfile.LITE_DISPLAY_BRIDGE_1201.equals(transformer)) {
+                        byte[] transformed = LiteDisplayBridge1201Transformer.transform(
+                                name, bytes);
+                        if (transformed != null) {
+                            bytes = transformed;
+                            changes.put(transformer, changes.get(transformer) + 1);
+                        }
+                    } else if (PatchProfile.DYNAMIC_RESOURCES_1201.equals(transformer)) {
+                        byte[] transformed = VanillaDynamicResources1201Transformer.transform(
+                                name, bytes);
+                        if (transformed != null) {
+                            bytes = transformed;
+                            changes.put(transformer, changes.get(transformer) + 1);
+                        }
+                    } else if (PatchProfile.MEMORY_OWNERS_1201.equals(transformer)) {
+                        byte[] transformed = VanillaMemoryOwners1201Transformer.transform(name, bytes);
+                        if (transformed != null) {
+                            bytes = transformed;
+                            changes.put(transformer, changes.get(transformer) + 1);
+                        }
+                    } else if (PatchProfile.DYNAMIC_RENDERERS_1201.equals(transformer)) {
+                        byte[] transformed = VanillaDynamicRenderers1201Transformer.transform(
+                                name, bytes);
+                        if (transformed != null) {
+                            bytes = transformed;
+                            changes.put(transformer, changes.get(transformer) + 1);
+                        }
+                    } else if (PatchProfile.COMPACT_BLOCK_STATES_1201.equals(transformer)) {
+                        byte[] transformed = CompactBlockState1201Transformer.transform(
+                                name, bytes);
+                        if (transformed != null) {
+                            bytes = transformed;
+                            changes.put(transformer, changes.get(transformer) + 1);
+                        }
                     }
                 }
                 writeEntry(output, name, bytes, entry.isDirectory());
@@ -214,6 +248,16 @@ public final class NhClientPatcher {
                 expected = 2;
             } else if (PatchProfile.FORGE_MINIMAL_SOUND_1201.equals(change.getKey())) {
                 expected = 1;
+            } else if (PatchProfile.LITE_DISPLAY_BRIDGE_1201.equals(change.getKey())) {
+                expected = 3;
+            } else if (PatchProfile.DYNAMIC_RESOURCES_1201.equals(change.getKey())) {
+                expected = 4;
+            } else if (PatchProfile.MEMORY_OWNERS_1201.equals(change.getKey())) {
+                expected = 2;
+            } else if (PatchProfile.DYNAMIC_RENDERERS_1201.equals(change.getKey())) {
+                expected = 3;
+            } else if (PatchProfile.COMPACT_BLOCK_STATES_1201.equals(change.getKey())) {
+                expected = 2;
             } else {
                 expected = -1;
             }

@@ -217,6 +217,8 @@ int launchJVM(NSString *username, id launchTarget, int width, int height, int mi
     BOOL isJava8 = [fm fileExistsAtPath:libjlipath8];
     BOOL lowMemoryProfile = getPrefBool(@"java.newhorizon_low_memory");
     BOOL localTestProfile = !launchJar && getPrefBool(@"java.newhorizon_local_test");
+    BOOL thinClient = !launchJar && !localTestProfile &&
+        getPrefBool(@"java.newhorizon_thin_client");
 
     const char *rendererName = getenv("POJAV_RENDERER");
     if (rendererName && !strcmp(rendererName, RENDERER_NAME_LTW)) {
@@ -263,7 +265,7 @@ int launchJVM(NSString *username, id launchTarget, int width, int height, int mi
     if (!launchJar) {
         margv[++margc] = "-Djava.system.class.loader=net.kdt.pojavlaunch.PojavClassLoader";
     }
-    margv[++margc] = "-Xms128M";
+    margv[++margc] = thinClient ? "-Xms64M" : "-Xms128M";
     margv[++margc] = [NSString stringWithFormat:@"-Xmx%dM", allocmem].UTF8String;
     margv[++margc] = [NSString stringWithFormat:@"-Djava.library.path=%@/Frameworks", NSBundle.mainBundle.bundlePath].UTF8String;
     margv[++margc] = [NSString stringWithFormat:@"-Duser.dir=%@", gameDir].UTF8String;
@@ -275,6 +277,12 @@ int launchJVM(NSString *username, id launchTarget, int width, int height, int mi
     //margv[++margc] = "-Dorg.lwjgl.util.NoChecks=true";
     margv[++margc] = "-Dlog4j2.formatMsgNoLookups=true";
     margv[++margc] = lowMemoryProfile ? "-Dnewhorizon.lowPressure=true" : "-Dnewhorizon.lowPressure=false";
+    margv[++margc] = thinClient ? "-Dnewhorizon.thinClient=true" : "-Dnewhorizon.thinClient=false";
+    if (thinClient) {
+        NSString *server = getPrefObject(@"java.newhorizon_thin_server");
+        margv[++margc] = [NSString stringWithFormat:@"-Dnewhorizon.thin.server=%@",
+            server.length ? server : @"127.0.0.1:9055"].UTF8String;
+    }
     margv[++margc] = localTestProfile
         ? "-Dnewhorizon.localWorldTest=true"
         : "-Dnewhorizon.localWorldTest=false";
@@ -283,7 +291,7 @@ int launchJVM(NSString *username, id launchTarget, int width, int height, int mi
         margv[++margc] = "-Dnewhorizon.localWorldDisplayName=New Horizon - Teste GPU";
         NSLog(@"[NewHorizon/Test] Local superflat GPU test mode enabled; server auto-connect bypassed");
     }
-    if (lowMemoryProfile && !isJava8) {
+    if (lowMemoryProfile && !isJava8 && !thinClient) {
         margv[++margc] = "-XX:+UseSerialGC";
         margv[++margc] = "-XX:NewSize=32M";
         margv[++margc] = "-XX:MaxNewSize=48M";

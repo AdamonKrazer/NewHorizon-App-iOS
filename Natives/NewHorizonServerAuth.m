@@ -1,7 +1,9 @@
 #import "NewHorizonServerAuth.h"
+#import "LauncherPreferences.h"
 
 #import <Security/Security.h>
 #import <objc/runtime.h>
+#import <dlfcn.h>
 
 #import "glfw_keycodes.h"
 #import "utils.h"
@@ -139,6 +141,23 @@ void NHServerAuthPresentSetup(UIViewController *presenter, BOOL registration) {
     NSString *password = NHServerAuthLoad();
     if (password == nil) {
         NHServerAuthPresentSetup(self.presenter, registration);
+        return;
+    }
+
+    if (getPrefBool(@"java.newhorizon_thin_client") &&
+            !getPrefBool(@"java.newhorizon_local_test")) {
+        // The thin runtime owns chat input through UIKit rather than a Forge screen.
+        typedef void (*NHSubmitEvent)(int32_t, const char *, const char *);
+        NHSubmitEvent submit = (NHSubmitEvent)dlsym(RTLD_DEFAULT, "nh_reynard_submit_event");
+        if (submit == NULL) {
+            NHServerAuthAlert(self.presenter, localize(@"Error", nil),
+                localize(@"new_horizon.server_auth.input_unavailable", nil));
+            return;
+        }
+        NSString *command = registration
+            ? [NSString stringWithFormat:@"/register %@ %@", password, password]
+            : [@"/login " stringByAppendingString:password];
+        submit(-1, "nh-chat-send", command.UTF8String);
         return;
     }
 

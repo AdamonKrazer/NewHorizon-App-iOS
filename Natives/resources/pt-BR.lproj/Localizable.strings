@@ -158,6 +158,10 @@
 "preference.title.newhorizon_low_memory" = "Modo de pouca memória New Horizon";
 "preference.detail.newhorizon_low_memory" = "Usa configurações compactas da JVM, dos mods e do LTW em aparelhos com pouca memória";
 "preference.title.newhorizon_local_test" = "Modo teste rápido (superplano)";
+"preference.title.newhorizon_thin_client" = "Cliente leve";
+"preference.detail.newhorizon_thin_client" = "Cliente New Horizon com mundo, áudio, inventário e telas Reynard. O teste superplano tem prioridade e usa o modo Forge.";
+"preference.title.newhorizon_thin_server" = "Servidor do cliente leve";
+"preference.detail.newhorizon_thin_server" = "Endereço e porta do servidor, por exemplo playnewhorizon.com:25565. 127.0.0.1 exige um túnel local no iPhone.";
 "preference.detail.newhorizon_local_test" = "Ao tocar em Jogar, ignora o servidor e cria ou reabre um mundo superplano em Criativo/Pacífico usando o LTW pela GPU";
 "preference.title.allocated_memory" = "Alocação de memória (MB)";
 "preference.detail.allocated_memory" = "Controla o quanto de RAM será usado pelo Minecraft";

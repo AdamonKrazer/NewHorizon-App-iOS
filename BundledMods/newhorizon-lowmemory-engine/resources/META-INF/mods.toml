@@ -1,0 +1,28 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="All Rights Reserved"
+
+[[mods]]
+modId="newhorizon_lowmemory_engine"
+version="0.1.0"
+displayName="New Horizon LowMemory Engine"
+authors="New Horizon"
+displayTest="IGNORE_SERVER_VERSION"
+description='''Hard-caps expensive client-side rendering work on low-memory Android devices.'''
+
+[[mixins]]
+config="newhorizon_lowmemory_engine.mixins.json"
+
+[[dependencies.newhorizon_lowmemory_engine]]
+modId="forge"
+mandatory=true
+versionRange="[47,)"
+ordering="NONE"
+side="CLIENT"
+
+[[dependencies.newhorizon_lowmemory_engine]]
+modId="minecraft"
+mandatory=true
+versionRange="[1.20.1,1.21)"
+ordering="NONE"
+side="CLIENT"

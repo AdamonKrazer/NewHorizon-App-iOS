@@ -1,15 +1,21 @@
 # New Horizon Launcher for iOS
 
-Port of the New Horizon Android launcher to iOS/iPadOS, built on the Amethyst native launcher base. The production client is fixed to **Minecraft 1.20.1 + Forge 47.4.0** and ships the same New Horizon client patching and bundled-mod flow used by the Android application.
+Port of the New Horizon Android launcher to iOS/iPadOS, built on the Amethyst native launcher base. Version **1.1** imports the Android source snapshot from **2026-09-22**, including the independent New Horizon thin client alongside **Minecraft 1.20.1 + Forge 47.4.0**.
 
 ## Production contract
 
-- The selected Minecraft version is always `1.20.1-forge-47.4.0`. A different profile selection cannot bypass it.
-- Missing Forge 47.4.0 is downloaded from the official Forge Maven repository and installed before launch.
+- Normal mode selects `1.20.1-forge-47.4.0`; missing Forge is installed from its official Maven repository. Launcher-owned patches from older releases are restored from verified pristine backups, matching Android's current normal-Forge route.
+- **Settings → Java → Lightweight client** selects the imported Java/LWJGL runtime and protocol 763. Minecraft 1.20.1 metadata/assets are downloaded, but Minecraft/Forge classes and mod JARs are not loaded into that runtime.
+- Configure **Lightweight client server** as `host:port`. The Android default `127.0.0.1:9055` is retained; it needs a tunnel on the iPhone itself. An Android/desktop loopback tunnel is not reachable from another device.
+- The existing **Quick local test (superflat)** takes priority over lightweight mode. It creates/reopens the local Creative/Peaceful test world through Forge, including when the server is offline.
 - LTW is the only exposed and accepted Minecraft renderer.
 - Browser composition is GPU-only. A browser that requests CPU frames is rejected instead of silently falling back.
 - Server authentication credentials are stored in the iOS Keychain and commands are sent through the in-game chat state machine.
 - The low-memory profile mirrors Android's reduced video settings and bundled low-pressure mods.
+
+The imported thin core includes bounded chunk streaming/mesh workers, vanilla block/item/entity resources, animation, swimming, riding, rails, fishing, combat, effects, weather/day-night, OpenAL audio, inventories, protocol chat and WebDisplays/MinePad state. UIKit presents the iOS inventory/creative catalog, hotbar, HUD, chat, respawn and tablet controls. It is a native presentation of the shared state, not an Android Canvas view embedded in iOS; its layout and styling differ from Android.
+
+`ThinClient/server-bridge/src` records the matching Android server plugin source for protocol compatibility. It is not shipped in the IPA and this update does not deploy or restart any server.
 
 ## GPU architecture
 
@@ -45,6 +51,8 @@ make all PLATFORM=2
 
 The resulting IPA is written below `artifacts/`. JIT and increased-memory entitlements still depend on the chosen signing/install method, as with upstream Amethyst.
 
+The Java build compiles `ThinClient` from source and runs its self-tests before Gecko. The Reynard script also parses the two iOS bridge files and type-checks the standalone UIKit interface before the Firefox build. Local Windows validation covers the Java core, patcher and JavaScript; final Xcode compilation, IPA installation, GPU presentation, audio and touch behavior require the macOS/iOS build and a device.
+
 ## Layout
 
 - `JavaApp/src/launcher/com/newhorizon`: Android-derived client patcher and bundled-mod installer.
@@ -54,6 +62,10 @@ The resulting IPA is written below `artifacts/`. JIT and increased-memory entitl
 - `Natives/external/Reynard/browser/GeckoView/NewHorizonMCEFBridge.swift`: Gecko session and native messaging integration.
 - `Natives/external/LTW`: LTW sources imported for the native iOS build.
 - `Scripts/build-reynard.sh`: reproducible Gecko/Reynard build bootstrap.
+- `ThinClient/src`: imported Android thin runtime and resources, with iOS bootstrap/resource-route adaptations.
+- `Natives/external/Reynard/browser/GeckoView/NewHorizonThinUI.swift`: UIKit presentation and input events for the thin runtime.
+- `ThinClient/ANDROID-SNAPSHOT.md`: source fingerprints and platform adaptation notes.
+- `Scripts/update-android-mods.ps1`: refreshes bundled Android mod classes while retaining the iOS superflat creator.
 
 ## Licensing and upstream credits
 

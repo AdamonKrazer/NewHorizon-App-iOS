@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<style type="text/css">
+		@keyframes cube-rot {
+			from { transform: rotateX(-20deg) rotateY(0); }
+			to   { transform: rotateX(-20deg) rotateY(360deg); }
+		}
+
+		/* “vivo” sem blur: só pulso de cor + sublinhado animado */
+		@keyframes nh-pulse {
+			0%, 100% { color: #ff8a00; }
+			50%      { color: #ffd28a; }
+		}
+		@keyframes nh-underline {
+			0%   { transform: translateX(-30%); opacity: 0.25; }
+			50%  { transform: translateX(30%);  opacity: 0.55; }
+			100% { transform: translateX(-30%); opacity: 0.25; }
+		}
+
+		#center {
+			position: fixed;
+			left: 50%;
+			top: 50%;
+			transform: translate(-50%, -50%);
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			gap: 42px; /* distância entre cubo e texto */
+		}
+
+		#threedee {
+			perspective: 800px;
+			perspective-origin: 50px 50px;
+		}
+
+		#cube {
+			position: relative;
+			width: 100px;
+			height: 100px;
+			transform-style: preserve-3d;
+			animation: cube-rot 2s infinite linear;
+		}
+
+		#cube div {
+			position: absolute;
+			width: 100px;
+			height: 100px;
+			background-image: url("newhorizon.png");
+			background-size: cover;
+			background-position: center;
+			background-repeat: no-repeat;
+			border-radius: 6px;
+			box-shadow: 0 6px 14px rgba(0,0,0,0.25);
+			outline: 1px solid rgba(255,138,0,0.20);
+		}
+
+		#front  { transform: translateZ(50px); }
+		#back   { transform: translateZ(-50px) rotateY(180deg); }
+		#left   { transform: translateX(-50px) rotateY(-90deg); }
+		#right  { transform: translateX(50px)  rotateY(90deg); }
+		#top    { transform: translateY(-50px) rotateX(-90deg); }
+
+		/* TEXTO 100% NÍTIDO (sem blur / sem filter / sem gradiente) */
+		#nh_logo {
+			position: relative;
+			font-family: Arial, Helvetica, sans-serif;
+			font-size: 46px;
+			font-weight: 900;
+			letter-spacing: 0.5px;
+			line-height: 1;
+			user-select: none;
+			white-space: nowrap;
+
+			color: #ff8a00;
+			-webkit-text-stroke: 0.8px rgba(0,0,0,0.45);
+			text-shadow: 0 1px 0 rgba(0,0,0,0.40); /* sem blur */
+
+			animation: nh-pulse 2.2s ease-in-out infinite;
+		}
+
+		/* efeito “vivo” sem borrar: underline brilhando e se movendo */
+		#nh_logo::after {
+			content: "";
+			position: absolute;
+			left: 2px;
+			right: 2px;
+			bottom: -8px;
+			height: 3px;
+			background: linear-gradient(90deg,
+			rgba(255,138,0,0) 0%,
+			rgba(255,138,0,0.9) 50%,
+			rgba(255,138,0,0) 100%
+			);
+			transform: translateX(-30%);
+			opacity: 0.25;
+			animation: nh-underline 2.6s ease-in-out infinite;
+		}
+
+		.info {
+			position: fixed;
+			bottom: 0px;
+			right: 0px;
+			padding: 10px;
+		}
+
+		.no_margin {
+			margin: 0px;
+			color: #5555ff;
+		}
+	</style>
+</head>
+
+<body>
+<div id="center">
+	<div id="threedee">
+		<div id="cube">
+			<div id="front"></div>
+			<div id="back"></div>
+			<div id="left"></div>
+			<div id="right"></div>
+			<div id="top"></div>
+		</div>
+	</div>
+
+	<div id="nh_logo">New Horizon</div>
+</div>
+
+<div class="info">
+	<p class="no_margin">Shift+clique direito para digitar um link</p>
+</div>
+</body>
+</html>

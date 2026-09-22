@@ -3,6 +3,7 @@ package net.kdt.pojavlaunch.nhclient;
 import android.util.Log;
 
 import com.google.gson.JsonElement;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.newhorizon.clientpatcher.NhClientPatcher;
@@ -22,6 +23,7 @@ import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 
 /**
  * Prepares a locally-derived New Horizon client before the JVM starts.
@@ -32,10 +34,18 @@ import java.nio.charset.StandardCharsets;
  */
 public final class NHClientBootstrap {
     private static final String TAG = "NHClientBootstrap";
+    public static final String LITE_VERSION_ID = "1.20.1-newhorizon-lite";
+    public static final String LITE_MARKER = ".newhorizon-lite";
     private static final String DISABLE_MARKER = "nh-client-patch.disabled";
     private static final String SRG_RELATIVE_PATH =
             "net/minecraft/client/1.20.1-20230612.114412/"
                     + "client-1.20.1-20230612.114412-srg.jar";
+    private static final String EXTRA_RELATIVE_PATH =
+            "net/minecraft/client/1.20.1-20230612.114412/"
+                    + "client-1.20.1-20230612.114412-extra.jar";
+    private static final String EXTRA_SHA1 =
+            "8c5a95cbce940cfdb304376ae9fea47968d02587";
+    private static final long EXTRA_SIZE = 10_436_626L;
     private static final String FORGE_CLIENT_RELATIVE_PATH =
             "net/minecraftforge/forge/1.20.1-47.4.0/"
                     + "forge-1.20.1-47.4.0-client.jar";
@@ -60,6 +70,123 @@ public final class NHClientBootstrap {
                 MINECRAFT_PROFILE, disableMarker, "Minecraft SRG client");
         prepareArtifact(new File(Tools.DIR_HOME_LIBRARY, FORGE_CLIENT_RELATIVE_PATH),
                 FORGE_PROFILE, disableMarker, "Forge client overlay");
+    }
+
+    /**
+     * Restores the pinned, pristine Minecraft/Forge artifacts for an ordinary
+     * Forge launch.  The ultra-light patcher is intentionally reversible: its
+     * adjacent backups remain the source of truth and the next thin launch can
+     * derive the compact artifacts again.
+     */
+    public static void prepareVanillaRuntimeClient() {
+        File reason = new File(Tools.DIR_GAME_HOME, "normal-forge-runtime");
+        restorePristineClient(
+                new File(Tools.DIR_HOME_LIBRARY, SRG_RELATIVE_PATH),
+                new File(Tools.DIR_HOME_LIBRARY, SRG_RELATIVE_PATH + BACKUP_SUFFIX),
+                reason, MINECRAFT_PROFILE, "Minecraft SRG client");
+        restorePristineClient(
+                new File(Tools.DIR_HOME_LIBRARY, FORGE_CLIENT_RELATIVE_PATH),
+                new File(Tools.DIR_HOME_LIBRARY, FORGE_CLIENT_RELATIVE_PATH + BACKUP_SUFFIX),
+                reason, FORGE_PROFILE, "Forge client overlay");
+    }
+
+    /**
+     * Makes the lightweight SRG client visible to Pojav's normal version
+     * resolver. A complete copy of Mojang's 1.20.1 metadata is used so the
+     * normal game/version arguments are never lost during inheritance. The
+     * client download section is removed because the locally-derived SRG JAR
+     * is refreshed and verified immediately before JVM launch.
+     */
+    public static boolean prepareLiteVersionMetadata() {
+        File versionDirectory = new File(Tools.DIR_HOME_VERSION, LITE_VERSION_ID);
+        File versionJson = new File(versionDirectory, LITE_VERSION_ID + ".json");
+        try {
+            File parentJson = new File(new File(Tools.DIR_HOME_VERSION, "1.20.1"),
+                    "1.20.1.json");
+            if (!parentJson.isFile()) {
+                throw new IOException("Minecraft 1.20.1 metadata is unavailable: "
+                        + parentJson.getAbsolutePath());
+            }
+            JsonObject liteMetadata;
+            try (Reader reader = new InputStreamReader(
+                    new FileInputStream(parentJson), StandardCharsets.UTF_8)) {
+                JsonElement parsed = JsonParser.parseReader(reader);
+                if (!parsed.isJsonObject()) {
+                    throw new IOException("Minecraft 1.20.1 metadata root is not an object");
+                }
+                liteMetadata = parsed.getAsJsonObject();
+            } catch (RuntimeException exception) {
+                throw new IOException("Could not parse Minecraft 1.20.1 metadata", exception);
+            }
+            liteMetadata.addProperty("id", LITE_VERSION_ID);
+            liteMetadata.remove("inheritsFrom");
+            liteMetadata.remove("downloads");
+            JsonArray libraries = liteMetadata.getAsJsonArray("libraries");
+            if (libraries == null) {
+                throw new IOException("Minecraft 1.20.1 metadata has no libraries array");
+            }
+            JsonObject extraArtifact = new JsonObject();
+            extraArtifact.addProperty("path", EXTRA_RELATIVE_PATH);
+            extraArtifact.addProperty("sha1", EXTRA_SHA1);
+            extraArtifact.addProperty("size", EXTRA_SIZE);
+            JsonObject extraDownloads = new JsonObject();
+            extraDownloads.add("artifact", extraArtifact);
+            JsonObject extraLibrary = new JsonObject();
+            extraLibrary.addProperty("name",
+                    "net.minecraft:client:1.20.1-20230612.114412:extra");
+            extraLibrary.add("downloads", extraDownloads);
+            libraries.add(extraLibrary);
+            byte[] expected = Tools.GLOBAL_GSON.toJson(liteMetadata)
+                    .getBytes(StandardCharsets.UTF_8);
+            if (!versionDirectory.isDirectory() && !versionDirectory.mkdirs()) {
+                throw new IOException("Could not create lite version directory");
+            }
+            if (!versionJson.isFile()
+                    || !java.util.Arrays.equals(expected, Files.readAllBytes(versionJson.toPath()))) {
+                File temporary = new File(versionJson.getAbsolutePath() + ".tmp");
+                try (OutputStream output = new FileOutputStream(temporary)) {
+                    output.write(expected);
+                }
+                replace(temporary, versionJson);
+            }
+            Log.i(TAG, "Lite version metadata ready path=" + versionJson.getAbsolutePath());
+            return true;
+        } catch (IOException exception) {
+            Log.e(TAG, "Could not prepare lite version metadata", exception);
+            return false;
+        }
+    }
+
+    /** Refreshes the derived version with the already-patched SRG client. */
+    public static boolean prepareLiteClientJar() {
+        prepareRuntimeClient();
+        File source = new File(Tools.DIR_HOME_LIBRARY, SRG_RELATIVE_PATH);
+        File versionDirectory = new File(Tools.DIR_HOME_VERSION, LITE_VERSION_ID);
+        File destination = new File(versionDirectory, LITE_VERSION_ID + ".jar");
+        if (!source.isFile() || !prepareLiteVersionMetadata()) {
+            Log.e(TAG, "Lite SRG source is unavailable path=" + source.getAbsolutePath());
+            return false;
+        }
+        try {
+            String sourceHash = NhClientPatcher.sha256(source);
+            if (destination.isFile()
+                    && sourceHash.equals(NhClientPatcher.sha256(destination))) {
+                Log.i(TAG, "Lite SRG client already current sha256=" + sourceHash);
+                return true;
+            }
+            File temporary = new File(destination.getAbsolutePath() + ".tmp");
+            copy(source, temporary);
+            if (!sourceHash.equals(NhClientPatcher.sha256(temporary))) {
+                throw new IOException("Lite SRG copy verification failed");
+            }
+            replace(temporary, destination);
+            Log.i(TAG, "Lite SRG client refreshed sha256=" + sourceHash
+                    + " path=" + destination.getAbsolutePath());
+            return true;
+        } catch (IOException exception) {
+            Log.e(TAG, "Could not prepare lite SRG client", exception);
+            return false;
+        }
     }
 
     private static void prepareArtifact(File runtimeClient, PatchProfile profile,
@@ -169,7 +296,7 @@ public final class NHClientBootstrap {
                                               File disableMarker, PatchProfile profile,
                                               String label) {
         try {
-            if (!NhClientPatcher.isPatched(runtimeClient, profile, profile.inputSha256)) {
+            if (!isOwnedPatch(runtimeClient, profile.inputSha256)) {
                 Log.i(TAG, "NH client patch disabled by " + disableMarker.getAbsolutePath()
                         + "; " + label + " is already unpatched");
                 return;
@@ -186,6 +313,18 @@ public final class NHClientBootstrap {
                     + disableMarker.getAbsolutePath() + " exists");
         } catch (IOException exception) {
             Log.e(TAG, "Failed to restore pristine Forge SRG client", exception);
+        }
+    }
+
+    private static boolean isOwnedPatch(File file, String pristineHash) throws IOException {
+        if (!file.isFile()) return false;
+        try (java.util.zip.ZipFile zip = new java.util.zip.ZipFile(file)) {
+            java.util.zip.ZipEntry entry = zip.getEntry(NhClientPatcher.MARKER_ENTRY);
+            if (entry == null) return false;
+            java.util.Properties marker = new java.util.Properties();
+            try (InputStream input = zip.getInputStream(entry)) { marker.load(input); }
+            // Recognize earlier iOS patch profiles as well as the current Android one.
+            return pristineHash.equals(marker.getProperty("input.sha256"));
         }
     }
 

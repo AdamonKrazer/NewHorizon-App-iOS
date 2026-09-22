@@ -21,8 +21,17 @@ public final class PatchProfile {
             "minimal-vanilla-sound-1.20.1";
     public static final String FORGE_MINIMAL_SOUND_1201 =
             "minimal-forge-sound-1.20.1-47.4.0";
+    public static final String LITE_DISPLAY_BRIDGE_1201 =
+            "lite-display-bridge-1.20.1";
+    public static final String DYNAMIC_RESOURCES_1201 =
+            "dynamic-vanilla-resources-1.20.1";
+    public static final String DYNAMIC_RENDERERS_1201 =
+            "dynamic-vanilla-renderers-1.20.1";
+    public static final String MEMORY_OWNERS_1201 = "bounded-memory-owners-1.20.1";
+    public static final String COMPACT_BLOCK_STATES_1201 =
+            "compact-block-states-1.20.1";
     public static final String MINECRAFT_1201_MINIMAL_PROFILE_ID =
-            "minecraft-1.20.1-forge-srg-newhorizon-minimal-v7";
+            "minecraft-1.20.1-thin-vanilla-host-newhorizon-v15";
     public static final String MINECRAFT_1201_CLIENT_SHA256 =
             "e2e940fe7ca0a9fba5a5c11ad2cf3e2f7df91bbf51d12af22cdde7af18adc344";
     public static final String FORGE_1201_CLIENT_SHA256 =
@@ -70,7 +79,12 @@ public final class PatchProfile {
                     && !ANDROID_NARRATOR_1201.equals(transformer)
                     && !DEDICATED_DATA_FIXER_1201.equals(transformer)
                     && !MINIMAL_SOUND_1201.equals(transformer)
-                    && !FORGE_MINIMAL_SOUND_1201.equals(transformer)) {
+                    && !FORGE_MINIMAL_SOUND_1201.equals(transformer)
+                    && !LITE_DISPLAY_BRIDGE_1201.equals(transformer)
+                    && !DYNAMIC_RESOURCES_1201.equals(transformer)
+                    && !DYNAMIC_RENDERERS_1201.equals(transformer)
+                    && !MEMORY_OWNERS_1201.equals(transformer)
+                    && !COMPACT_BLOCK_STATES_1201.equals(transformer)) {
                 throw new IOException("Unknown transformer: " + transformer);
             }
         }
@@ -83,7 +97,10 @@ public final class PatchProfile {
                 "1.20.1",
                 MINECRAFT_1201_CLIENT_SHA256,
                 Arrays.asList(TELEMETRY_1201, ANDROID_NARRATOR_1201,
-                        DEDICATED_DATA_FIXER_1201, MINIMAL_SOUND_1201));
+                        DEDICATED_DATA_FIXER_1201,
+                        LITE_DISPLAY_BRIDGE_1201, DYNAMIC_RESOURCES_1201,
+                        DYNAMIC_RENDERERS_1201, MEMORY_OWNERS_1201,
+                        COMPACT_BLOCK_STATES_1201));
     }
 
     public static PatchProfile forge1201MinimalSound() {

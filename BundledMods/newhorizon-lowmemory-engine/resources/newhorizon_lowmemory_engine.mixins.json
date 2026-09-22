@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.newhorizon.lowmemoryengine.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "client": [
+    "EntityRenderDispatcherMixin",
+    "BlockEntityRenderDispatcherMixin",
+    "RenderChunkMixin",
+    "ViewAreaMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

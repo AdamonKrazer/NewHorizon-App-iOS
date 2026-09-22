@@ -9,7 +9,7 @@ OUTPUTDIR   := $(SOURCEDIR)/artifacts
 WORKINGDIR  := $(SOURCEDIR)/Natives/build
 DETECTPLAT  := $(shell uname -s)
 DETECTARCH  := $(shell uname -m)
-VERSION     := 1.0
+VERSION     := 1.1
 BRANCH      := $(shell git branch --show-current)
 COMMIT      := $(shell git log --oneline | sed '2,10000000d' | cut -b 1-7)
 PLATFORM    ?= 2
@@ -293,6 +293,8 @@ reynard:
 java:
 	echo '[Amethyst v$(VERSION)] java - start'
 	$(MAKE) -C JavaApp -j$(JOBS) BOOTJDK=$(BOOTJDK)
+	$(MAKE) -C ThinClient BOOTJDK=$(BOOTJDK) check
+	cp ThinClient/build/nh-thin-client.jar JavaApp/build/
 	echo '[Amethyst v$(VERSION)] java - end'
 
 jre: native
@@ -360,6 +362,8 @@ payload: native dep_mg java jre assets reynard
 	$(call METHOD_DIRCHECK,$(WORKINGDIR)/AngelAuraAmethyst.app/libs_caciocavallo17)
 	cp -R $(SOURCEDIR)/Natives/resources/en.lproj/LaunchScreen.storyboardc $(WORKINGDIR)/AngelAuraAmethyst.app/Base.lproj/ || exit 1
 	cp -R $(SOURCEDIR)/Natives/resources/* $(WORKINGDIR)/AngelAuraAmethyst.app/ || exit 1
+	mkdir -p $(WORKINGDIR)/AngelAuraAmethyst.app/newhorizon/thin-ui
+	cp -R $(SOURCEDIR)/ThinClient/src/main/resources/. $(WORKINGDIR)/AngelAuraAmethyst.app/newhorizon/thin-ui/
 	mkdir -p $(WORKINGDIR)/AngelAuraAmethyst.app/Frameworks
 	mkdir -p $(WORKINGDIR)/AngelAuraAmethyst.app/PlugIns
 	cp $(WORKINGDIR)/*.dylib $(WORKINGDIR)/AngelAuraAmethyst.app/Frameworks/ || exit 1
@@ -457,6 +461,7 @@ clean:
 	echo '[Amethyst v$(VERSION)] clean - start'
 	rm -rf $(WORKINGDIR)
 	rm -rf JavaApp/build
+	rm -rf ThinClient/build
 	rm -rf $(OUTPUTDIR)
 	echo '[Amethyst v$(VERSION)] clean - end'
 

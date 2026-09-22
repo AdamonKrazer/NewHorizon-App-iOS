@@ -50,6 +50,13 @@ private enum NHNativeBridge {
         symbol("nh_reynard_release_browser", as: ReleaseBrowser.self)?(browserID)
     }
 
+    static func submitRawEvent(browserID: Int32, type: String, payload: String) {
+        guard let submit = symbol("nh_reynard_submit_event", as: SubmitEvent.self) else { return }
+        type.withCString { typePointer in
+            payload.withCString { submit(browserID, typePointer, $0) }
+        }
+    }
+
     static func rootView() -> UIView? {
         guard let pointer = symbol("nh_reynard_root_view", as: RootView.self)?()
         else { return nil }
@@ -82,6 +89,15 @@ private final class NHMCEFBrowser: NSObject, GeckoEventListenerInternal,
     let view = GeckoView(frame: CGRect(x: 0, y: 0, width: 16, height: 16))
 
     private var visible = true
+    let thinDisplay: Bool
+    let thinPad: Bool
+    var laserEnabled = false
+    private var lastLaserInput: TimeInterval = 0
+    private var lastDisplayLink = ""
+    private var lastDisplayLinkAt: TimeInterval = 0
+    private var lockedURL: String
+    private var initialNavigation = true
+    private var offscreenSize = CGSize(width: 16, height: 16)
     private var ports: [String: GeckoEventDispatcherWrapper] = [:]
     private var portListeners: [String: NHMCEFPortListener] = [:]
     private var mainPortID: String?
@@ -91,8 +107,11 @@ private final class NHMCEFBrowser: NSObject, GeckoEventListenerInternal,
     private var nextNavigationID = 1
     private var pendingNavigations: [Int: CheckedContinuation<AllowOrDeny, Never>] = [:]
 
-    init(id: Int32, url: String) {
+    init(id: Int32, url: String, thinDisplay: Bool = false, thinPad: Bool = false) {
         self.id = id
+        self.thinDisplay = thinDisplay
+        self.thinPad = thinPad
+        self.lockedURL = url
         super.init()
         session.contentDelegate = self
         session.navigationDelegate = self
@@ -161,6 +180,16 @@ private final class NHMCEFBrowser: NSObject, GeckoEventListenerInternal,
         switch messageType {
         case "frame-ready":
             if bool(data["mainFrame"]) { mainPortID = portID }
+            if thinDisplay {
+                var files = ["WD_LINK_CAPTURE_SCRIPT"]
+                if bool(data["mainFrame"]) { files += ["WD_ONLY_AD_IFRAME_SCRIPT", "WD_PLAYNH_AUTOSCROLL_SCRIPT"] }
+                for file in files {
+                    if let url = Bundle.main.url(forResource: file, withExtension: "js", subdirectory: "assets/wd_display"),
+                       let code = try? String(contentsOf: url, encoding: .utf8) {
+                        post(to: portID, ["type": "eval", "code": code])
+                    }
+                }
+            }
             for script in retainedScripts {
                 post(to: portID, ["type": "eval", "code": script])
             }
@@ -172,6 +201,12 @@ private final class NHMCEFBrowser: NSObject, GeckoEventListenerInternal,
             data["id"] = bridgeID
             submit(type: "query", payload: data)
         case "console", "frame-load", "history", "popup":
+            if thinDisplay, messageType == "console", let message = data["message"] as? String {
+                for prefix in ["[WD] Link popup: ", "[WD] Link nav: ", "[WD] Link clicado: "] where message.hasPrefix(prefix) {
+                    sendDisplayLink(String(message.dropFirst(prefix.count)))
+                    return
+                }
+            }
             submit(type: messageType, payload: data)
         default:
             break
@@ -186,11 +221,13 @@ private final class NHMCEFBrowser: NSObject, GeckoEventListenerInternal,
             width: CGFloat(pixelWidth) / scale,
             height: CGFloat(pixelHeight) / scale
         )
+        offscreenSize = view.frame.size
         view.setNeedsLayout()
         view.layoutIfNeeded()
     }
 
     func load(_ url: String) {
+        if thinDisplay { lockedURL = url; initialNavigation = true }
         session.load(url.isEmpty ? "about:blank" : url)
     }
 
@@ -213,6 +250,12 @@ private final class NHMCEFBrowser: NSObject, GeckoEventListenerInternal,
     }
 
     func sendInput(_ payload: [String: Any]) {
+        if thinDisplay {
+            guard laserEnabled else { return }
+            if payload["kind"] as? String == "mouse", [501,502].contains(integer(payload["eventType"])) {
+                lastLaserInput = Date.timeIntervalSinceReferenceDate
+            }
+        }
         if payload["kind"] as? String == "mouse",
            integer(payload["eventType"]) == 501 {
             setFocused(true)
@@ -259,7 +302,9 @@ private final class NHMCEFBrowser: NSObject, GeckoEventListenerInternal,
     func hideOverlay(in root: UIView?) {
         view.isUserInteractionEnabled = false
         view.removeFromSuperview()
+        view.autoresizingMask = []
         root?.insertSubview(view, at: 0)
+        view.frame = CGRect(origin: .zero, size: offscreenSize)
         setFocused(false)
     }
 
@@ -298,6 +343,17 @@ private final class NHMCEFBrowser: NSObject, GeckoEventListenerInternal,
     }
 
     private func navigation(_ request: LoadRequest, mainFrame: Bool) async -> AllowOrDeny {
+        if thinPad { return .allow }
+        if thinDisplay {
+            if !mainFrame { return request.hasUserGesture ? .deny : .allow }
+            if Self.navigationKey(request.uri) == Self.navigationKey(lockedURL) { return .allow }
+            if initialNavigation && request.isRedirect && !request.hasUserGesture {
+                lockedURL = request.uri
+                return .allow
+            }
+            if request.hasUserGesture { sendDisplayLink(request.uri) }
+            return .deny
+        }
         let requestID = nextNavigationID
         nextNavigationID += 1
         submit(type: "navigation-request", payload: [
@@ -318,13 +374,49 @@ private final class NHMCEFBrowser: NSObject, GeckoEventListenerInternal,
         }
     }
 
+    private static func navigationKey(_ value: String) -> String {
+        var components = URLComponents(string: value.trimmingCharacters(in: .whitespacesAndNewlines))
+        components?.fragment = nil
+        components?.query = nil
+        var key = components?.string ?? value
+        while key.hasSuffix("/") { key.removeLast() }
+        return key
+    }
+
+    private func sendDisplayLink(_ value: String) {
+        let now = Date.timeIntervalSinceReferenceDate
+        guard thinDisplay, laserEnabled, lastLaserInput > 0, now-lastLaserInput < 10,
+              value.utf8.count <= 8192, var url = URLComponents(string: value),
+              ["http","https"].contains(url.scheme?.lowercased() ?? ""),
+              let host = url.host, url.user == nil else { return }
+        if (host == "googleadservices.com" || host.hasSuffix(".googleadservices.com")),
+           url.path.hasPrefix("/pagead/aclk"),
+           let destination = url.queryItems?.first(where: { $0.name == "adurl" })?.value,
+           let target = URLComponents(string: destination), target.host != nil,
+           ["http","https"].contains(target.scheme?.lowercased() ?? "") { url = target }
+        guard let target = url.string, target != lastDisplayLink || now-lastDisplayLinkAt > 0.65 else { return }
+        lastDisplayLink = target; lastDisplayLinkAt = now
+        NHNativeBridge.submitRawEvent(browserID: id, type: "nh-display-link", payload: target)
+    }
+
+    func cancelInput() {
+        for portID in ports.keys {
+            post(to: portID, ["type":"input", "kind":"mouse", "eventType":502, "button":1, "x":-1, "y":-1])
+        }
+        lastLaserInput = 0
+        setFocused(false)
+    }
+
     // MARK: Gecko delegates
 
     func onTitleChange(session: GeckoSession, title: String) {
         submit(type: "title", payload: ["title": title])
     }
 
-    func onCloseRequest(session: GeckoSession) { submit(type: "close-request") }
+    func onCloseRequest(session: GeckoSession) {
+        if thinPad { NHNativeBridge.submitRawEvent(browserID: id, type: "nh-pad-window-close", payload: "") }
+        else { submit(type: "close-request") }
+    }
     func onCrash(session: GeckoSession) { submit(type: "crash") }
     func onKill(session: GeckoSession) { submit(type: "crash", payload: ["killed": true]) }
     func onFirstComposite(session: GeckoSession) { publishCompositorSurface() }
@@ -332,6 +424,9 @@ private final class NHMCEFBrowser: NSObject, GeckoEventListenerInternal,
     func onLocationChange(
         session: GeckoSession, url: String?, permissions: [ContentPermission]
     ) {
+        if thinPad, let url, !url.isEmpty {
+            NHNativeBridge.submitRawEvent(browserID: id, type: "nh-pad-location", payload: url)
+        }
         submit(type: "address-change", payload: [
             "url": url ?? "", "mainFrame": true, "userGesture": false,
         ])
@@ -355,6 +450,11 @@ private final class NHMCEFBrowser: NSObject, GeckoEventListenerInternal,
         session: GeckoSession, uri: String, windowId: String,
         target: LoadRequestTarget
     ) async -> GeckoSession? {
+        if thinPad {
+            NHNativeBridge.submitRawEvent(browserID: id, type: "nh-pad-popup", payload: uri)
+            return nil
+        }
+        if thinDisplay { sendDisplayLink(uri); return nil }
         submit(type: "popup-created", payload: ["popupId": 0, "url": uri])
         return nil
     }
@@ -366,6 +466,7 @@ private final class NHMCEFBrowser: NSObject, GeckoEventListenerInternal,
     }
 
     func onPageStop(session: GeckoSession, success: Bool) {
+        if success { initialNavigation = false }
         submit(type: "load-end", payload: [
             "url": "", "mainFrame": true, "success": success,
             "httpStatus": success ? 200 : 0,
@@ -384,6 +485,9 @@ private final class NHReynardMCEFManager: GeckoEventListenerInternal {
     private var commandQueue: [(String, [String])] = []
     private var draining = false
     private var extensionReady = false
+    private var thinUI: NHThinInterface?
+    private var activePad: Int32?
+    private var displayLaser = false
 
     private init() {
         GeckoEventDispatcherWrapper.runtimeInstance.addListener(
@@ -392,6 +496,11 @@ private final class NHReynardMCEFManager: GeckoEventListenerInternal {
     }
 
     func enqueue(operation: String, arguments: [String]) {
+        let replaceable = ["__nh_game_hud", "__nh_combat", "__nh_effects", "__nh_riding"]
+        if replaceable.contains(operation), let index = commandQueue.lastIndex(where: { $0.0 == operation }) {
+            commandQueue[index] = (operation, arguments)
+            return
+        }
         commandQueue.append((operation, arguments))
         guard !draining else { return }
         draining = true
@@ -436,14 +545,58 @@ private final class NHReynardMCEFManager: GeckoEventListenerInternal {
 
     private func handle(operation: String, arguments: [String]) async {
         if operation.hasSuffix("N_DoMessageLoopWork") { return }
-        if operation.hasSuffix("RemoteCreateBrowser") {
+        if operation.hasPrefix("__nh_") {
+            if thinUI == nil {
+                thinUI = NHThinInterface { id, type, payload in
+                    NHNativeBridge.submitRawEvent(browserID: id, type: type, payload: payload)
+                }
+                thinUI?.padNavigation = { [weak self] id, action in
+                    guard let browser = self?.browsers[id] else { return }
+                    if action == 6 { browser.session.goBack() }
+                    if action == 7 { browser.session.goForward() }
+                    if action == 8 { browser.session.reload() }
+                }
+                thinUI?.padLayout = { [weak self] in
+                    guard let self, let id = self.activePad, let browser = self.browsers[id], let viewport = self.thinUI?.padViewport else { return }
+                    browser.view.frame = viewport.bounds
+                }
+            }
+            if let root = rootView() { thinUI?.attach(to: root) }
+            if thinUI?.handle(operation, arguments) == true { return }
+        }
+        if operation == "__nh_display_laser" {
+            displayLaser = boolean(arguments, 0)
+            for browser in browsers.values where browser.thinDisplay {
+                browser.laserEnabled = displayLaser
+                if !displayLaser { browser.cancelInput() }
+            }
+            return
+        }
+        if operation == "__nh_display_cancel" { browsers[int32(arguments, 0, fallback: -1)]?.cancelInput(); return }
+        if operation == "__nh_pad_hide" {
+            if let id = activePad { browsers[id]?.hideOverlay(in: rootView()) }
+            activePad = nil; thinUI?.hidePad(); return
+        }
+        if operation == "__nh_pad_show" {
+            let id = int32(arguments, 0, fallback: -1)
+            guard let browser = browsers[id], let ui = thinUI else { return }
+            if let previous = activePad, previous != id { browsers[previous]?.hideOverlay(in: rootView()) }
+            activePad = id
+            ui.showPad(id: id, url: string(arguments, 1), selected: integer(arguments, 2), urls: string(arguments, 3).components(separatedBy: "\n"), editing: boolean(arguments, 4))
+            browser.showOverlay(in: ui.padViewport, frame: ui.padViewport.bounds, url: "")
+            browser.view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+            return
+        }
+        if operation.hasSuffix("RemoteCreateBrowser") || operation == "__nh_display_create" || operation == "__nh_pad_create" {
             guard await ensureBridgeExtension() else { return }
             let browserID = int32(arguments, 0, fallback: -1)
             guard browserID >= 0 else { return }
             browsers.removeValue(forKey: browserID)?.close()
             let browser = NHMCEFBrowser(
-                id: browserID, url: string(arguments, 1, fallback: "about:blank")
+                id: browserID, url: string(arguments, 1, fallback: "about:blank"),
+                thinDisplay: operation == "__nh_display_create", thinPad: operation == "__nh_pad_create"
             )
+            browser.laserEnabled = displayLaser
             browsers[browserID] = browser
             attachOffscreen(browser)
             return
@@ -461,7 +614,7 @@ private final class NHReynardMCEFManager: GeckoEventListenerInternal {
                 width: integer(arguments, 1, fallback: 1),
                 height: integer(arguments, 2, fallback: 1)
             )
-        } else if operation.hasSuffix("RemoteLoadURL") {
+        } else if operation.hasSuffix("RemoteLoadURL") || operation == "__nh_pad_navigate" {
             browser.load(string(arguments, 1))
         } else if operation.hasSuffix("RemoteExecuteJavaScript") {
             browser.evaluate(string(arguments, 1))
@@ -471,21 +624,27 @@ private final class NHReynardMCEFManager: GeckoEventListenerInternal {
             browser.setVisible(boolean(arguments, 1, fallback: true))
         } else if operation.hasSuffix("RemoteSendMouseEvent") {
             let modifiers = integer(arguments, 6)
+            let inputType = integer(arguments, 1, fallback: 503)
+            let mouseType = inputType == 1 ? 501 : inputType == 0 ? 502 : inputType
+            let scale = max(browser.view.traitCollection.displayScale, 1)
+            let button = integer(arguments, 5) + (browser.thinDisplay || browser.thinPad ? 1 : 0)
             browser.sendInput(modifierPayload(modifiers).merging([
                 "kind": "mouse",
-                "eventType": integer(arguments, 1, fallback: 503),
-                "x": integer(arguments, 2),
-                "y": integer(arguments, 3),
+                "eventType": mouseType,
+                "x": double(arguments, 2) / Double(scale),
+                "y": double(arguments, 3) / Double(scale),
                 "clickCount": integer(arguments, 4, fallback: 1),
-                "button": integer(arguments, 5),
+                "button": button,
             ]) { _, new in new })
         } else if operation.hasSuffix("RemoteSendMouseWheelEvent") {
-            let modifiers = integer(arguments, 5)
+            let thin = browser.thinDisplay || browser.thinPad
+            let modifiers = integer(arguments, thin ? 4 : 5)
+            let scale = Double(max(browser.view.traitCollection.displayScale, 1))
             browser.sendInput(modifierPayload(modifiers).merging([
                 "kind": "wheel",
-                "x": integer(arguments, 2),
-                "y": integer(arguments, 3),
-                "deltaY": double(arguments, 4),
+                "x": double(arguments, thin ? 1 : 2) / scale,
+                "y": double(arguments, thin ? 2 : 3) / scale,
+                "deltaY": double(arguments, thin ? 3 : 4),
             ]) { _, new in new })
         } else if operation.hasSuffix("RemoteSendKeyEvent") {
             let cefType = integer(arguments, 1, fallback: 401)

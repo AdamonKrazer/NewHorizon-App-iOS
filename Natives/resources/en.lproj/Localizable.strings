@@ -257,6 +257,10 @@
 "preference.title.newhorizon_low_memory" = "New Horizon low-memory mode";
 "preference.detail.newhorizon_low_memory" = "Uses compact JVM, mod and LTW settings for devices with limited memory";
 "preference.title.newhorizon_local_test" = "Quick local test (superflat)";
+"preference.title.newhorizon_thin_client" = "Lightweight client";
+"preference.detail.newhorizon_thin_client" = "New Horizon client with world, audio, inventory and Reynard displays. The superflat test takes priority and uses Forge.";
+"preference.title.newhorizon_thin_server" = "Lightweight client server";
+"preference.detail.newhorizon_thin_server" = "Server address and port, such as playnewhorizon.com:25565. 127.0.0.1 requires a local tunnel on the iPhone.";
 "preference.detail.newhorizon_local_test" = "Play bypasses the server and creates or reopens a Creative/Peaceful superflat world through the GPU-only LTW path";
 "preference.warn.auto_ram" = "Disabling this option on an unjailbroken device can create instability if altered. Proceed with caution.";
 "preference.title.allocated_memory" = "Memory allocation (MB)";

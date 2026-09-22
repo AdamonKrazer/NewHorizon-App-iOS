@@ -361,6 +361,18 @@
                 @"type": self.typeSwitch,
                 @"enableCondition": whenNotInGame
             },
+            @{@"key": @"newhorizon_thin_client",
+                @"hasDetail": @YES,
+                @"icon": @"leaf",
+                @"type": self.typeSwitch,
+                @"enableCondition": whenNotInGame
+            },
+            @{@"key": @"newhorizon_thin_server",
+                @"hasDetail": @YES,
+                @"icon": @"network",
+                @"type": self.typeTextField,
+                @"enableCondition": whenNotInGame
+            },
             @{@"key": @"allocated_memory",
                 @"hasDetail": @YES,
                 @"icon": @"memorychip",

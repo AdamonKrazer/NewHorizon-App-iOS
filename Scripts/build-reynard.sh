@@ -25,6 +25,14 @@ for command in git python3 rustup xcodebuild xcrun; do
     fi
 done
 
+# Parse the iOS presentation sources before downloading/compiling Gecko.
+xcrun swiftc -frontend -parse \
+    "$REYNARD_DIR/browser/GeckoView/NewHorizonMCEFBridge.swift" \
+    "$REYNARD_DIR/browser/GeckoView/NewHorizonThinUI.swift"
+xcrun swiftc -typecheck \
+    -sdk "$(xcrun --sdk iphoneos --show-sdk-path)" -target arm64-apple-ios14.0 \
+    "$REYNARD_DIR/browser/GeckoView/NewHorizonThinUI.swift"
+
 if [ ! -d "$FIREFOX_DIR/.git" ]; then
     if [ -d "$FIREFOX_DIR" ] && [ -n "$(ls -A "$FIREFOX_DIR" 2>/dev/null)" ]; then
         echo "$FIREFOX_DIR exists but is not a Git checkout; refusing to overwrite it." >&2

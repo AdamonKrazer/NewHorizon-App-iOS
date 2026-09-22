@@ -1,7 +1,6 @@
 (() => {
   const nativeApp = "new_horizon_mcef";
   const mainFrame = window === window.top;
-  if (!mainFrame) return;
   const port = browser.runtime.connectNative(nativeApp);
   const pending = new Map();
   let queryId = 1;
@@ -267,6 +266,18 @@
     const kind = String(message.kind || "");
     const x = Number(message.x) || 0;
     const y = Number(message.y) || 0;
+    // The iOS bridge delivers CSS coordinates to the main document. Forward
+    // input into embedded frames so cross-origin display pages stay interactive.
+    if (kind === "mouse" || kind === "wheel") {
+      const frame = elementAt(x, y);
+      if (frame && (frame.tagName === "IFRAME" || frame.tagName === "FRAME") && frame.contentWindow) {
+        const rect = frame.getBoundingClientRect();
+        frame.contentWindow.postMessage({ __nh_reynard_input: true,
+          message: { ...message, x: x - rect.left - frame.clientLeft,
+            y: y - rect.top - frame.clientTop } }, "*");
+        return;
+      }
+    }
     const modifiers = {
       altKey: Boolean(message.altKey),
       ctrlKey: Boolean(message.ctrlKey),
@@ -377,6 +388,13 @@
       }
     }
   }
+
+  window.addEventListener("message", event => {
+    if (!mainFrame && event.source === window.parent && event.data
+        && event.data.__nh_reynard_input === true && event.data.message) {
+      dispatchInput(event.data.message);
+    }
+  });
 
   port.onMessage.addListener(message => {
     if (!message || typeof message !== "object") return;

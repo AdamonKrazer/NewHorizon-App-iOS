@@ -335,6 +335,42 @@ static int nh_slot_is_recyclable(NHGpuBrowser *browser, int index) {
     return 1;
 }
 
+/* JNI's modified UTF-8 encodes supplementary characters as surrogate pairs.
+ * Swift and Gecko use standard UTF-8; use Java's explicit charset conversion. */
+static char *nh_java_utf8(JNIEnv *env, jstring value) {
+    if (value == NULL) return strdup("");
+    jclass type = (*env)->FindClass(env, "java/lang/String");
+    jmethodID get_bytes = (*env)->GetMethodID(env, type, "getBytes", "(Ljava/lang/String;)[B");
+    jstring charset = (*env)->NewStringUTF(env, "UTF-8");
+    jbyteArray bytes = (jbyteArray)(*env)->CallObjectMethod(env, value, get_bytes, charset);
+    char *result = NULL;
+    if (bytes != NULL && !(*env)->ExceptionCheck(env)) {
+        jsize size = (*env)->GetArrayLength(env, bytes);
+        result = calloc((size_t)size + 1, 1);
+        if (result != NULL) (*env)->GetByteArrayRegion(env, bytes, 0, size, (jbyte *)result);
+    }
+    if (bytes != NULL) (*env)->DeleteLocalRef(env, bytes);
+    (*env)->DeleteLocalRef(env, charset);
+    (*env)->DeleteLocalRef(env, type);
+    return result;
+}
+
+static jstring nh_string_from_utf8(JNIEnv *env, const char *value) {
+    if (value == NULL) return (*env)->NewStringUTF(env, "");
+    jclass type = (*env)->FindClass(env, "java/lang/String");
+    jmethodID constructor = (*env)->GetMethodID(env, type, "<init>", "([BLjava/lang/String;)V");
+    jsize size = (jsize)strlen(value);
+    jbyteArray bytes = (*env)->NewByteArray(env, size);
+    if (bytes == NULL) { (*env)->DeleteLocalRef(env, type); return NULL; }
+    (*env)->SetByteArrayRegion(env, bytes, 0, size, (const jbyte *)value);
+    jstring charset = (*env)->NewStringUTF(env, "UTF-8");
+    jstring result = (jstring)(*env)->NewObject(env, type, constructor, bytes, charset);
+    (*env)->DeleteLocalRef(env, charset);
+    (*env)->DeleteLocalRef(env, bytes);
+    (*env)->DeleteLocalRef(env, type);
+    return result;
+}
+
 static jstring nh_native_command(JNIEnv *env, jstring operation, jobjectArray args) {
     const char *operation_chars = operation == NULL
             ? "" : (*env)->GetStringUTFChars(env, operation, NULL);
@@ -353,20 +389,20 @@ static jstring nh_native_command(JNIEnv *env, jstring operation, jobjectArray ar
     }
     for (jsize index = 0; index < count; ++index) {
         argument_strings[index] = (jstring) (*env)->GetObjectArrayElement(env, args, index);
-        argument_chars[index] = argument_strings[index] == NULL ? ""
-                : (*env)->GetStringUTFChars(env, argument_strings[index], NULL);
+        argument_chars[index] = nh_java_utf8(env, argument_strings[index]);
     }
     NHReynardCommand command = (NHReynardCommand) dlsym(
             RTLD_DEFAULT, "NHReynardHandleCommand");
-    if (command != NULL) {
+    int valid = !(*env)->ExceptionCheck(env);
+    for (jsize index = 0; index < count; ++index) valid &= argument_chars[index] != NULL;
+    if (command != NULL && valid) {
         command(operation_chars, argument_chars, (int32_t) count);
     }
     for (jsize index = 0; index < count; ++index) {
         if (argument_strings[index] != NULL) {
-            (*env)->ReleaseStringUTFChars(
-                    env, argument_strings[index], argument_chars[index]);
             (*env)->DeleteLocalRef(env, argument_strings[index]);
         }
+        free((void *)argument_chars[index]);
     }
     free(argument_chars);
     free(argument_strings);
@@ -395,7 +431,7 @@ static jobjectArray nh_native_poll_event(JNIEnv *env) {
     jstring values[3] = {
         (*env)->NewStringUTF(env, browser_id),
         (*env)->NewStringUTF(env, event.type == NULL ? "" : event.type),
-        (*env)->NewStringUTF(env, event.payload == NULL ? "" : event.payload),
+        nh_string_from_utf8(env, event.payload),
     };
     for (int index = 0; index < 3; ++index) {
         (*env)->SetObjectArrayElement(env, result, index, values[index]);
@@ -607,6 +643,32 @@ JNIEXPORT jboolean JNICALL NH_BOOTSTRAP(nativeGpuDraw)(
         JNIEnv *env, jclass clazz, jint browser_id, jfloatArray vertices) {
     (void) env; (void) clazz; (void) browser_id; (void) vertices;
     return JNI_FALSE;
+}
+
+/* The independent client uses the same IOSurface/ANGLE consumer slots as MCEF. */
+#define NH_THIN(name) Java_com_newhorizon_thinclient_display_GeckoNativeBridge_##name
+JNIEXPORT jstring JNICALL NH_THIN(nativeCommand)(
+        JNIEnv *env, jclass clazz, jstring operation, jobjectArray args) {
+    return NH_BOOTSTRAP(nativeCommand)(env, clazz, operation, args);
+}
+JNIEXPORT jobjectArray JNICALL NH_THIN(nativePollEvent)(JNIEnv *env, jclass clazz) {
+    return NH_BOOTSTRAP(nativePollEvent)(env, clazz);
+}
+JNIEXPORT jlong JNICALL NH_THIN(nativeGpuFrameInfo)(
+        JNIEnv *env, jclass clazz, jint id, jintArray metadata) {
+    return NH_BOOTSTRAP(nativeGpuFrameInfo)(env, clazz, id, metadata);
+}
+JNIEXPORT jboolean JNICALL NH_THIN(nativeGpuDraw)(
+        JNIEnv *env, jclass clazz, jint id, jfloatArray vertices) {
+    return NH_BOOTSTRAP(nativeGpuDraw)(env, clazz, id, vertices);
+}
+JNIEXPORT jboolean JNICALL NH_THIN(nativeGpuRegisterConsumerTextures)(
+        JNIEnv *env, jclass clazz, jint id, jint width, jint height, jintArray textures) {
+    return NH_BOOTSTRAP(nativeGpuRegisterConsumerTextures)(env, clazz, id, width, height, textures);
+}
+JNIEXPORT jint JNICALL NH_THIN(nativeGpuSharedTexture)(
+        JNIEnv *env, jclass clazz, jint id, jint width, jint height) {
+    return NH_BOOTSTRAP(nativeGpuSharedTexture)(env, clazz, id, width, height);
 }
 
 JNIEXPORT void JNICALL NH_BOOTSTRAP(nativeGpuReset)(

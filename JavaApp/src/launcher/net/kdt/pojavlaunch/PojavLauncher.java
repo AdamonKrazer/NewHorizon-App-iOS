@@ -81,13 +81,18 @@ public class PojavLauncher {
 
         // Keep the launcher-owned client patches and mods identical to the
         // Android build before any game classes are appended to the loader.
+        if (Boolean.getBoolean("newhorizon.thinClient")) {
+            net.kdt.pojavlaunch.nhclient.ThinClientLauncher.launch(
+                    MinecraftAccount.load(args[0]));
+            return;
+        }
         BundledModInstaller.synchronize();
         if (!NEW_HORIZON_PRODUCTION_VERSION.equals(args[1])) {
             System.err.println("[NHForgeBootstrap] Rejected client route " + args[1]
                     + "; launching " + NEW_HORIZON_PRODUCTION_VERSION);
             args[1] = NEW_HORIZON_PRODUCTION_VERSION;
         }
-        NHClientBootstrap.prepareRuntimeClient();
+        NHClientBootstrap.prepareVanillaRuntimeClient();
 
         MinecraftAccount account = MinecraftAccount.load(args[0]);
         JMinecraftVersionList.Version version = Tools.getVersionInfo(args[1]);
