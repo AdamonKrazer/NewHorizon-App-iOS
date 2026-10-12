@@ -73,8 +73,8 @@ public final class ChickenBodyRotationSelfTest {
 
         // Fixed synthetic times avoid sleeps and expose distinct interpolation fractions.
         long now=2_000_000_000L;
-        movementClock[0]=now-25_000_000L;
-        headClock[0]=now-75_000_000L;
+        movementClock[0]=now-37_500_000L;
+        headClock[0]=now-112_500_000L;
         doubles(tracker,"previousXs")[0]=0; doubles(tracker,"xs")[0]=4;
         floats(tracker,"previousYaws")[0]=0; floats(tracker,"yaws")[0]=80;
         floats(tracker,"previousHeadYaws")[0]=0; floats(tracker,"headYaws")[0]=120;

@@ -16,6 +16,7 @@ private enum NHNativeBridge {
     ) -> Void
     typealias ReleaseBrowser = @convention(c) (Int32) -> Void
     typealias RootView = @convention(c) () -> UnsafeMutableRawPointer?
+    typealias FilterURL = @convention(c) (UnsafePointer<CChar>?) -> UnsafeMutablePointer<CChar>?
 
     private static let process = dlopen(nil, RTLD_NOW)
 
@@ -62,6 +63,12 @@ private enum NHNativeBridge {
         else { return nil }
         return Unmanaged<UIView>.fromOpaque(pointer).takeUnretainedValue()
     }
+    static func minePadURL(_ url: String) -> String? {
+        guard let filter = symbol("nh_reynard_filter_minepad_url",as:FilterURL.self),
+              let result = url.withCString({ filter($0) }) else { return nil }
+        defer { free(result) }
+        return String(cString:result)
+    }
 }
 
 @MainActor
@@ -98,6 +105,8 @@ private final class NHMCEFBrowser: NSObject, GeckoEventListenerInternal,
     private var lockedURL: String
     private var initialNavigation = true
     private var offscreenSize = CGSize(width: 16, height: 16)
+    private var displayPixels = CGSize(width:16,height:16)
+    private var loadingURL = ""
     private var ports: [String: GeckoEventDispatcherWrapper] = [:]
     private var portListeners: [String: NHMCEFPortListener] = [:]
     private var mainPortID: String?
@@ -129,7 +138,7 @@ private final class NHMCEFBrowser: NSObject, GeckoEventListenerInternal,
         session.setActive(true)
         session.setFocused(false)
         resize(width: 16, height: 16)
-        session.load(url.isEmpty ? "about:blank" : url)
+        load(url.isEmpty ? "about:blank" : url)
         submit(type: "created")
     }
 
@@ -180,7 +189,12 @@ private final class NHMCEFBrowser: NSObject, GeckoEventListenerInternal,
         switch messageType {
         case "frame-ready":
             if bool(data["mainFrame"]) { mainPortID = portID }
+            if thinPad, let url = Bundle.main.url(forResource:"popup_capture",withExtension:"js",subdirectory:"newhorizon/thin-ui/minepad"),
+               let script = try? String(contentsOf:url,encoding:.utf8) {
+                post(to:portID,["type":"eval","code":script])
+            }
             if thinDisplay {
+                if bool(data["mainFrame"]) { applyDisplayViewport() }
                 var files = ["WD_LINK_CAPTURE_SCRIPT"]
                 if bool(data["mainFrame"]) { files += ["WD_ONLY_AD_IFRAME_SCRIPT", "WD_PLAYNH_AUTOSCROLL_SCRIPT"] }
                 for file in files {
@@ -201,6 +215,11 @@ private final class NHMCEFBrowser: NSObject, GeckoEventListenerInternal,
             data["id"] = bridgeID
             submit(type: "query", payload: data)
         case "console", "frame-load", "history", "popup":
+            if thinPad, messageType == "popup", let url = data["url"] as? String,
+               let filtered = NHNativeBridge.minePadURL(url) {
+                NHNativeBridge.submitRawEvent(browserID:id,type:"nh-pad-popup",payload:filtered)
+                return
+            }
             if thinDisplay, messageType == "console", let message = data["message"] as? String {
                 for prefix in ["[WD] Link popup: ", "[WD] Link nav: ", "[WD] Link clicado: "] where message.hasPrefix(prefix) {
                     sendDisplayLink(String(message.dropFirst(prefix.count)))
@@ -216,6 +235,7 @@ private final class NHMCEFBrowser: NSObject, GeckoEventListenerInternal,
     func resize(width: Int, height: Int) {
         let pixelWidth = max(1, width)
         let pixelHeight = max(1, height)
+        displayPixels = CGSize(width:CGFloat(pixelWidth),height:CGFloat(pixelHeight))
         let scale = max(view.traitCollection.displayScale, 1)
         view.frame.size = CGSize(
             width: CGFloat(pixelWidth) / scale,
@@ -224,10 +244,23 @@ private final class NHMCEFBrowser: NSObject, GeckoEventListenerInternal,
         offscreenSize = view.frame.size
         view.setNeedsLayout()
         view.layoutIfNeeded()
+        if thinDisplay { applyDisplayViewport() }
+    }
+
+    private func applyDisplayViewport() {
+        guard let port = mainPortID,
+              let url = Bundle.main.url(forResource:"WD_DISPLAY_VIEWPORT_SCRIPT",withExtension:"js",subdirectory:"assets/wd_display"),
+              let code = try? String(contentsOf:url,encoding:.utf8) else { return }
+        post(to:port,["type":"eval","code":code+"\nwindow.__nhDisplayViewport(\(Int(displayPixels.width)),\(Int(displayPixels.height)));"])
     }
 
     func load(_ url: String) {
         if thinDisplay { lockedURL = url; initialNavigation = true }
+        if thinPad {
+            guard let filtered = NHNativeBridge.minePadURL(url) else { return }
+            session.load(filtered.isEmpty ? "about:blank" : filtered)
+            return
+        }
         session.load(url.isEmpty ? "about:blank" : url)
     }
 
@@ -343,7 +376,14 @@ private final class NHMCEFBrowser: NSObject, GeckoEventListenerInternal,
     }
 
     private func navigation(_ request: LoadRequest, mainFrame: Bool) async -> AllowOrDeny {
-        if thinPad { return .allow }
+        if thinPad {
+            guard let filtered = NHNativeBridge.minePadURL(request.uri) else { return .deny }
+            if filtered != request.uri {
+                if mainFrame { session.load(filtered) }
+                return .deny
+            }
+            return .allow
+        }
         if thinDisplay {
             if !mainFrame { return request.hasUserGesture ? .deny : .allow }
             if Self.navigationKey(request.uri) == Self.navigationKey(lockedURL) { return .allow }
@@ -451,7 +491,9 @@ private final class NHMCEFBrowser: NSObject, GeckoEventListenerInternal,
         target: LoadRequestTarget
     ) async -> GeckoSession? {
         if thinPad {
-            NHNativeBridge.submitRawEvent(browserID: id, type: "nh-pad-popup", payload: uri)
+            if let filtered = NHNativeBridge.minePadURL(uri) {
+                NHNativeBridge.submitRawEvent(browserID: id, type: "nh-pad-popup", payload: filtered)
+            }
             return nil
         }
         if thinDisplay { sendDisplayLink(uri); return nil }
@@ -460,13 +502,14 @@ private final class NHMCEFBrowser: NSObject, GeckoEventListenerInternal,
     }
 
     func onPageStart(session: GeckoSession, url: String) {
+        loadingURL = url
         retainedScripts.removeAll()
         submit(type: "load-start", payload: ["url": url, "mainFrame": true])
         submit(type: "loading-state", payload: ["loading": true])
     }
 
     func onPageStop(session: GeckoSession, success: Bool) {
-        if success { initialNavigation = false }
+        if success && Self.navigationKey(loadingURL) == Self.navigationKey(lockedURL) { initialNavigation = false }
         submit(type: "load-end", payload: [
             "url": "", "mainFrame": true, "success": success,
             "httpStatus": success ? 200 : 0,
@@ -626,7 +669,7 @@ private final class NHReynardMCEFManager: GeckoEventListenerInternal {
             let modifiers = integer(arguments, 6)
             let inputType = integer(arguments, 1, fallback: 503)
             let mouseType = inputType == 1 ? 501 : inputType == 0 ? 502 : inputType
-            let scale = max(browser.view.traitCollection.displayScale, 1)
+            let scale: CGFloat = browser.thinDisplay ? 1 : max(browser.view.traitCollection.displayScale, 1)
             let button = integer(arguments, 5) + (browser.thinDisplay || browser.thinPad ? 1 : 0)
             browser.sendInput(modifierPayload(modifiers).merging([
                 "kind": "mouse",
@@ -639,7 +682,7 @@ private final class NHReynardMCEFManager: GeckoEventListenerInternal {
         } else if operation.hasSuffix("RemoteSendMouseWheelEvent") {
             let thin = browser.thinDisplay || browser.thinPad
             let modifiers = integer(arguments, thin ? 4 : 5)
-            let scale = Double(max(browser.view.traitCollection.displayScale, 1))
+            let scale = browser.thinDisplay ? 1.0 : Double(max(browser.view.traitCollection.displayScale, 1))
             browser.sendInput(modifierPayload(modifiers).merging([
                 "kind": "wheel",
                 "x": double(arguments, thin ? 1 : 2) / scale,

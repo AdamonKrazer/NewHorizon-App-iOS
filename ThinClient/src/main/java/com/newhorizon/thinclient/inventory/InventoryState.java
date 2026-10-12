@@ -53,6 +53,11 @@ public final class InventoryState {
         return Math.max(0, Math.min(8, selectedHotbar));
     }
 
+    public synchronized void selectHotbar(int slot) {
+        if (slot < 0 || slot > 8) throw new IllegalArgumentException("hotbar slot");
+        if (selectedHotbar != slot) { selectedHotbar = slot; revision++; }
+    }
+
     public synchronized String selectedHotbarMaterial() {
         if (selectedHotbar < 0 || selectedHotbar >= materials.length) return "";
         return materials[selectedHotbar];
@@ -62,9 +67,15 @@ public final class InventoryState {
         if (selectedHotbar < 0 || selectedHotbar >= amounts.length) return 0;
         return amounts[selectedHotbar];
     }
+    public synchronized int selectedHotbarProtocolId(){return protocolIds[selectedHotbar()];}
     public synchronized String selectedHotbarTag() {return tags[selectedHotbar()];}
     public synchronized String offhandTag() {return tags[40];}
     public synchronized String offhandMaterial() {return materials[40]==null?"":materials[40];}
+    public synchronized String materialForProtocolId(int id) {
+        for (int slot = 0; slot < protocolIds.length; slot++)
+            if (id == protocolIds[slot] && amounts[slot] > 0 && materials[slot] != null) return materials[slot];
+        return "";
+    }
     public synchronized String material(int slot){return slot>=0&&slot<materials.length?materials[slot]:"";}
     public synchronized com.newhorizon.thinclient.display.MinePadData pad(int slot){return slot>=0&&slot<pads.length?pads[slot]:null;}
 
@@ -154,9 +165,23 @@ public final class InventoryState {
             } else tag=null;
         }
         if(slot>=0 && slot<tags.length) {
+            int previousId=protocolIds[slot];
             protocolIds[slot]=id; tags[slot]=tag;
             pads[slot]=pad;
             if(count==0) { amounts[slot]=0; materials[slot]=""; names[slot]=""; }
+            else {
+                // Vanilla contents are authoritative even when the optional bridge is absent.
+                // Unknown Forge IDs keep a bridge-provided key only for the same item.
+                amounts[slot]=count;
+                String vanilla=WorkbenchState.vanillaMaterial(id);
+                boolean resolved=materials[slot]!=null&&!materials[slot].isEmpty()
+                        &&(previousId==0||previousId==id);
+                // An explicit bridge key also wins over the bundled registry if Forge
+                // assigned that numeric ID differently on this server.
+                if(!resolved&&!vanilla.isEmpty()) materials[slot]="minecraft:"+vanilla;
+                else if(!resolved) materials[slot]="";
+                names[slot]=""; // Custom display names remain available in the original NBT.
+            }
         }
     }
 

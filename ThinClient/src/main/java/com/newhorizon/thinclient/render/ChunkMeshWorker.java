@@ -2,6 +2,7 @@ package com.newhorizon.thinclient.render;
 
 import com.newhorizon.thinclient.world.WorldChunkStore;
 import com.newhorizon.thinclient.world.SurfaceChunk;
+import com.newhorizon.thinclient.world.BlockLightEngine;
 import com.newhorizon.thinclient.memory.*;
 import java.nio.*;
 import java.util.Arrays;
@@ -13,10 +14,14 @@ public final class ChunkMeshWorker implements AutoCloseable {
     public static final class Result {
         public final ByteBuffer geometry=ByteBuffer.allocateDirect(BYTES).order(ByteOrder.nativeOrder());
         public final ByteBuffer light=ByteBuffer.allocateDirect(BYTES/8);
-        public int slot,x,z,revision,vertices;public long epoch,buildNanos;
+        public final float[] bounds=new float[6];
+        final TerrainRanges ranges=new TerrainRanges();
+        public int slot,x,z,revision,vertices,opaqueVertices;public long epoch,buildNanos;
     }
+    private final TerrainPasses terrainPasses=new TerrainPasses();
     private final WorldChunkStore world;
     private final WorldChunkStore.MeshSnapshot snapshot;
+    private final BlockLightEngine blockLight;
     private final ArrayBlockingQueue<Result> free=new ArrayBlockingQueue<>(2),ready=new ArrayBlockingQueue<>(2);
     private final long[] built;
     private final Thread thread;
@@ -25,7 +30,8 @@ public final class ChunkMeshWorker implements AutoCloseable {
 
     public ChunkMeshWorker(WorldChunkStore world,MemoryBudget budget,int capacity) {
         this.world=world;built=new long[capacity*3+1];Arrays.fill(built,Long.MIN_VALUE);
-        budget.reserve(MemoryCategory.MESH,2L*(BYTES+BYTES/8));
+        budget.reserve(MemoryCategory.MESH,2L*(BYTES+BYTES/8)+BlockLightEngine.BYTES+TerrainPasses.BYTES+(capacity+3L)*TerrainRanges.BYTES+24);
+        blockLight=new BlockLightEngine();
         snapshot=world.createMeshSnapshot();free.add(new Result());free.add(new Result());
         world.deferPromotions();
         thread=new Thread(this::run,"NH-chunk-mesher");thread.setDaemon(true);thread.setPriority(Thread.MIN_PRIORITY);thread.start();
@@ -36,13 +42,17 @@ public final class ChunkMeshWorker implements AutoCloseable {
                 // Promotion must keep up with movement even while both mesh
                 // outputs wait for incremental GPU uploads on the render thread.
                 world.serviceColdPromotion();
+                if(world.nextLightSnapshot(snapshot)) {
+                    blockLight.relight(snapshot,snapshot.lightX,snapshot.lightY,snapshot.lightZ);
+                    world.commitBlockLight(snapshot,blockLight);
+                }
                 Result result=free.poll();
                 if(result==null){Thread.sleep(2);continue;}
                 if(!world.nextMeshSnapshot(snapshot,built)){free.add(result);Thread.sleep(8);continue;}
                 long start=System.nanoTime();SurfaceChunk center=snapshot.neighbors[4];
                 result.vertices=SurfaceMesher.mesh(center,snapshot.minY,result.geometry,snapshot.neighbors);
                 MeshLighting.build(center,snapshot.minY,snapshot.neighbors,result.geometry,result.vertices,result.light);
-                result.geometry.flip();result.light.flip();result.buildNanos=System.nanoTime()-start;
+                result.geometry.flip();result.light.flip();result.opaqueVertices=terrainPasses.partition(result.geometry,result.light,result.vertices);ViewFrustum.bounds(result.geometry,result.vertices,result.bounds);result.ranges.build(result.geometry,result.vertices,result.opaqueVertices);result.buildNanos=System.nanoTime()-start;
                 result.slot=snapshot.slot;result.x=center.chunkX;result.z=center.chunkZ;
                 result.revision=center.revision;result.epoch=snapshot.epoch;
                 if(built[built.length-1]!=result.epoch)Arrays.fill(built,Long.MIN_VALUE);

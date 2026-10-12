@@ -65,8 +65,19 @@ public final class WorldParticles {
             if(type==9||type==10||type==11||type==12||type==13||type==45||type==50){p.size=.08f;p.gravity=.6f;p.collision=true;}
             if(type==14||type==15){p.size=.15f;p.life=8+random.nextInt(24);p.drag=.96f;}
             if(type==25){p.gravity=.1f;p.collision=true;}
+            if(type==50) {
+                p.vx=(random.nextDouble()-.5)*.06;p.vz=(random.nextDouble()-.5)*.06;
+                p.vy=.1+random.nextDouble()*.2;p.gravity=1.5f;p.drag=.98f;p.collision=true;
+                p.life=(int)(8/(random.nextDouble()*.8+.2));p.size=.1f+random.nextFloat()*.1f;
+                p.data=random.nextInt(4);
+            }
         } else if(type==ITEM){p.gravity=1;p.size=.1f;}
         return p;
+    }
+    /** Vanilla local rain drops bounce from the impact point; hot surfaces steam. */
+    public synchronized void rainHit(double x,double y,double z,int state,long now) {
+        boolean hot=Precipitation.hot(state);
+        spawn(hot?51:50,0,x,y,z,0,0,0,hot?0x777777:0xffffff,now);
     }
     public synchronized void burst(int type,int data,double x,double y,double z,int count,double spread,double speed,int color,long now) {
         for(int i=0;i<Math.min(CAPACITY,Math.max(0,count));i++)spawn(type,data,
@@ -177,9 +188,14 @@ public final class WorldParticles {
             while(now-p.tick>=TICK) {
                 p.tick+=TICK;p.px=p.x;p.py=p.y;p.pz=p.z;p.vy-=.04*p.gravity;
                 double dx=p.vx,dy=p.vy,dz=p.vz;
-                if(p.collision&&world!=null){double hit=world.projectileClip(p.x,p.y,p.z,dx,dy,dz);if(hit<1){dx*=hit;dy*=hit;dz*=hit;p.vx*=.7;p.vz*=.7;p.vy=0;}}
+                if(p.collision&&world!=null){double hit=world.projectileClip(p.x,p.y,p.z,dx,dy,dz);if(hit<1){dx*=hit;dy*=hit;dz*=hit;p.vx*=.7;p.vz*=.7;p.vy=0;if(p.type==50&&random.nextBoolean()){p.born=0;break;}}}
                 p.x+=dx;p.y+=dy;p.z+=dz;p.vx*=p.drag;p.vy*=p.drag;p.vz*=p.drag;
+                if(p.type==50&&world!=null) {
+                    int bx=floor(p.x),by=floor(p.y),bz=floor(p.z),state=world.blockStateAt(bx,by,bz);
+                    if(p.y<by+Precipitation.impactHeight(state,p.x-bx,p.z-bz)){p.born=0;break;}
+                }
             }
+            if(p.born==0)continue;
             if(count==out.length)continue;
             double dx=p.x-cx,dy=p.y-cy,dz=p.z-cz;if(dx*dx+dy*dy+dz*dz>4096)continue;
             float partial=Math.max(0,Math.min(1,(now-p.tick)/(float)TICK));Particle q=out[count++];

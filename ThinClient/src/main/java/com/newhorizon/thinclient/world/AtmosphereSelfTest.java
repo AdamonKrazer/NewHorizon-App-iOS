@@ -36,12 +36,19 @@ public final class AtmosphereSelfTest {
     private static void lightMesh() {
         SurfaceChunk c=fixture();ByteBuffer vertices=ByteBuffer.allocate(1024*64),lights=ByteBuffer.allocate(8192);
         int count=SurfaceMesher.mesh(c,0,vertices);MeshLighting.build(c,0,null,vertices,count,lights);
-        int skyFaces=0,torchFaces=0;
+        int topFaces=0;boolean gradient=false;int shared=-1;
         for(int v=0;v<count;v+=6)if(((vertices.get(v*16+14)&255)>>>4&7)==1) {
-            int s=lights.get(v*2)&255,b=lights.get(v*2+1)&255;
-            if(s==15&&b==0)skyFaces++;if(s==3&&b==12)torchFaces++;
+            topFaces++;
+            for(int n=0;n<6;n++) {
+                int i=v+n,s=lights.get(i*2)&255,b=lights.get(i*2+1)&255;
+                check(s<=60&&b<=60,"quarter-level light bounds");
+                if(b>0&&b<48)gradient=true;
+                if(vertices.getFloat(i*16)==7 && vertices.getFloat(i*16+8)==7) {
+                    int packed=s|(b<<8);if(shared<0)shared=packed;else check(shared==packed,"adjacent faces share vertex light without seams");
+                }
+            }
         }
-        check(skyFaces==1&&torchFaces==1,"greedy rectangles must not hide a light boundary");
+        check(topFaces==2&&gradient&&shared>=0,"greedy rectangles preserve smooth light boundaries");
         check(lights.position()==count*2&&vertices.position()==count*16,"bounded sidecar keeps geometry format");
         SurfaceChunk east=fixture();east.chunkX=1;c.putFullBlockState(15,1,5,1);
         ByteBuffer boundary=ByteBuffer.allocate(2048);nibble(boundary,0,1,5,11);east.putLightSection(false,1,boundary);
@@ -49,7 +56,7 @@ public final class AtmosphereSelfTest {
         count=SurfaceMesher.mesh(c,0,vertices,near);MeshLighting.build(c,0,near,vertices,count,lights);
         boolean found=false;
         for(int v=0;v<count;v+=6)if(vertices.getFloat(v*16)==16&&((vertices.get(v*16+14)&255)>>>4&7)==5) {
-            check((lights.get(v*2+1)&255)==11,"face samples the adjacent chunk light");found=true;
+            check((lights.get(v*2+1)&255)==11,"quarter-level vertex samples four cells including adjacent chunk");found=true;
         }
         check(found,"boundary face fixture emitted");
     }

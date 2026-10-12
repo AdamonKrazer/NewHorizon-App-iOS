@@ -13,7 +13,7 @@ import java.nio.FloatBuffer;
 /** One 256x256 atlas and one fixed vertex buffer for all vanilla projectiles. */
 final class ProjectileRenderer implements AutoCloseable {
     int visibleParticles;
-    private static final int FLOATS=9, MAX_QUADS=128*6+96+2048+192;
+    private static final int FLOATS=9, MAX_QUADS=128*30+96+2048+192;
     private final FloatBuffer vertices=BufferUtils.createFloatBuffer(MAX_QUADS*6*FLOATS);
     private int program,vao,vbo,atlas;
     private final com.newhorizon.thinclient.world.CombatParticles.Particle[] particles=new com.newhorizon.thinclient.world.CombatParticles.Particle[96];
@@ -22,6 +22,7 @@ final class ProjectileRenderer implements AutoCloseable {
     { for(int i=0;i<sparks.length;i++)sparks[i]=new com.newhorizon.thinclient.world.FireworkEffects.Particle(); }
     private final com.newhorizon.thinclient.world.FishingParticles.Particle[] water=new com.newhorizon.thinclient.world.FishingParticles.Particle[192];
     {for(int i=0;i<water.length;i++)water[i]=new com.newhorizon.thinclient.world.FishingParticles.Particle();}
+    private static final int[] TRIANGLE_CORNERS={0,1,2,0,2,3};
     private float vertexAlpha=1;
     private double rightX,rightZ,upX,upY,upZ;
 
@@ -53,6 +54,7 @@ final class ProjectileRenderer implements AutoCloseable {
             }
         } catch(java.io.IOException error) { throw new IllegalStateException("Projectile atlas",error); }
         for(int y=32;y<64;y++) for(int x=224;x<256;x++) argb[y*256+x]=0xffffffff;
+        for(int y=0;y<32;y++)for(int x=0;x<32;x++)argb[(192+y)*256+x]=TridentModel.pixel(x,y);
         for(int value:argb) pixels.put((byte)(value>>16)).put((byte)(value>>8)).put((byte)value).put((byte)(value>>24));
         pixels.flip(); atlas=GL33.glGenTextures(); GL33.glBindTexture(GL33.GL_TEXTURE_2D,atlas);
         GL33.glTexParameteri(GL33.GL_TEXTURE_2D,GL33.GL_TEXTURE_MIN_FILTER,GL33.GL_NEAREST);
@@ -161,10 +163,14 @@ final class ProjectileRenderer implements AutoCloseable {
         double rx=Math.cos(yaw),rz=-Math.sin(yaw);
         double ux=-Math.sin(yaw)*Math.sin(pitch),uy=Math.cos(pitch),uz=-Math.cos(yaw)*Math.sin(pitch);
         if(e.type==ProjectileKind.TRIDENT) {
-            quad(e.x,e.y,e.z,fx*.75,fy*.75,fz*.75,rx*.025,0,rz*.025,15,0,0,1,1,0x75b6ab);
-            quad(e.x,e.y,e.z,fx*.75,fy*.75,fz*.75,ux*.025,uy*.025,uz*.025,15,0,0,1,1,0x75b6ab);
-            for(int side=-1;side<=1;side++) quad(e.x+fx*.6+rx*side*.12,e.y+fy*.6,e.z+fz*.6+rz*side*.12,
-                    fx*.22,fy*.22,fz*.22,rx*.035,0,rz*.035,15,0,0,1,1,0xa1d2c6);
+            float[] m=TridentModel.MESH;
+            if(vertices.remaining()<TridentModel.FACES*6*FLOATS)return;
+            for(int face=0;face<TridentModel.FACES;face++)for(int corner:TRIANGLE_CORNERS) {
+                int o=face*20+corner*5;
+                // Shaft runs along -model Y. The head follows the projectile's yaw/pitch.
+                double mx=m[o],along=-m[o+1],up=m[o+2];
+                vertex(e.x+rx*mx+fx*along+ux*up,e.y+fy*along+uy*up,e.z+rz*mx+fz*along+uz*up,48,m[o+3]/32,m[o+4]/32,0xffffff);
+            }
         } else {
             int tile=e.type==ProjectileKind.SPECTRAL_ARROW?11:10;
             quad(e.x,e.y,e.z,fx*.5,fy*.5,fz*.5,rx*.15625,0,rz*.15625,tile,0,0,1,.15625f,0xffffff);

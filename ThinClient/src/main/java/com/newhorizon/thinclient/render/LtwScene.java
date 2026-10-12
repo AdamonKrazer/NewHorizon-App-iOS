@@ -21,6 +21,7 @@ import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWCursorPosCallbackI;
 import org.lwjgl.glfw.GLFWKeyCallbackI;
 import org.lwjgl.glfw.GLFWMouseButtonCallbackI;
+import org.lwjgl.glfw.GLFWScrollCallbackI;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL33;
 
@@ -94,7 +95,7 @@ public final class LtwScene implements AutoCloseable {
     private static final float[] FISHING_ROD_POSE = fishingRodPose();
     private static final int FIRST_PERSON_MAX_VERTICES = 16384;
     private static final int SELECTION_VERTEX_FLOATS = 7;
-    private static final int SELECTION_VERTEX_COUNT = 24;
+    private static final int SELECTION_VERTEX_COUNT = 24 * com.newhorizon.thinclient.world.BlockStateOutline.maxBoxCount();
     private static final long TARGET_UPDATE_NANOS = 50_000_000L;
     private static final int LEGACY_BREAK_TICKS = 18;
     private final ThinClientRuntime runtime;
@@ -117,6 +118,14 @@ public final class LtwScene implements AutoCloseable {
     private int uploadOffset;
     private long streamLogAt,streamMaxFrame,streamMaxInput,streamMaxUpload,streamMaxRender;
     private int streamFrames;
+    private final FrameProfile frameProfile=new FrameProfile();
+    private final ViewFrustum terrainFrustum=new ViewFrustum();
+    private final int[] terrainDrawRanges=new int[6];
+    long terrainSubmittedVertices,terrainSkippedVertices,terrainDrawCalls;
+    private final long[] passNanos=new long[6];private long passFrames,passMaps,passUploads,passDraws;
+    private long profileWindowStart,weatherSampleNanos,weatherDrawNanos,weatherMaxNanos,weatherColumns;
+    private double profilePreviousX,profilePreviousZ,profileTravel;
+    private long profileAtlasNanos;
     private final double[] cameraPosition = new double[3];
     /** Previous 20 Hz physics state and the partial-tick camera shown by LTW. */
     private final double[] previousPhysicsPosition = new double[3];
@@ -134,6 +143,7 @@ public final class LtwScene implements AutoCloseable {
     private final DisplayGpu[] displayGpu = new DisplayGpu[MAX_DISPLAYS+2];
     private final com.newhorizon.thinclient.display.MinePadController minePads;
     private final float[][] minePadMatrices=new float[2][];
+    private final WorldLabelRenderer entityLabels=new WorldLabelRenderer();
     private final FloatBuffer displayVertices = BufferUtils.createFloatBuffer(20);
     private final FloatBuffer firstPersonVertices = BufferUtils.createFloatBuffer(
             FIRST_PERSON_MAX_VERTICES * FIRST_PERSON_VERTEX_FLOATS);
@@ -147,13 +157,15 @@ public final class LtwScene implements AutoCloseable {
     private final VanillaHitResult selectionHit = new VanillaHitResult();
     private final EntityTracker.Hit entityHit = new EntityTracker.Hit();
     private final EntityRenderer entityRenderer;
+    private final MapFrameRenderer mapFrames;
     private final EnvironmentRenderer environmentRenderer;
     private final int[] mouseEventButtons = new int[MOUSE_EVENT_CAPACITY];
     private final int[] mouseEventActions = new int[MOUSE_EVENT_CAPACITY];
     private long window;
     private final RailAtlas railAtlas = new RailAtlas();
     private final BlockAtlas blockAtlas = new BlockAtlas();
-    private final ByteBuffer breakingVertices=BufferUtils.createByteBuffer(36*SurfaceMesher.VERTEX_BYTES);
+    private final FramePacer framePacer = new FramePacer();
+    private final ByteBuffer breakingVertices=BufferUtils.createByteBuffer(VanillaBlockModels.maxVertexCount()*SurfaceMesher.VERTEX_BYTES);
     private int breakingVbo;
     private final BiomeTintAtlas biomeTints=new BiomeTintAtlas();
     private int shaderProgram;
@@ -172,6 +184,7 @@ public final class LtwScene implements AutoCloseable {
     private int displayAspectUniform;
     private int displayProjectionUniform;
     private int displayTextureUniform;
+    private int firstPersonTridentUniform;
     private int firstPersonShaderProgram;
     private int firstPersonVao;
     private int firstPersonVbo;
@@ -183,6 +196,8 @@ public final class LtwScene implements AutoCloseable {
     private int selectionShaderProgram;
     private int selectionVao;
     private int selectionVbo;
+    private int selectionVertexCount;
+    private final com.newhorizon.thinclient.world.WorldBlockRaycast.Hit blockOutlineHit = new com.newhorizon.thinclient.world.WorldBlockRaycast.Hit();
     private int selectionCameraUniform;
     private int selectionRotationUniform;
     private int selectionAspectUniform;
@@ -206,6 +221,7 @@ public final class LtwScene implements AutoCloseable {
     private long lastCoverageChunkKey = Long.MIN_VALUE;
     private int lastMissingChunkCount = -1;
     private boolean cameraInitialized;
+    private long lastDimensionRevision;
     private boolean cursorInitialized;
     private boolean inputLogged;
     private double lastCursorX;
@@ -216,6 +232,8 @@ public final class LtwScene implements AutoCloseable {
     private long lastTeleportRevision = -1L;
     private long lastActiveMovementNanos;
     private GLFWKeyCallbackI keyCallback;
+    private GLFWScrollCallbackI scrollCallback;
+    private final com.newhorizon.thinclient.inventory.HotbarScroll hotbarScroll = new com.newhorizon.thinclient.inventory.HotbarScroll();
     private GLFWCursorPosCallbackI cursorCallback;
     private GLFWMouseButtonCallbackI mouseButtonCallback;
     private volatile double callbackCursorX;
@@ -237,15 +255,17 @@ public final class LtwScene implements AutoCloseable {
     private boolean primaryHeld;
     private boolean secondaryHeld;
     private final com.newhorizon.thinclient.inventory.UsePressState usePress=new com.newhorizon.thinclient.inventory.UsePressState();
-    private boolean escapeWasPressed;
+    private boolean pauseOpen,escapeRequested,uiCursor;
+    private final com.newhorizon.thinclient.inventory.ClientUiOptions uiOptions=new com.newhorizon.thinclient.inventory.ClientUiOptions();
     private long nextEffectHudNanos;
     private long nextCombatHudNanos;
     private final double[] combatMotion=new double[3];
     private final com.newhorizon.thinclient.world.BoatMotion vehicleMotion=new com.newhorizon.thinclient.world.BoatMotion();
     private final EntityTracker.Vehicle ridingVehicle=new EntityTracker.Vehicle();
     private final double[] rideCorrection=new double[5],ridePrevious=new double[5],rideSeat=new double[3];
+    private final com.newhorizon.thinclient.world.BoatCamera boatCamera=new com.newhorizon.thinclient.world.BoatCamera();
     private int mountedId=-1,jumpChargeTicks;
-    private long nextRideHud,rideTickNanos;
+    private long nextRideHud,rideTickNanos,dismountTraceUntil;
     private boolean wasSleeping,wakeRequested,dismountRequested,mountJumpPressed,wasControlling;
     private int chargingHand;
     private boolean chargingItem;
@@ -254,6 +274,7 @@ public final class LtwScene implements AutoCloseable {
     private long chargingGeneration;
     private boolean destroyingBlock;
     private long nextDestroySwingNanos;
+    private long nextDestroyStartNanos;
     private long nextUseNanos;
     private long destroyStartNanos;
     private long destroyRequiredNanos;
@@ -271,13 +292,14 @@ public final class LtwScene implements AutoCloseable {
     private boolean wasFlying;
     private boolean onGround;
     private boolean horizontalCollision;
+    private boolean minorHorizontalCollision;
     private boolean jumpWasPressed;
     private boolean sneaking;
     private boolean sprinting;
     private final com.newhorizon.thinclient.world.SwimmingState swimming = new com.newhorizon.thinclient.world.SwimmingState();
     private boolean sentSneaking;
     private boolean sentSprinting;
-    private long lastForwardPressNanos;
+    private final com.newhorizon.thinclient.world.SprintInput sprintInput=new com.newhorizon.thinclient.world.SprintInput();
     private long lastJumpPressNanos;
     private boolean flightToggleRequested;
     private volatile boolean inventoryToggleRequested;
@@ -292,6 +314,7 @@ public final class LtwScene implements AutoCloseable {
     private com.newhorizon.thinclient.world.PlayerSkins.Skin localSkin;
     private long localSkinRevision;
     private boolean inventoryOpen;
+    private int workbenchWindow = -1;
     private boolean chatOpen;
     private String chatRequested;
     private int lastMovementPhysicsFlags = -1;
@@ -323,6 +346,7 @@ public final class LtwScene implements AutoCloseable {
                 displaySnapshots[index] = new DisplayController.Renderable();
             }
             entityRenderer = new EntityRenderer(runtime.entities);
+            mapFrames = new MapFrameRenderer(runtime.maps);
             entityRenderer.players(runtime.players,runtime.playerSkins);
             environmentRenderer = new EnvironmentRenderer(runtime.environment);
         } catch (RuntimeException | Error throwable) {
@@ -346,29 +370,44 @@ public final class LtwScene implements AutoCloseable {
         GLFW.glfwMakeContextCurrent(window);
         GLFW.glfwSwapInterval(1);
         installInputCallbacks();
+        GeckoNativeBridge.initMenuOptions(audio.masterVolume());
         GLFW.glfwSetInputMode(window, GLFW.GLFW_CURSOR, GLFW.GLFW_CURSOR_DISABLED);
         GL.createCapabilities();
         initializeGl();
-        debugOverlay.vendor=GL33.glGetString(GL33.GL_VENDOR);debugOverlay.renderer=GL33.glGetString(GL33.GL_RENDERER);debugOverlay.glVersion=GL33.glGetString(GL33.GL_VERSION);
+        debugOverlay.vendor="New Horizon";debugOverlay.renderer=GL33.glGetString(GL33.GL_RENDERER);debugOverlay.glVersion=GL33.glGetString(GL33.GL_VERSION);
         System.out.println("[NH-THIN] LTW GL scene ready");
 
         ScreenEffects.reset();
         glInitialized = true;
         lastFrameNanos = System.nanoTime();
-        long nextTabletWorldFrame=0;
+        long nextTabletWorldFrame=0, nextConnectionNotice=0;
+        String shownConnectionNotice="";
+        frameProfile.watch(Thread.currentThread());
         while (!stopRequested && !GLFW.glfwWindowShouldClose(window)) {
-            long debugStart=System.nanoTime();
-            GLFW.glfwPollEvents();
-            boolean escape=GLFW.glfwGetKey(window, GLFW.GLFW_KEY_ESCAPE)==GLFW.GLFW_PRESS;
-            if (escape && !escapeWasPressed) {
+            long debugStart=System.nanoTime();frameProfile.begin(debugStart);
+            frameProfile.stage("pollingInput");GLFW.glfwPollEvents();
+            String notice=runtime.connectionStatus;
+            if(!notice.equals(shownConnectionNotice) || (!notice.isEmpty() && debugStart>=nextConnectionNotice)) {
+                GeckoNativeBridge.actionBar("{\"text\":"+com.newhorizon.thinclient.protocol.ChatProtocol.quote(notice)+"}");
+                shownConnectionNotice=notice; nextConnectionNotice=debugStart+1_000_000_000L;
+            }
+            if (escapeRequested) {
+                escapeRequested=false;
                 if(minePads.isOpen())minePads.hide();
                 else if(chatOpen){chatOpen=false;GeckoNativeBridge.hideChat();}
                 else if(runtime.riding.sleeping())wakeRequested=true;
                 else if(inventoryOpen) inventoryToggleRequested=true;
-                else GLFW.glfwSetWindowShouldClose(window, true);
+                else setPauseOpen(!pauseOpen);
             }
-            escapeWasPressed=escape;
-            updateInputAndMovement();
+            // Poll again while the GPU is busy, so the next rendered frame uses
+            // the newest cursor position rather than queuing old camera views.
+            frameProfile.stage("checkingGpuFence");
+            if(!framePacer.ready()){
+                java.util.concurrent.locks.LockSupport.parkNanos(1_000_000L);continue;
+            }
+            frameProfile.mark(0);
+            updateInputAndMovement();frameProfile.mark(1);
+            updateUiCursor();
             // Keep input/network polling responsive while Gecko owns the visible tablet.
             // The dimmed world behind it needs only ten frames per second.
             long frameNow=System.nanoTime();
@@ -381,20 +420,22 @@ public final class LtwScene implements AutoCloseable {
                 runtime.entities.localRopeView(cameraRotation[0],cameraRotation[1],
                         !"FISHING_ROD".equals(com.newhorizon.thinclient.world.ProjectileKind.materialKey(runtime.inventory.selectedHotbarMaterial())));
                 updateFishingLineTip();
-                audio.updateListener(renderCameraPosition[0], renderCameraPosition[1] + eyeHeight(),
+                long audioStart=System.nanoTime();audio.updateListener(renderCameraPosition[0], renderCameraPosition[1] + eyeHeight(),
                         renderCameraPosition[2], cameraRotation[0], cameraRotation[1]);
                 audio.setLocalPlayer(connection.playerEntityId(), cameraPosition[1]);
-                localSounds.update(System.nanoTime());
-                runtime.entities.worldParticles.ambient(runtime.world,cameraPosition[0],cameraPosition[1],cameraPosition[2],System.nanoTime());
-                ambientSounds.update(System.nanoTime(), cameraPosition[0], cameraPosition[1],
-                        cameraPosition[1] + eyeHeight(), cameraPosition[2], connection.canFly());
+                localSounds.update(System.nanoTime());frameProfile.add(20,System.nanoTime()-audioStart);
+                long particlesStart=System.nanoTime();runtime.entities.worldParticles.ambient(runtime.world,cameraPosition[0],cameraPosition[1],cameraPosition[2],System.nanoTime());frameProfile.add(19,System.nanoTime()-particlesStart);
+                long ambientStart=System.nanoTime();ambientSounds.update(System.nanoTime(), cameraPosition[0], cameraPosition[1],
+                        cameraPosition[1] + eyeHeight(), cameraPosition[2], connection.canFly());frameProfile.add(18,System.nanoTime()-ambientStart);
             }
-            long debugInput=System.nanoTime();
+            long debugInput=System.nanoTime();frameProfile.mark(2);
             synchronizeWorldMeshes();
-            long debugMesh=System.nanoTime();
+            long debugMesh=System.nanoTime();frameProfile.mark(3);
             drawFrame();
+            frameProfile.mark(12);
+            framePacer.submitted();frameProfile.mark(13);
             long debugRender=System.nanoTime();
-            GLFW.glfwSwapBuffers(window);
+            GLFW.glfwSwapBuffers(window);frameProfile.mark(14);frameProfile.end();
             long debugEnd=System.nanoTime();debugOverlay.frames.add(debugEnd-debugStart,debugInput-debugStart,debugMesh-debugInput,debugRender-debugMesh,debugEnd-debugRender);
             streamFrames++;streamMaxFrame=Math.max(streamMaxFrame,debugEnd-debugStart);
             streamMaxInput=Math.max(streamMaxInput,debugInput-debugStart);streamMaxUpload=Math.max(streamMaxUpload,debugMesh-debugInput);
@@ -405,26 +446,25 @@ public final class LtwScene implements AutoCloseable {
     }
 
     public void requestStop() {
+        frameProfile.stopWatching();
         stopRequested = true;
         meshWorker.close();
     }
 
     private void installInputCallbacks() {
         keyCallback = (callbackWindow, key, scanCode, action, modifiers) -> {
+            if(key==GLFW.GLFW_KEY_ESCAPE&&action==GLFW.GLFW_PRESS){escapeRequested=true;return;}
             if (key >= 0 && key < pressedKeys.length) {
                 pressedKeys[key] = action != GLFW.GLFW_RELEASE;
             }
-            if(chatOpen||minePads.isOpen())return;
+            if(pauseOpen||chatOpen||minePads.isOpen())return;
+            if(!inventoryOpen && (key==GLFW.GLFW_KEY_W||key==GLFW.GLFW_KEY_UP)) {
+                if(sprintInput.forward(pressedKeys[GLFW.GLFW_KEY_W]||pressedKeys[GLFW.GLFW_KEY_UP],
+                        System.nanoTime(),uiOptions.doubleSprint))sprinting=true;
+            }
             if (action == GLFW.GLFW_PRESS) {
                 if(!inventoryOpen&&(key==GLFW.GLFW_KEY_T||key==GLFW.GLFW_KEY_SLASH)){
                     chatRequested=key==GLFW.GLFW_KEY_SLASH?"/":"";return;
-                }
-                if (key == GLFW.GLFW_KEY_W || key == GLFW.GLFW_KEY_UP) {
-                    long now = System.nanoTime();
-                    if (now - lastForwardPressNanos <= DOUBLE_TAP_NANOS) {
-                        sprinting = true;
-                    }
-                    lastForwardPressNanos = now;
                 }
                 if (key == GLFW.GLFW_KEY_SPACE) {
                     long now = System.nanoTime();
@@ -446,12 +486,16 @@ public final class LtwScene implements AutoCloseable {
                     nextGameHud=0;
                 }
                 if(key==GLFW.GLFW_KEY_Q&&pressedKeys[GLFW.GLFW_KEY_F3]){debugOverlay.help=!debugOverlay.help;debugVisible=true;nextGameHud=0;}
+                else if(key==GLFW.GLFW_KEY_Q&&!inventoryOpen&&!runtime.combat.dead()) {
+                    releaseVanillaItem();
+                    try {connection.sendPlayerAction((modifiers&GLFW.GLFW_MOD_CONTROL)!=0?3:4,0,0,0,0);}
+                    catch(IOException | ProtocolException error) {throw new IllegalStateException("Unable to drop item",error);}
+                }
                 if(key==GLFW.GLFW_KEY_F5){viewCamera.cycle();nextGameHud=0;}
                 if(key==GLFW.GLFW_KEY_F1){hudHidden=!hudHidden;nextGameHud=0;}
                 if (key >= GLFW.GLFW_KEY_1 && key <= GLFW.GLFW_KEY_9) {
-                    releaseVanillaItem();
-                    sendInventoryRequest(InventoryProtocol.selectRequest(
-                            key - GLFW.GLFW_KEY_1));
+                    hotbarScroll.reset();
+                    if(!inventoryOpen)selectHotbar(key - GLFW.GLFW_KEY_1);
                 }
             }
             if(key==GLFW.GLFW_KEY_TAB)nextGameHud=0;
@@ -481,6 +525,34 @@ public final class LtwScene implements AutoCloseable {
         GLFW.glfwSetKeyCallback(window, keyCallback);
         GLFW.glfwSetCursorPosCallback(window, cursorCallback);
         GLFW.glfwSetMouseButtonCallback(window, mouseButtonCallback);
+        scrollCallback = (callbackWindow, x, y) -> {
+            if(pauseOpen||inventoryOpen||chatOpen||minePads.isOpen()||runtime.combat.dead()) {hotbarScroll.reset();return;}
+            int previous=runtime.inventory.selectedHotbar(), selected=hotbarScroll.move(previous,y);
+            if(selected!=previous)selectHotbar(selected);
+        };
+        GLFW.glfwSetScrollCallback(window,scrollCallback);
+    }
+
+    private void selectHotbar(int slot) {
+        releaseVanillaItem();
+        runtime.inventory.selectHotbar(slot);
+        sendInventoryRequest(InventoryProtocol.selectRequest(slot));
+    }
+
+    private void setPauseOpen(boolean open){
+        pauseOpen=open;releaseVanillaItem();stopVanillaAttack();primaryHeld=secondaryHeld=false;
+        java.util.Arrays.fill(pressedKeys,false);mouseEventRead=mouseEventWrite;
+        callbackCursorReady=false;cursorInitialized=false;hotbarScroll.reset();
+        inventoryToggleRequested=false;chatRequested=null;sprintInput.reset();lastJumpPressNanos=0;
+        if(open)GeckoNativeBridge.showPauseMenu();else GeckoNativeBridge.hidePauseMenu();
+        nextGameHud=nextCombatHudNanos=0;
+    }
+
+    private void updateUiCursor(){
+        boolean wanted=pauseOpen||inventoryOpen||chatOpen||minePads.isOpen()||runtime.combat.dead();
+        if(wanted==uiCursor)return;
+        uiCursor=wanted;callbackCursorReady=false;cursorInitialized=false;
+        GLFW.glfwSetInputMode(window,GLFW.GLFW_CURSOR,wanted?GLFW.GLFW_CURSOR_NORMAL:GLFW.GLFW_CURSOR_DISABLED);
     }
 
     private void updateInputAndMovement() {
@@ -489,6 +561,29 @@ public final class LtwScene implements AutoCloseable {
                 (now - lastFrameNanos) / 1_000_000_000.0));
         lastFrameNanos = now;
 
+        long dimensionRevision = runtime.dimensions.revision();
+        if (dimensionRevision != lastDimensionRevision) {
+            lastDimensionRevision = dimensionRevision;
+            cameraInitialized = false;
+            verticalVelocity = horizontalVelocityX = horizontalVelocityZ = flightVerticalVelocity = 0;
+            vanillaPhysicsAccumulator = 0; sprinting = sneaking = false;
+            swimming.swimming = swimming.prone = false;
+            primaryHeld = secondaryHeld = chargingItem = destroyingBlock = false;
+            mountedId = -1;
+            inventoryOpen = chatOpen = pauseOpen = false; workbenchWindow = -1;
+            GeckoNativeBridge.hideInventory(); GeckoNativeBridge.hideChat(); GeckoNativeBridge.hidePauseMenu();
+            GeckoNativeBridge.updateHotbar(runtime.inventory.encodeForUi()); minePads.hide();
+            java.util.Arrays.fill(pressedKeys, false); mouseEventRead = mouseEventWrite;
+            callbackCursorReady = false; flightToggleRequested = inventoryToggleRequested = false;
+        }
+        boolean inPortal = cameraInitialized && !runtime.dimensions.loading() && !connection.isSpectator()
+                && !runtime.combat.dead() && !runtime.riding.sleeping() && mountedId<0
+                && com.newhorizon.thinclient.world.PortalState.touching(runtime.world,cameraPosition[0],cameraPosition[1],cameraPosition[2],swimming.prone?.6:sneaking?1.5:1.8);
+        if(runtime.portal.update(inPortal,now))
+            runtime.sounds.playRelative("minecraft:block.portal.trigger",com.newhorizon.thinclient.audio.SoundEventQueue.MASTER,.25f,
+                    .8f+java.util.concurrent.ThreadLocalRandom.current().nextFloat()*.4f,now);
+        long uiStart=System.nanoTime();processClientUi();frameProfile.add(15,System.nanoTime()-uiStart);
+        if (!connection.isPlaying() || runtime.dimensions.awaitingTeleport()) return;
         if (!cameraInitialized) {
             if (!runtime.world.hasPlayerPosition()) return;
             runtime.world.copyPlayerView(cameraPosition, cameraRotation);
@@ -498,9 +593,10 @@ public final class LtwScene implements AutoCloseable {
             cameraInitialized = true;
         }
 
-        processClientUi();
+        // Do not fall through an empty destination or send old-world coordinates while loading.
+        if (!runtime.dimensions.ready(runtime.world, cameraPosition[0], cameraPosition[1], cameraPosition[2])) return;
         updateDisplayInputPermission();
-        updateGameHud(now);
+        long hudStart=System.nanoTime();updateGameHud(now);frameProfile.add(16,System.nanoTime()-hudStart);
         minePads.update(runtime.inventory,now);
         runtime.combat.selectWeapon(runtime.inventory.selectedHotbarMaterial(),now);
         int motionMode=runtime.combat.drainMotion(combatMotion);
@@ -516,13 +612,13 @@ public final class LtwScene implements AutoCloseable {
             boolean underwater=(runtime.world.physicsFlagsInBox(cameraPosition[0]-.01,ey-.01,cameraPosition[2]-.01,
                     cameraPosition[0]+.01,ey+.01,cameraPosition[2]+.01)&BlockStatePhysics.WATER)!=0;
             GeckoNativeBridge.updateCombat(runtime.combat.encodeForUi(now,runtime.effects,
-                    runtime.inventory.isCreativeMode(),selectionHit.type==VanillaHitResult.ENTITY && runtime.entities.alive(selectionHit.entityId))+","+(underwater?1:0),inventoryOpen||minePads.isOpen());
+                    runtime.inventory.isCreativeMode(),selectionHit.type==VanillaHitResult.ENTITY && runtime.entities.alive(selectionHit.entityId))+","+(underwater?1:0),pauseOpen||inventoryOpen||minePads.isOpen());
             nextCombatHudNanos=now+(minePads.isOpen()?250_000_000L:50_000_000L);
         }
         if(runtime.combat.dead()) {
             minePads.hide();
             if(now>=nextRideHud){GeckoNativeBridge.updateRiding(0,"",false);nextRideHud=now+150_000_000L;}
-            if(inventoryOpen) {inventoryOpen=false;GeckoNativeBridge.hideInventory();sendInventoryRequest(InventoryProtocol.closeRequest());}
+            if(inventoryOpen) {closeInventoryMenu();}
             releaseVanillaItem();primaryHeld=secondaryHeld=false;stopVanillaAttack();
             java.util.Arrays.fill(pressedKeys,false);mouseEventRead=mouseEventWrite;return;
         }
@@ -530,7 +626,8 @@ public final class LtwScene implements AutoCloseable {
             GeckoNativeBridge.updateEffects(runtime.effects.encodeForUi());
             nextEffectHudNanos=now+250_000_000L;
         }
-        if (inventoryOpen || chatOpen || minePads.isOpen()) {
+        if (pauseOpen || inventoryOpen || chatOpen || minePads.isOpen()) {
+            sprintInput.reset();
             releaseVanillaItem();
             secondaryHeld=false;
             primaryHeld=false;
@@ -541,7 +638,7 @@ public final class LtwScene implements AutoCloseable {
         }
 
         if(updateAttachedState(now))return;
-        if(!inventoryOpen&&!chatOpen&&!minePads.isOpen()) updateCameraRotation();
+        if(!pauseOpen&&!inventoryOpen&&!chatOpen&&!minePads.isOpen()) updateCameraRotation();
         resolvePlayerOverlap();
         double forward = axis(GLFW.GLFW_KEY_W, GLFW.GLFW_KEY_UP)
                 - axis(GLFW.GLFW_KEY_S, GLFW.GLFW_KEY_DOWN);
@@ -600,8 +697,8 @@ public final class LtwScene implements AutoCloseable {
         if (moving) lastActiveMovementNanos = now;
         reconcileServerPosition(moving, now);
         if (connection.isFlying()) snapRenderCameraToPhysics();
-        runtime.displays.updatePlayer(runtime.world.dimension(),
-                cameraPosition[0], cameraPosition[1], cameraPosition[2]);
+        long displayUpdateStart=System.nanoTime();runtime.displays.updatePlayer(runtime.world.dimension(),
+                cameraPosition[0], cameraPosition[1], cameraPosition[2]);frameProfile.add(17,System.nanoTime()-displayUpdateStart);
 
         if (now - lastMovementNanos >= MOVEMENT_INTERVAL_NANOS) {
             try {
@@ -625,7 +722,7 @@ public final class LtwScene implements AutoCloseable {
         }
         if(asleep){
             if(!wasSleeping){wasSleeping=true;releaseVanillaItem();stopVanillaAttack();primaryHeld=secondaryHeld=false;
-                if(inventoryOpen){inventoryOpen=false;GeckoNativeBridge.hideInventory();sendInventoryRequest(InventoryProtocol.closeRequest());}}
+                if(inventoryOpen){closeInventoryMenu();}}
             if(wakeRequested){wakeRequested=false;try{connection.ridingCommand(2,0);}catch(IOException|ProtocolException e){throw new IllegalStateException("Wake request",e);}}
             if(runtime.riding.bedPresent()){
                 long bed=runtime.riding.bed();int x=com.newhorizon.thinclient.world.BedGeometry.x(bed),y=com.newhorizon.thinclient.world.BedGeometry.y(bed),z=com.newhorizon.thinclient.world.BedGeometry.z(bed);
@@ -639,30 +736,49 @@ public final class LtwScene implements AutoCloseable {
         }
         if(wasSleeping){wasSleeping=false;wakeRequested=false;runtime.world.copyPlayerView(cameraPosition,cameraRotation);cursorInitialized=false;snapRenderCameraToPhysics();}
         if(vehicle<0){
-            if(mountedId>=0){runtime.entities.localVehicle(-1,0,0,0,0,0);mountedId=-1;wasControlling=false;dismountRequested=false;mountJumpPressed=false;
-                runtime.world.copyPlayerView(cameraPosition,cameraRotation);verticalVelocity=horizontalVelocityX=horizontalVelocityZ=0;lastActiveMovementNanos=0;vanillaPhysicsAccumulator=0;snapRenderCameraToPhysics();}
+            if(mountedId>=0){
+                if(wasControlling)runtime.entities.finishLocalVehicle(mountedId,vehicleMotion.x,vehicleMotion.y,vehicleMotion.z,vehicleMotion.yaw,vehicleMotion.pitch);
+                // A bridge snapshot may still describe the old seat. Derive a vanilla exit
+                // only after server detachment; a new teleport always takes precedence.
+                boolean freshTeleport=runtime.world.teleportRevision()!=lastTeleportRevision;
+                if(freshTeleport)runtime.world.copyPlayerView(cameraPosition,cameraRotation);
+                else if(com.newhorizon.thinclient.world.RidingState.boat(ridingVehicle.type)) {
+                    double x=wasControlling?vehicleMotion.x:ridingVehicle.x;
+                    double y=wasControlling?vehicleMotion.y:ridingVehicle.y;
+                    double z=wasControlling?vehicleMotion.z:ridingVehicle.z;
+                    sneaking=com.newhorizon.thinclient.world.BoatDismount.place(runtime.world,x,y,z,cameraRotation[0],cameraPosition)<1.8;
+                }else runtime.world.copyPlayerView(cameraPosition,cameraRotation);
+                runtime.entities.localVehicle(-1,0,0,0,0,0);mountedId=-1;wasControlling=false;dismountRequested=false;mountJumpPressed=false;boatCamera.reset();
+                lastTeleportRevision=runtime.world.teleportRevision();lastWorldRevision=runtime.world.playerRevision();
+                verticalVelocity=horizontalVelocityX=horizontalVelocityZ=flightVerticalVelocity=0;lastActiveMovementNanos=now;vanillaPhysicsAccumulator=0;
+                onGround=false;lastMovementNanos=0;sendVanillaMovementState();snapRenderCameraToPhysics();
+                dismountTraceUntil=now+3_000_000_000L;
+                System.out.println("[NH-RIDE] detached pos="+cameraPosition[0]+","+cameraPosition[1]+","+cameraPosition[2]+" serverTeleport="+freshTeleport);
+            }
             return false;
         }
-        if(!inventoryOpen&&!chatOpen&&!minePads.isOpen())updateCameraRotation();
+        if(!pauseOpen&&!inventoryOpen&&!chatOpen&&!minePads.isOpen())updateCameraRotation();
         if(!runtime.entities.vehicle(vehicle,now,ridingVehicle))return true;
         boolean first=runtime.riding.seatOf(player)==0;
         boolean boat=com.newhorizon.thinclient.world.RidingState.boat(ridingVehicle.type);
         boolean horse=com.newhorizon.thinclient.world.RidingState.horse(ridingVehicle.type);
         boolean controlling=first&&runtime.riding.rootOf(player)==vehicle&&(boat||(horse&&(ridingVehicle.horseFlags&6)==6));
         if(mountedId!=vehicle||wasControlling!=controlling){
-            mountedId=vehicle;wasControlling=controlling;rideTickNanos=now;mountJumpPressed=false;jumpChargeTicks=0;dismountRequested=false;
+            mountedId=vehicle;wasControlling=controlling;rideTickNanos=now;boatCamera.reset();mountJumpPressed=false;jumpChargeTicks=0;dismountRequested=false;
             vehicleMotion.reset(ridingVehicle.x,ridingVehicle.y,ridingVehicle.z,ridingVehicle.yaw,ridingVehicle.pitch);captureRidePrevious();
             verticalVelocity=horizontalVelocityX=horizontalVelocityZ=0;vanillaPhysicsAccumulator=0;sprinting=sneaking=false;swimming.swimming=swimming.prone=false;sendVanillaMovementState();
         }
-        if(runtime.riding.drainCorrection(runtime.riding.rootOf(player),rideCorrection)){vehicleMotion.reset(rideCorrection[0],rideCorrection[1],rideCorrection[2],(float)rideCorrection[3],(float)rideCorrection[4]);captureRidePrevious();}
-        float forward=inventoryOpen||chatOpen||minePads.isOpen()?0:(float)(axis(GLFW.GLFW_KEY_W,GLFW.GLFW_KEY_UP)-axis(GLFW.GLFW_KEY_S,GLFW.GLFW_KEY_DOWN));
-        float sideways=inventoryOpen||chatOpen||minePads.isOpen()?0:(float)(axis(GLFW.GLFW_KEY_A,GLFW.GLFW_KEY_LEFT)-axis(GLFW.GLFW_KEY_D,GLFW.GLFW_KEY_RIGHT));
-        boolean jump=!inventoryOpen&&!chatOpen&&!minePads.isOpen()&&pressedKeys[GLFW.GLFW_KEY_SPACE];
-        boolean exit=dismountRequested||(!inventoryOpen&&!chatOpen&&!minePads.isOpen()&&(pressedKeys[GLFW.GLFW_KEY_LEFT_SHIFT]||pressedKeys[GLFW.GLFW_KEY_RIGHT_SHIFT]));
+        if(runtime.riding.drainCorrection(runtime.riding.rootOf(player),rideCorrection)){vehicleMotion.reset(rideCorrection[0],rideCorrection[1],rideCorrection[2],(float)rideCorrection[3],(float)rideCorrection[4]);captureRidePrevious();boatCamera.reset();}
+        float forward=pauseOpen||inventoryOpen||chatOpen||minePads.isOpen()?0:(float)(axis(GLFW.GLFW_KEY_W,GLFW.GLFW_KEY_UP)-axis(GLFW.GLFW_KEY_S,GLFW.GLFW_KEY_DOWN));
+        float sideways=pauseOpen||inventoryOpen||chatOpen||minePads.isOpen()?0:(float)(axis(GLFW.GLFW_KEY_A,GLFW.GLFW_KEY_LEFT)-axis(GLFW.GLFW_KEY_D,GLFW.GLFW_KEY_RIGHT));
+        boolean jump=!pauseOpen&&!inventoryOpen&&!chatOpen&&!minePads.isOpen()&&pressedKeys[GLFW.GLFW_KEY_SPACE];
+        boolean exit=dismountRequested||(!pauseOpen&&!inventoryOpen&&!chatOpen&&!minePads.isOpen()&&(pressedKeys[GLFW.GLFW_KEY_LEFT_SHIFT]||pressedKeys[GLFW.GLFW_KEY_RIGHT_SHIFT]));
         if(now-rideTickNanos>150_000_000L)rideTickNanos=now-150_000_000L;
         try{
             while(now-rideTickNanos>=50_000_000L){rideTickNanos+=50_000_000L;
-                connection.sendRiderInput(sideways,forward,jump,exit,cameraRotation[0],cameraRotation[1]);
+                // ServerPlayer.setPlayerInput also changes shift state. Track it so
+                // the touch dismount button is followed by RELEASE_SHIFT on foot.
+                if(connection.sendRiderInput(sideways,forward,jump,exit,cameraRotation[0],cameraRotation[1]))sentSneaking=exit;
                 float power=0;
                 if(horse&&controlling){
                     if(jump){jumpChargeTicks=mountJumpPressed?jumpChargeTicks+1:0;mountJumpPressed=true;}
@@ -670,20 +786,24 @@ public final class LtwScene implements AutoCloseable {
                 }
                 if(controlling){
                     captureRidePrevious();
-                    if(boat){float before=vehicleMotion.yaw;vehicleMotion.tick(runtime.world,sideways>0,sideways<0,forward>0,forward<0);cameraRotation[0]+=vehicleMotion.yaw-before;connection.sendPaddles(vehicleMotion.leftPaddle,vehicleMotion.rightPaddle);}
+                    if(boat){vehicleMotion.tick(runtime.world,sideways>0,sideways<0,forward>0,forward<0);connection.sendPaddles(vehicleMotion.leftPaddle,vehicleMotion.rightPaddle);}
                     else com.newhorizon.thinclient.world.MountMotion.tick(vehicleMotion,runtime.world,ridingVehicle,forward,sideways,cameraRotation[0],power);
                     connection.sendVehicleMovement(vehicleMotion.x,vehicleMotion.y,vehicleMotion.z,vehicleMotion.yaw,vehicleMotion.pitch);
                 }
             }
         }catch(IOException|ProtocolException e){throw new IllegalStateException("Riding update",e);}
+        float renderedBoatYaw=ridingVehicle.yaw;
         if(controlling){
             double alpha=Math.min(1,Math.max(0,(now-rideTickNanos)/50_000_000.0));
+            renderedBoatYaw=com.newhorizon.thinclient.world.BoatCamera.interpolate((float)ridePrevious[3],vehicleMotion.yaw,alpha);
             runtime.entities.localVehicle(vehicle,ridePrevious[0]+(vehicleMotion.x-ridePrevious[0])*alpha,ridePrevious[1]+(vehicleMotion.y-ridePrevious[1])*alpha,
-                    ridePrevious[2]+(vehicleMotion.z-ridePrevious[2])*alpha,(float)(ridePrevious[3]+wrapDegrees(vehicleMotion.yaw-(float)ridePrevious[3])*alpha),vehicleMotion.pitch);
+                    ridePrevious[2]+(vehicleMotion.z-ridePrevious[2])*alpha,renderedBoatYaw,vehicleMotion.pitch);
         }
         else runtime.entities.localVehicle(-1,0,0,0,0,0);
-        if(boat){float base=controlling?vehicleMotion.yaw:ridingVehicle.yaw;cameraRotation[0]=base+Math.max(-105,Math.min(105,wrapDegrees(cameraRotation[0]-base)));}
+        if(boat)cameraRotation[0]=boatCamera.update(cameraRotation[0],renderedBoatYaw);
         if(runtime.entities.position(player,now,rideSeat)){System.arraycopy(rideSeat,0,cameraPosition,0,3);snapRenderCameraToPhysics();}
+        // Consume snapshots while attached so old seat/teleport data cannot replay on exit.
+        lastTeleportRevision=runtime.world.teleportRevision();lastWorldRevision=runtime.world.playerRevision();
         lastMovementNanos=lastActiveMovementNanos=now;
         runtime.displays.updatePlayer(runtime.world.dimension(),cameraPosition[0],cameraPosition[1],cameraPosition[2]);
         return true;
@@ -693,7 +813,7 @@ public final class LtwScene implements AutoCloseable {
 
     private void updateGameHud(long now){
         if(now<nextGameHud)return;nextGameHud=now+250_000_000L;
-        boolean tab=pressedKeys[GLFW.GLFW_KEY_TAB]&&!inventoryOpen&&!chatOpen&&!minePads.isOpen();
+        boolean tab=pressedKeys[GLFW.GLFW_KEY_TAB]&&!pauseOpen&&!inventoryOpen&&!chatOpen&&!minePads.isOpen();
         java.util.UUID id=runtime.players.localId();
         com.newhorizon.thinclient.world.PlayerSkins.Slot local=runtime.playerSkins.request(id,runtime.players.textures(id));
         if(local!=null&&localSkinRevision!=local.revision){localSkin=local.skin;localSkinRevision=local.revision;lastFirstPersonRevision=-1;}
@@ -713,10 +833,41 @@ public final class LtwScene implements AutoCloseable {
             debugOverlay.targetEntity=selectionHit.type==VanillaHitResult.ENTITY?selectionHit.entityId:-1;
             debug=debugOverlay.encode(runtime,now,cameraPosition[0],cameraPosition[1],cameraPosition[2],eyeHeight(),cameraRotation[0],cameraRotation[1]);
         }
-        GeckoNativeBridge.updateHud(runtime.hud.encode(runtime.players,tab,now),debug,tab,hudHidden,inventoryOpen||minePads.isOpen(),viewCamera.mode);
+        String hud=runtime.hud.encode(runtime.players,tab,now);
+        GeckoNativeBridge.updateHud(hud,debug,tab,hudHidden,pauseOpen||inventoryOpen||minePads.isOpen(),viewCamera.mode);
+    }
+
+    private void closeInventoryMenu() {
+        if (workbenchWindow > 0) {
+            try { connection.closeWorkbench(workbenchWindow); }
+            catch (IOException | ProtocolException error) { throw new IllegalStateException("Unable to close crafting table", error); }
+            workbenchWindow = -1;
+        } else sendInventoryRequest(InventoryProtocol.closeRequest());
+        inventoryOpen = false;
+        GeckoNativeBridge.hideInventory();
+        GeckoNativeBridge.updateHotbar(runtime.inventory.encodeForUi());
+    }
+
+    private String inventoryMenuSnapshot() {
+        return workbenchWindow > 0 ? runtime.workbench.encodeForUi(runtime.inventory) : runtime.inventory.encodeForUi();
     }
 
     private void processClientUi() {
+        if(!connection.isPlaying()) { inventoryToggleRequested=false; chatRequested=null; }
+        int serverWindow = runtime.workbench.window();
+        if (workbenchWindow > 0 && workbenchWindow != serverWindow) {
+            workbenchWindow = -1; inventoryOpen = false; GeckoNativeBridge.hideInventory();
+            GeckoNativeBridge.updateHotbar(runtime.inventory.encodeForUi());
+        }
+        if (serverWindow > 0 && workbenchWindow != serverWindow) {
+            workbenchWindow = serverWindow; inventoryOpen = true; inventoryToggleRequested = false;
+            lastInventoryRevision = -1L;
+            setPauseOpen(false); chatOpen = false; GeckoNativeBridge.hideChat(); minePads.hide();
+            java.util.Arrays.fill(pressedKeys, false); flightToggleRequested = false;
+            releaseVanillaItem(); primaryHeld = secondaryHeld = false; stopVanillaAttack();
+            mouseEventRead = mouseEventWrite; callbackCursorReady = false;
+            GeckoNativeBridge.hideHotbar(); GeckoNativeBridge.showInventory(inventoryMenuSnapshot());
+        }
         if (diagnosticToggleRequested) {
             diagnosticToggleRequested = false;
             debugVisible=!debugVisible;nextGameHud=0;
@@ -731,14 +882,11 @@ public final class LtwScene implements AutoCloseable {
             }
             chatRequested=null;
         }
-        if(chatOpen||minePads.isOpen())inventoryToggleRequested=false;
+        if(pauseOpen||chatOpen||minePads.isOpen())inventoryToggleRequested=false;
         if (inventoryToggleRequested) {
             inventoryToggleRequested = false;
             if (inventoryOpen) {
-                inventoryOpen = false;
-                GeckoNativeBridge.hideInventory();
-                sendInventoryRequest(InventoryProtocol.closeRequest());
-                GeckoNativeBridge.updateHotbar(runtime.inventory.encodeForUi());
+                closeInventoryMenu();
             } else {
                 inventoryOpen = true;
                 java.util.Arrays.fill(pressedKeys,false);
@@ -753,6 +901,17 @@ public final class LtwScene implements AutoCloseable {
             String[] event = GeckoNativeBridge.pollEvent();
             if (event == null) break;
             if (event.length < 3) continue;
+            if("nh-menu-toggle".equals(event[1])){
+                if(!inventoryOpen&&!chatOpen&&!minePads.isOpen())setPauseOpen(!pauseOpen);
+                continue;
+            }
+            if("nh-menu-action".equals(event[1])){
+                if(pauseOpen){if("quit".equals(event[2]))GLFW.glfwSetWindowShouldClose(window,true);
+                    else if("resume".equals(event[2]))setPauseOpen(false);}
+                continue;
+            }
+            if("nh-options".equals(event[1])){if(uiOptions.apply(event[2]))audio.setMasterVolume(uiOptions.volume);continue;}
+            if(!connection.isPlaying()) continue;
             if("nh-display-link".equals(event[1])){
                 if(mayInteractWithDisplay())minePads.receiveDisplayUrl(runtime.inventory,event[2],System.nanoTime());
                 continue;
@@ -762,8 +921,8 @@ public final class LtwScene implements AutoCloseable {
                     int browser=Integer.parseInt(event[0]);
                     if("nh-pad-action".equals(event[1])){String[] args=event[2].split("\n",3);if(args.length==3)minePads.action(Integer.parseInt(args[0]),Integer.parseInt(args[1]),args[2]);}
                     else if("nh-pad-location".equals(event[1]))minePads.location(browser,event[2]);
+                    else if("nh-pad-popup".equals(event[1]))minePads.popup(browser,event[2]);
                     else if(browser==minePads.activeBrowser()){
-                        if("nh-pad-popup".equals(event[1]))minePads.action(1,0,event[2]);
                         if("nh-pad-window-close".equals(event[1]))minePads.action(3,-1,"");
                     }
                 }catch(IllegalArgumentException ignored){}
@@ -797,7 +956,10 @@ public final class LtwScene implements AutoCloseable {
                             ? Integer.parseInt(click[1]) : InventoryProtocol.BUTTON_LEFT;
                     boolean shift = click.length > 2 && "1".equals(click[2]);
                     if (inventoryOpen) {
-                        sendInventoryRequest(InventoryProtocol.clickRequest(slot, button, shift));
+                        if (workbenchWindow > 0) {
+                            try { connection.clickWorkbench(workbenchWindow, slot, button, shift); }
+                            catch (IOException | ProtocolException error) { throw new IllegalStateException("Unable to click crafting table", error); }
+                        } else sendInventoryRequest(InventoryProtocol.clickRequest(slot, button, shift));
                     }
                 } catch (IllegalArgumentException ignored) {
                     System.out.println("[NH-THIN] ignored invalid inventory click");
@@ -831,9 +993,7 @@ public final class LtwScene implements AutoCloseable {
                 }
             } else if ("nh-inventory-close".equals(event[1])) {
                 if (inventoryOpen) {
-                    inventoryOpen = false;
-                    sendInventoryRequest(InventoryProtocol.closeRequest());
-                    GeckoNativeBridge.updateHotbar(runtime.inventory.encodeForUi());
+                    closeInventoryMenu();
                 }
             }
         }
@@ -845,10 +1005,10 @@ public final class LtwScene implements AutoCloseable {
             encoded = runtime.inventory.encodeForUi();
             GeckoNativeBridge.updateHotbar(encoded);
         }
-        if (inventoryOpen && revision != lastInventoryRevision) {
-            lastInventoryRevision = revision;
-            if (encoded == null) encoded = runtime.inventory.encodeForUi();
-            GeckoNativeBridge.showInventory(encoded);
+        long menuRevision = workbenchWindow > 0 ? runtime.workbench.revision() : revision;
+        if (inventoryOpen && menuRevision != lastInventoryRevision) {
+            lastInventoryRevision = menuRevision;
+            GeckoNativeBridge.showInventory(inventoryMenuSnapshot());
         }
     }
 
@@ -870,6 +1030,8 @@ public final class LtwScene implements AutoCloseable {
         boolean standingFits=!collidesAtHeight(cameraPosition[0],cameraPosition[1],cameraPosition[2],PLAYER_HEIGHT);
         boolean crouchingFits=!collidesAtHeight(cameraPosition[0],cameraPosition[1],cameraPosition[2],SNEAK_HEIGHT);
         if (forward <= 0.0 || wantsSneak&&!water) sprinting = false;
+        if(com.newhorizon.thinclient.world.SprintInput.blocked(horizontalCollision,minorHorizontalCollision,
+                swimming.swimming,connection.isFlying())){sprinting=false;sprintInput.cancel();}
         boolean wasSwimming=swimming.swimming,wasProne=swimming.prone;
         swimming.update(sprinting,water,waterAtHeight(eyeHeight()-.11111111),waterAtHeight(.01),
                 connection.isFlying()||mountedId>=0||runtime.combat.dead(),standingFits,crouchingFits);
@@ -1202,6 +1364,7 @@ public final class LtwScene implements AutoCloseable {
 
     private void moveHorizontal(double dx, double dz) {
         if (!runtime.world.hasCollisionData()) {
+            horizontalCollision=minorHorizontalCollision=false;
             cameraPosition[0] += dx;
             cameraPosition[2] += dz;
             return;
@@ -1257,13 +1420,19 @@ public final class LtwScene implements AutoCloseable {
             }
         }
         horizontalCollision = blockedX || blockedZ;
-        // Vanilla resolves vertical motion before the horizontal axes. While the
-        // player is rising, keep the horizontal impulse so it can resume as soon
-        // as the feet clear a one-block obstacle.
-        boolean preserveJumpImpulse = !connection.isFlying()
-                && !onGround && verticalVelocity > 0.0;
-        if (blockedX && !preserveJumpImpulse) horizontalVelocityX = 0.0;
-        if (blockedZ && !preserveJumpImpulse) horizontalVelocityZ = 0.0;
+        double forward=axis(GLFW.GLFW_KEY_W,GLFW.GLFW_KEY_UP)-axis(GLFW.GLFW_KEY_S,GLFW.GLFW_KEY_DOWN);
+        double strafe=axis(GLFW.GLFW_KEY_D,GLFW.GLFW_KEY_RIGHT)-axis(GLFW.GLFW_KEY_A,GLFW.GLFW_KEY_LEFT);
+        double yaw=Math.toRadians(cameraRotation[0]),sin=Math.sin(yaw),cos=Math.cos(yaw);
+        minorHorizontalCollision=horizontalCollision && com.newhorizon.thinclient.world.SprintInput.minorCollision(
+                -sin*forward-cos*strafe,cos*forward-sin*strafe,clippedX,clippedZ);
+        if(com.newhorizon.thinclient.world.SprintInput.blocked(horizontalCollision,minorHorizontalCollision,
+                swimming.swimming,connection.isFlying())) {
+            sprintInput.cancel();
+            if(sprinting){sprinting=false;sendVanillaMovementState();}
+        }
+        // A wall consumes the blocked-axis velocity, including a sprint jump impulse.
+        if (blockedX) horizontalVelocityX = 0.0;
+        if (blockedZ) horizontalVelocityZ = 0.0;
     }
 
     private boolean hasSneakSupport(double x, double z) {
@@ -1428,12 +1597,15 @@ public final class LtwScene implements AutoCloseable {
                 z - PLAYER_RADIUS + COLLISION_EPSILON,
                 x + PLAYER_RADIUS - COLLISION_EPSILON,
                 y + height - COLLISION_EPSILON,
-                z + PLAYER_RADIUS - COLLISION_EPSILON);
+                z + PLAYER_RADIUS - COLLISION_EPSILON)
+                || runtime.entities.collidesBoatBox(connection.playerEntityId(),System.nanoTime(),
+                    x-PLAYER_RADIUS+COLLISION_EPSILON,y+COLLISION_EPSILON,z-PLAYER_RADIUS+COLLISION_EPSILON,
+                    x+PLAYER_RADIUS-COLLISION_EPSILON,y+height-COLLISION_EPSILON,z+PLAYER_RADIUS-COLLISION_EPSILON);
     }
 
     private double clipAxis(int axis, double movement) {
         double height = playerHeight();
-        return runtime.world.clipMovement(axis,
+        double clipped=runtime.world.clipMovement(axis,
                 cameraPosition[0] - PLAYER_RADIUS,
                 cameraPosition[1],
                 cameraPosition[2] - PLAYER_RADIUS,
@@ -1441,6 +1613,9 @@ public final class LtwScene implements AutoCloseable {
                 cameraPosition[1] + height,
                 cameraPosition[2] + PLAYER_RADIUS,
                 movement);
+        return runtime.entities.clipBoatMovement(connection.playerEntityId(),System.nanoTime(),axis,
+                cameraPosition[0]-PLAYER_RADIUS,cameraPosition[1],cameraPosition[2]-PLAYER_RADIUS,
+                cameraPosition[0]+PLAYER_RADIUS,cameraPosition[1]+height,cameraPosition[2]+PLAYER_RADIUS,clipped);
     }
 
     private void updateCameraRotation() {
@@ -1468,9 +1643,9 @@ public final class LtwScene implements AutoCloseable {
         lastCursorY = currentY;
         if (Math.abs(deltaX) > 4096.0 || Math.abs(deltaY) > 4096.0) return;
         cameraRotation[0] = wrapDegrees(cameraRotation[0]
-                + (float) deltaX * MOUSE_SENSITIVITY);
+                + (float) deltaX * MOUSE_SENSITIVITY * uiOptions.sensitivity);
         cameraRotation[1] = Math.max(-89.9f, Math.min(89.9f,
-                cameraRotation[1] + (float) deltaY * MOUSE_SENSITIVITY));
+                cameraRotation[1] + (float) deltaY * MOUSE_SENSITIVITY * uiOptions.sensitivity * (uiOptions.invertY?-1:1)));
     }
 
     private void reconcileServerPosition(boolean moving, long now) {
@@ -1479,6 +1654,7 @@ public final class LtwScene implements AutoCloseable {
             lastTeleportRevision = teleportRevision;
             lastWorldRevision = runtime.world.playerRevision();
             runtime.world.copyPlayerView(cameraPosition, cameraRotation);
+            if(now<dismountTraceUntil)System.out.println("[NH-RIDE] post-exit teleport="+cameraPosition[0]+","+cameraPosition[1]+","+cameraPosition[2]);
             verticalVelocity = 0.0;
             horizontalVelocityX = 0.0;
             horizontalVelocityZ = 0.0;
@@ -1559,6 +1735,14 @@ public final class LtwScene implements AutoCloseable {
         projectionUniform = GL33.glGetUniformLocation(shaderProgram, "uProjection");
         mediumUniform = GL33.glGetUniformLocation(shaderProgram, "uMedium");
         materialPassUniform = GL33.glGetUniformLocation(shaderProgram, "uMaterialPass");
+        GL33.glUseProgram(shaderProgram);
+        GL33.glUniform1i(GL33.glGetUniformLocation(shaderProgram,"uBiomeTints"),2);
+        GL33.glUniform1i(GL33.glGetUniformLocation(shaderProgram,"uBlockAtlas"),1);
+        GL33.glUniform1i(GL33.glGetUniformLocation(shaderProgram,"uBlockModels"),3);
+        GL33.glUniform2f(GL33.glGetUniformLocation(shaderProgram,"uBlockAtlasSize"),BlockAtlas.WIDTH,BlockAtlas.HEIGHT);
+        GL33.glUniform1i(GL33.glGetUniformLocation(shaderProgram,"uGrassSide"),com.newhorizon.thinclient.world.VanillaBlockTextures.tileId("grass_block_side"));
+        GL33.glUniform1i(GL33.glGetUniformLocation(shaderProgram,"uGrassOverlay"),com.newhorizon.thinclient.world.VanillaBlockTextures.tileId("grass_block_side_overlay"));
+        GL33.glUniform1i(GL33.glGetUniformLocation(shaderProgram,"uRailAtlas"),0);
         displayShaderProgram = linkProgram(DISPLAY_VERTEX_SHADER, DISPLAY_FRAGMENT_SHADER);
         displayCameraUniform = GL33.glGetUniformLocation(displayShaderProgram, "uCamera");
         displayRotationUniform = GL33.glGetUniformLocation(displayShaderProgram, "uRotation");
@@ -1575,6 +1759,7 @@ public final class LtwScene implements AutoCloseable {
         firstPersonSwingUniform = GL33.glGetUniformLocation(
                 firstPersonShaderProgram, "uSwing");
         firstPersonEatUniform=GL33.glGetUniformLocation(firstPersonShaderProgram,"uEat");
+        firstPersonTridentUniform=GL33.glGetUniformLocation(firstPersonShaderProgram,"uTridentUse");
         firstPersonHandUniform=GL33.glGetUniformLocation(firstPersonShaderProgram,"uHandKind");
         selectionShaderProgram = linkProgram(VERTEX_SHADER, SELECTION_FRAGMENT_SHADER);
         selectionCameraUniform = GL33.glGetUniformLocation(selectionShaderProgram, "uCamera");
@@ -1582,7 +1767,8 @@ public final class LtwScene implements AutoCloseable {
         selectionAspectUniform = GL33.glGetUniformLocation(selectionShaderProgram, "uAspect");
         selectionProjectionUniform = GL33.glGetUniformLocation(
                 selectionShaderProgram, "uProjection");
-        entityRenderer.initializeGl();
+        entityRenderer.initializeGl();mapFrames.initializeGl();
+        entityLabels.initializeGl();
         environmentRenderer.initializeGl();
         vao = GL33.glGenVertexArrays();
         GL33.glBindVertexArray(vao);
@@ -1715,7 +1901,7 @@ public final class LtwScene implements AutoCloseable {
         uploadOffset=end;
         if(end==mesh.geometry.limit()) {
             uploadGpu.chunkX=mesh.x;uploadGpu.chunkZ=mesh.z;uploadGpu.revision=mesh.revision;
-            uploadGpu.epoch=mesh.epoch;uploadGpu.vertexCount=mesh.vertices;
+            uploadGpu.epoch=mesh.epoch;uploadGpu.vertexCount=mesh.vertices;uploadGpu.opaqueVertices=mesh.opaqueVertices;System.arraycopy(mesh.bounds,0,uploadGpu.bounds,0,6);uploadGpu.ranges.copyFrom(mesh.ranges);
             GpuChunk previous=gpuChunks[slot];gpuChunks[slot]=uploadGpu;uploadGpu=previous;
             meshWorker.release(mesh);pendingMesh=null;
         }
@@ -1765,6 +1951,7 @@ public final class LtwScene implements AutoCloseable {
             System.out.println("[NH-STREAM] mesh pressure deferred="+x+","+z+" used="+runtime.budget.used(MemoryCategory.MESH));
     }
     private void releaseGpuChunk(GpuChunk gpu){
+        gpu.vertexArray.close();
         GL33.glDeleteBuffers(gpu.vbo);GL33.glDeleteBuffers(gpu.lightVbo);gpu.lease.close();
     }
 
@@ -1775,6 +1962,14 @@ public final class LtwScene implements AutoCloseable {
         int width = Math.max(1, framebufferWidth.get(0));
         int height = Math.max(1, framebufferHeight.get(0));
         long visualNow=System.nanoTime();
+        if(profileWindowStart==0){profileWindowStart=visualNow;profilePreviousX=renderCameraPosition[0];profilePreviousZ=renderCameraPosition[2];}
+        profileTravel+=Math.hypot(renderCameraPosition[0]-profilePreviousX,renderCameraPosition[2]-profilePreviousZ);
+        profilePreviousX=renderCameraPosition[0];profilePreviousZ=renderCameraPosition[2];
+        // Advance one shared animation tick for terrain, particles and held items.
+        // The immutable atlas needs no texture uploads during rendering.
+        blockAtlas.update(visualNow);
+        biomeTints.update(runtime.soundBiomes);
+        profileAtlasNanos+=System.nanoTime()-visualNow;
         renderedFrames++;if(visualNow-frameWindow>=1_000_000_000L){framesPerSecond=frameWindow==0?0:(int)(renderedFrames*1_000_000_000L/(visualNow-frameWindow));renderedFrames=0;frameWindow=visualNow;}
         viewCamera.update(runtime.world,renderCameraPosition[0],renderCameraPosition[1]+eyeHeight(),renderCameraPosition[2],cameraRotation[0],cameraRotation[1]);
         com.newhorizon.thinclient.world.EntityTracker.Renderable local=localVisual.model;
@@ -1794,13 +1989,14 @@ public final class LtwScene implements AutoCloseable {
         float medium = (eyeFlags & BlockStatePhysics.WATER) != 0 ? 1.0f
                 : (eyeFlags & BlockStatePhysics.LAVA) != 0 ? 2.0f : 0.0f;
         long environmentNow = System.nanoTime();
+        ScreenEffects.portal(runtime.portal.progress());
         ScreenEffects.update(runtime.effects,environmentNow);
         ScreenEffects.hurt(runtime.combat.hurtRoll(environmentNow));
         com.newhorizon.thinclient.audio.BiomeSoundRegistry.Biome weatherBiome=runtime.soundBiomes.get(
                 runtime.world.biomeAt((int)Math.floor(eyeX),(int)Math.floor(eyeY),(int)Math.floor(eyeZ)));
-        environmentRenderer.prepare(environmentNow,runtime.world.dimension(),weatherBiome,(int)medium,SceneAtmosphere.VIEW_CHUNKS,viewCamera.yaw);
+        environmentRenderer.prepare(environmentNow,runtime.dimensions.effects(),weatherBiome,(int)medium,SceneAtmosphere.VIEW_CHUNKS,viewCamera.yaw);
         SceneAtmosphere.update(environmentRenderer.atmosphere,runtime.world,eyeX,eyeY,eyeZ);
-        environmentRenderer.snowing(weatherBiome!=null&&weatherBiome.temperature<.15f);
+        frameProfile.mark(4);
         if(ScreenEffects.obscuresSky()) GL33.glClearColor(0,0,0,1);
         else GL33.glClearColor(environmentRenderer.clearRed(),
                 environmentRenderer.clearGreen(), environmentRenderer.clearBlue(), 1f);
@@ -1818,9 +2014,12 @@ public final class LtwScene implements AutoCloseable {
         GL33.glUniform1f(projectionUniform, projectionScale());
         GL33.glUniform1f(mediumUniform, medium);
         GL33.glBindVertexArray(vao);
+        long passTerrain=System.nanoTime();frameProfile.mark(5);
+        terrainFrustum.update(eyeX,eyeY,eyeZ,viewCamera.yaw,viewCamera.pitch,width/(float)height,projectionScale());
         GL33.glUniform1f(materialPassUniform, 0.0f);
-        drawWorldChunks();
+        drawWorldChunks(false);
 
+        long pass0=System.nanoTime();frameProfile.mark(6);
         // Dynamic entities share one cube VBO and one bounded instancing upload.
         // Draw them between solid terrain and liquids so water overlays them.
         entityRenderer.draw(eyeX, eyeY, eyeZ, viewCamera.yaw, viewCamera.pitch,
@@ -1829,62 +2028,99 @@ public final class LtwScene implements AutoCloseable {
         ScreenEffects.bind(shaderProgram);
         GL33.glBindVertexArray(vao);
 
+        long pass1=System.nanoTime();frameProfile.mark(7);
         // Vanilla separates translucent liquids from the opaque terrain pass.
-        // Reuse the same bounded VBOs: the shader's alpha-byte material tag
-        // rejects the other class, so no second CPU mesh or RAM copy exists.
+        // Reuse the same VBO with stable contiguous ranges prepared by the worker.
+        // Each triangle is submitted once, with its original lighting and order.
         GL33.glEnable(GL33.GL_BLEND);
         GL33.glBlendFunc(GL33.GL_SRC_ALPHA, GL33.GL_ONE_MINUS_SRC_ALPHA);
         GL33.glDepthMask(false);
         GL33.glDisable(GL33.GL_CULL_FACE);
         GL33.glUniform1f(materialPassUniform, 1.0f);
-        drawWorldChunks();
+        drawWorldChunks(true);
         GL33.glEnable(GL33.GL_CULL_FACE);
         GL33.glDepthMask(true);
         GL33.glDisable(GL33.GL_BLEND);
         if (medium == 0.0f && !ScreenEffects.obscuresSky()) {
-            environmentRenderer.drawWeather(eyeX, eyeY, eyeZ,
+            environmentRenderer.drawWeather(runtime.world, runtime.soundBiomes, eyeX, eyeY, eyeZ,
                     viewCamera.yaw, viewCamera.pitch, width / (float) height,
                     projectionScale());
         }
+        runtime.displays.updateView(viewCamera.x,viewCamera.y,viewCamera.z,viewCamera.yaw,viewCamera.pitch,width/(float)height,projectionScale());
         displaySnapshotCount = runtime.displays.snapshotVisible(displaySnapshots);
         processMouseEvents();
         drawBreakingTexture();
         if(!hudHidden)drawBlockSelection(width, height);
+        long pass2=System.nanoTime();frameProfile.mark(8);
         drawDisplays(width, height);
+        long pass3=System.nanoTime();frameProfile.mark(9);
+        mapFrames.draw(runtime.entities,visualNow,eyeX,eyeY,eyeZ,viewCamera.yaw,viewCamera.pitch,width/(float)height,projectionScale(),connection.playerEntityId());
+        long pass4=System.nanoTime();frameProfile.mark(10);
+        if(!hudHidden)entityLabels.draw(runtime.entities,runtime.players,runtime.hud,visualNow,
+                eyeX,eyeY,eyeZ,viewCamera.yaw,viewCamera.pitch,width/(float)height,projectionScale(),connection.playerEntityId());
+        long pass5=System.nanoTime();frameProfile.mark(11);
+        passNanos[5]+=pass0-passTerrain;passNanos[0]+=pass1-pass0;passNanos[1]+=pass2-pass1;passNanos[2]+=pass3-pass2;passNanos[3]+=pass4-pass3;passNanos[4]+=pass5-pass4;
+        passFrames++;passMaps+=mapFrames.diagnosticMaps;passUploads+=mapFrames.diagnosticUploads;passDraws+=mapFrames.diagnosticDraws;
+        weatherSampleNanos+=environmentRenderer.diagnosticWeatherSampleNanos;
+        weatherDrawNanos+=environmentRenderer.diagnosticWeatherDrawNanos;
+        weatherMaxNanos=Math.max(weatherMaxNanos,environmentRenderer.diagnosticWeatherSampleNanos+environmentRenderer.diagnosticWeatherDrawNanos);
+        weatherColumns+=environmentRenderer.diagnosticWeatherColumns;
+        if(passFrames%100==0){
+            long now=System.nanoTime();
+            System.out.println("[NH-WEATHER] fps="+(100_000_000_000.0/(now-profileWindowStart))
+                    +" rain="+environmentRenderer.diagnosticRain()+" travel="+profileTravel
+                    +" sampleMs="+weatherSampleNanos/100_000_000.0+" drawMs="+weatherDrawNanos/100_000_000.0
+                    +" maxMs="+weatherMaxNanos/1e6+" columns="+weatherColumns/100.0+" atlasMs="+profileAtlasNanos/100_000_000.0
+                    +" animationUploads=0 yaw="+viewCamera.yaw+" pitch="+viewCamera.pitch
+                    +" gpuWaitMs="+framePacer.waitNanos/100_000_000.0+" gpuMaxWaitMs="+framePacer.maxWaitNanos/1e6+" gpuWaits="+framePacer.waits);
+            framePacer.waitNanos=framePacer.maxWaitNanos=framePacer.waits=0;
+            profileWindowStart=now;weatherSampleNanos=weatherDrawNanos=weatherMaxNanos=weatherColumns=profileAtlasNanos=0;profileTravel=0;
+        }
+        if(passFrames%100==0){System.out.println("[NH-PROFILE] frames="+passFrames+" window=100 solidMs="+passNanos[5]/1e8+" entitiesMs="+passNanos[0]/1e8+" translucentMs="+passNanos[1]/1e8+" browsersMs="+passNanos[2]/1e8+" mapsMs="+passNanos[3]/1e8+" labelsMs="+passNanos[4]/1e8+" maps="+passMaps/100.0+" uploads="+passUploads/100.0+" draws="+passDraws/100.0+" effectUniforms="+ScreenEffects.uniformUploads+" atmosphereUniforms="+SceneAtmosphere.uniformUploads+" terrainVertices="+terrainSubmittedVertices/100+" terrainSkipped="+terrainSkippedVertices/100+" terrainDraws="+terrainDrawCalls/100.0+" labels="+entityLabels.diagnosticLabels+" labelsCulled="+entityLabels.diagnosticCulled+" labelBuilds="+entityLabels.diagnosticBuilds);
+            java.util.Arrays.fill(passNanos,0);passMaps=passUploads=passDraws=0;terrainSubmittedVertices=terrainSkippedVertices=terrainDrawCalls=0;ScreenEffects.uniformUploads=SceneAtmosphere.uniformUploads=0;}
         drawFirstPerson(width, height);
         if(viewCamera.mode==0&&!hudHidden){blockAtlas.bind(1);entityRenderer.drawFireOverlay(runtime.combat.burning(),width/(float)height);}
+        if(!hudHidden && runtime.effects.level(com.newhorizon.thinclient.world.PlayerEffects.NAUSEA)==0) {
+            blockAtlas.bind(1);entityRenderer.drawPortalOverlay(runtime.portal.progress());
+        }
     }
 
-    private void drawWorldChunks() {
-        biomeTints.update(runtime.soundBiomes);biomeTints.bind();
-        GL33.glUniform1i(GL33.glGetUniformLocation(shaderProgram,"uBiomeTints"),2);
-        blockAtlas.update(System.nanoTime());blockAtlas.bind(1);
-        GL33.glUniform1i(GL33.glGetUniformLocation(shaderProgram,"uBlockAtlas"),1);
-        GL33.glUniform2f(GL33.glGetUniformLocation(shaderProgram,"uBlockAtlasSize"),BlockAtlas.WIDTH,BlockAtlas.HEIGHT);
-        GL33.glUniform1i(GL33.glGetUniformLocation(shaderProgram,"uGrassSide"),com.newhorizon.thinclient.world.VanillaBlockTextures.tileId("grass_block_side"));
-        GL33.glUniform1i(GL33.glGetUniformLocation(shaderProgram,"uGrassOverlay"),com.newhorizon.thinclient.world.VanillaBlockTextures.tileId("grass_block_side_overlay"));
+    private void drawWorldChunks(boolean translucent) {
+        biomeTints.bind();
+        blockAtlas.bind(1);blockAtlas.bindModels();
         railAtlas.bind();
-        GL33.glUniform1i(GL33.glGetUniformLocation(shaderProgram,"uRailAtlas"),0);
+        boolean clipTerrain=!ScreenEffects.distortsProjection();
         for (GpuChunk chunk : gpuChunks) {
-            if (chunk == null || chunk.vertexCount == 0) continue;
+            if (chunk == null || chunk.vertexCount == 0 || (clipTerrain&&!terrainFrustum.visible(chunk.bounds))) continue;
             double dx=Math.max(0,Math.max(chunk.chunkX*16-renderCameraPosition[0],renderCameraPosition[0]-(chunk.chunkX*16+16)));
             double dz=Math.max(0,Math.max(chunk.chunkZ*16-renderCameraPosition[2],renderCameraPosition[2]-(chunk.chunkZ*16+16)));
             if(dx*dx+dz*dz>SceneAtmosphere.VIEW_CHUNKS*SceneAtmosphere.VIEW_CHUNKS*256)continue;
-            GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, chunk.vbo);
-            GL33.glVertexAttribPointer(0, 3, GL33.GL_FLOAT, false,
-                    SurfaceMesher.VERTEX_BYTES, 0L);
-            GL33.glVertexAttribPointer(1, 4, GL33.GL_UNSIGNED_BYTE, true,
-                    SurfaceMesher.VERTEX_BYTES, 12L);
-            GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER,chunk.lightVbo);
-            GL33.glEnableVertexAttribArray(2);GL33.glVertexAttribPointer(2,2,GL33.GL_UNSIGNED_BYTE,false,2,0L);
-            GL33.glDrawArrays(GL33.GL_TRIANGLES, 0, chunk.vertexCount);
+            int first=translucent?chunk.opaqueVertices:0,vertices=translucent?chunk.vertexCount-chunk.opaqueVertices:chunk.opaqueVertices;
+            if(vertices==0)continue;
+            int draws=1;
+            terrainDrawRanges[0]=first;terrainDrawRanges[1]=vertices;
+            // Keep small or fully contained chunks on the original single draw.
+            // Screen warping changes the clip volume, so retain all their triangles.
+            if(vertices>TerrainRanges.RANGE_VERTICES*2&&clipTerrain
+                    &&!terrainFrustum.contains(chunk.bounds))
+                draws=chunk.ranges.visible(terrainFrustum,translucent,terrainDrawRanges);
+            int submitted=0;
+            if(draws>0){
+                chunk.vertexArray.bind();
+                for(int i=0;i<draws;i++){
+                    int rangeVertices=terrainDrawRanges[i*2+1];
+                    GL33.glDrawArrays(GL33.GL_TRIANGLES,terrainDrawRanges[i*2],rangeVertices);
+                    submitted+=rangeVertices;
+                }
+            }
+            terrainDrawCalls+=draws;terrainSubmittedVertices+=submitted;terrainSkippedVertices+=vertices-submitted;
         }
     }
 
     private void drawFirstPerson(int framebufferWidth, int framebufferHeight) {
         if(viewCamera.mode!=0||hudHidden)return;
         if(runtime.effects.level(14)>0) return;
-        if (inventoryOpen || minePads.isOpen() || runtime.combat.dead() || runtime.riding.sleeping()) return;
+        if (pauseOpen || inventoryOpen || minePads.isOpen() || runtime.combat.dead() || runtime.riding.sleeping()) return;
         boolean shieldPose=chargingItem && "SHIELD".equals(com.newhorizon.thinclient.world.ProjectileKind.materialKey(chargingMaterial));
         int drawStage=chargingItem && chargingHand==0 && "BOW".equals(com.newhorizon.thinclient.world.ProjectileKind.materialKey(chargingMaterial))
                 ? (System.nanoTime()-itemUseStarted>=900_000_000L?2:System.nanoTime()-itemUseStarted>=650_000_000L?1:0):-1;
@@ -1947,8 +2183,16 @@ public final class LtwScene implements AutoCloseable {
         int stage=Math.min(9,(int)((System.nanoTime()-destroyStartNanos)*10/destroyRequiredNanos));
         int tile=com.newhorizon.thinclient.world.VanillaBlockTextures.tileId("destroy_stage_"+Math.max(0,stage));
         if(tile<0)return;
-        int count=SurfaceMesher.texturedBox(breakingVertices,heldHit.blockX,heldHit.blockY,heldHit.blockZ,.002f,SurfaceMesher.TEXTURED|tile|(1<<17)|(1<<19));
-        breakingVertices.flip();ScreenEffects.bind(shaderProgram);blockAtlas.bind(1);
+        int state=runtime.world.blockStateAt(heldHit.blockX,heldHit.blockY,heldHit.blockZ);
+        boolean original=VanillaBlockModels.contains(state)&&VanillaBlockModels.vertexCount(state)>0;
+        breakingVertices.clear();
+        int count=original?VanillaBlockModels.append(breakingVertices,state,
+                heldHit.blockX+(float)com.newhorizon.thinclient.world.BlockStateOutline.renderOffset(state,heldHit.blockX,heldHit.blockZ,0),
+                heldHit.blockY+(float)com.newhorizon.thinclient.world.BlockStateOutline.renderOffset(state,heldHit.blockX,heldHit.blockZ,1),
+                heldHit.blockZ+(float)com.newhorizon.thinclient.world.BlockStateOutline.renderOffset(state,heldHit.blockX,heldHit.blockZ,2),0,0)
+                :SurfaceMesher.texturedBox(breakingVertices,heldHit.blockX,heldHit.blockY,heldHit.blockZ,.002f,SurfaceMesher.TEXTURED|tile|(1<<17)|(1<<19));
+        breakingVertices.flip();ScreenEffects.bind(shaderProgram);blockAtlas.bind(1);blockAtlas.bindModels(shaderProgram);
+        GL33.glUniform1i(GL33.glGetUniformLocation(shaderProgram,"uCrackTile"),tile);
         GL33.glUniform1f(materialPassUniform,0);GL33.glBindVertexArray(vao);GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER,breakingVbo);
         SceneAtmosphere.eyeAttribute(2);
         GL33.glBufferSubData(GL33.GL_ARRAY_BUFFER,0,breakingVertices);
@@ -1957,13 +2201,17 @@ public final class LtwScene implements AutoCloseable {
         GL33.glUniform1f(crumbling,1);
         GL33.glEnable(GL33.GL_BLEND);
         GL33.glBlendFuncSeparate(GL33.GL_DST_COLOR,GL33.GL_SRC_COLOR,GL33.GL_ONE,GL33.GL_ZERO);
+        if(original){GL33.glEnable(GL33.GL_POLYGON_OFFSET_FILL);GL33.glPolygonOffset(-1f,-10f);}
         GL33.glDepthMask(false);GL33.glDrawArrays(GL33.GL_TRIANGLES,0,count);GL33.glDepthMask(true);
+        if(original){GL33.glDisable(GL33.GL_POLYGON_OFFSET_FILL);GL33.glPolygonOffset(0,0);}
         GL33.glUniform1f(crumbling,0);
         GL33.glBlendFunc(GL33.GL_SRC_ALPHA,GL33.GL_ONE_MINUS_SRC_ALPHA);
         GL33.glDisable(GL33.GL_BLEND);
     }
 
     private void applyFirstPersonUse(int hand) {
+        boolean trident=chargingItem&&chargingHand==hand&&"TRIDENT".equals(com.newhorizon.thinclient.world.ProjectileKind.materialKey(chargingMaterial));
+        GL33.glUniform3f(firstPersonTridentUniform,trident?1:0,(System.nanoTime()-itemUseStarted)/50_000_000f,hand==0?1:-1);
         int duration=chargingItem&&chargingHand==hand?ConsumableUse.durationTicks(chargingMaterial):0;
         float remaining=ConsumableUse.remaining(duration,System.nanoTime()-itemUseStarted);
         GL33.glUniform3f(firstPersonEatUniform,ConsumableUse.blend(duration,remaining),
@@ -1980,7 +2228,8 @@ public final class LtwScene implements AutoCloseable {
                 findVanillaHit(selectionHit);
             }
         }
-        if (selectionHit.type != VanillaHitResult.BLOCK) {
+        if (selectionHit.type != VanillaHitResult.BLOCK
+                || com.newhorizon.thinclient.world.BlockAttack.isFire(runtime.world.blockStateAt(selectionHit.blockX,selectionHit.blockY,selectionHit.blockZ))) {
             selectionMeshVisible = false;
             return;
         }
@@ -2002,19 +2251,21 @@ public final class LtwScene implements AutoCloseable {
         GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, selectionVbo);
         GL33.glDisable(GL33.GL_CULL_FACE);
         GL33.glLineWidth(2.0f);
-        GL33.glDrawArrays(GL33.GL_LINES, 0, SELECTION_VERTEX_COUNT);
+        GL33.glDrawArrays(GL33.GL_LINES, 0, selectionVertexCount);
         GL33.glEnable(GL33.GL_CULL_FACE);
     }
 
     private void uploadSelectionBox(int blockX, int blockY, int blockZ) {
         final float epsilon = 0.003f;
-        float x0 = blockX - epsilon;
-        float y0 = blockY - epsilon;
-        float z0 = blockZ - epsilon;
-        float x1 = blockX + 1f + epsilon;
-        float y1 = blockY + com.newhorizon.thinclient.world.RailState.outlineHeight(runtime.world.blockStateAt(blockX,blockY,blockZ)) + epsilon;
-        float z1 = blockZ + 1f + epsilon;
+        int state=runtime.world.blockStateAt(blockX,blockY,blockZ);
         selectionVertices.clear();
+        for(int box=0;box<com.newhorizon.thinclient.world.BlockStateOutline.boxCount(state);box++) {
+            float x0=blockX+(float)com.newhorizon.thinclient.world.BlockStateOutline.coordinateAt(state,box,0,blockX,blockZ)-epsilon;
+            float y0=blockY+(float)com.newhorizon.thinclient.world.BlockStateOutline.coordinateAt(state,box,1,blockX,blockZ)-epsilon;
+            float z0=blockZ+(float)com.newhorizon.thinclient.world.BlockStateOutline.coordinateAt(state,box,2,blockX,blockZ)-epsilon;
+            float x1=blockX+(float)com.newhorizon.thinclient.world.BlockStateOutline.coordinateAt(state,box,3,blockX,blockZ)+epsilon;
+            float y1=blockY+(float)com.newhorizon.thinclient.world.BlockStateOutline.coordinateAt(state,box,4,blockX,blockZ)+epsilon;
+            float z1=blockZ+(float)com.newhorizon.thinclient.world.BlockStateOutline.coordinateAt(state,box,5,blockX,blockZ)+epsilon;
         putSelectionEdge(x0, y0, z0, x1, y0, z0);
         putSelectionEdge(x1, y0, z0, x1, y0, z1);
         putSelectionEdge(x1, y0, z1, x0, y0, z1);
@@ -2027,6 +2278,8 @@ public final class LtwScene implements AutoCloseable {
         putSelectionEdge(x1, y0, z0, x1, y1, z0);
         putSelectionEdge(x1, y0, z1, x1, y1, z1);
         putSelectionEdge(x0, y0, z1, x0, y1, z1);
+        }
+        selectionVertexCount=selectionVertices.position()/SELECTION_VERTEX_FLOATS;
         selectionVertices.flip();
         GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, selectionVbo);
         GL33.glBufferSubData(GL33.GL_ARRAY_BUFFER, 0, selectionVertices);
@@ -2192,6 +2445,7 @@ public final class LtwScene implements AutoCloseable {
             addWebDisplaysMinePad();
             return;
         }
+        if("TRIDENT".equals(com.newhorizon.thinclient.world.ProjectileKind.materialKey(material))) {addHeldTrident();return;}
         if("SHIELD".equals(com.newhorizon.thinclient.world.ProjectileKind.materialKey(material))) {
             addHeldShield(false,lastShieldPose && chargingHand==0);return;
         }
@@ -2210,6 +2464,24 @@ public final class LtwScene implements AutoCloseable {
 
     private static boolean isMinePad(String material){return material!=null&&(material.toLowerCase(Locale.ROOT).contains("minepad")||material.toLowerCase(Locale.ROOT).contains("tablet"));}
     private static boolean isLaserPointer(String material){return material!=null&&(material.toLowerCase(Locale.ROOT).contains("laserpointer")||material.toLowerCase(Locale.ROOT).contains("laser_pointer"));}
+
+    private void addHeldTrident() {
+        float[] m=vanillaRightHandItemPose(0,0);rotateY(m,-45);
+        // trident_in_hand.json, then ItemRenderer's centering and builtin/entity Y/Z flip.
+        translate(m,-3f/16,17f/16,1f/16);rotateY(m,-90);rotateZ(m,25);
+        translate(m,-.5f,-.5f,-.5f);scale(m,1,-1,-1);
+        float[] f=TridentModel.MESH;
+        for(int face=0;face<TridentModel.FACES;face++) {
+            int o=face*20,u=(int)f[o+3],v=(int)f[o+4],w=(int)(f[o+8]-u),h=(int)(f[o+19]-v);
+            float ax=(f[o+5]-f[o])/w,ay=(f[o+6]-f[o+1])/w,az=(f[o+7]-f[o+2])/w;
+            float bx=(f[o+15]-f[o])/h,by=(f[o+16]-f[o+1])/h,bz=(f[o+17]-f[o+2])/h;
+            for(int y=0;y<h;y++)for(int x=0;x<w;x++) {
+                int color=TridentModel.pixel(u+x,v+y);if((color>>>24)==0)continue;
+                float px=f[o]+x*ax+y*bx,py=f[o+1]+x*ay+y*by,pz=f[o+2]+x*az+y*bz;
+                addFirstPersonQuad3d(m,px,py,pz,px+ax,py+ay,pz+az,px+ax+bx,py+ay+by,pz+az+bz,px+bx,py+by,pz+bz,color,face%6==0?.9f:face%6==1?.6f:face%6==3?1f:.8f);
+            }
+        }
+    }
 
     /** Vanilla ShieldModel plate/handle dimensions and native UV net. */
     private void addHeldShield(boolean left,boolean blocking) {
@@ -2477,8 +2749,14 @@ public final class LtwScene implements AutoCloseable {
         int state=com.newhorizon.thinclient.world.VanillaBlockTextures.defaultState(material);
         if(state<0)return false;
         float[] transform=vanillaRightHandItemPose(0f,0f);
-        rotateY(transform,-45f);rotateY(transform,45f);
-        scale(transform,.4f,.4f,.4f);translate(transform,-.5f,-.5f,-.5f);
+        rotateY(transform,-45f);
+        float[] pose=HeldBlockMesh.firstPersonTransform(state);
+        if(pose!=null){
+            translate(transform,pose[3]/16f,pose[4]/16f,pose[5]/16f);
+            rotateX(transform,pose[0]);rotateY(transform,pose[1]);rotateZ(transform,pose[2]);
+            scale(transform,pose[6],pose[7],pose[8]);
+        }else{rotateY(transform,45f);scale(transform,.4f,.4f,.4f);}
+        translate(transform,-.5f,-.5f,-.5f);
         HeldBlockMesh.append(firstPersonVertices,state,transform);return true;
     }
 
@@ -2667,6 +2945,10 @@ public final class LtwScene implements AutoCloseable {
             GL33.glDisable(GL33.GL_CULL_FACE);
             GL33.glEnable(GL33.GL_BLEND);
             GL33.glBlendFunc(GL33.GL_SRC_ALPHA, GL33.GL_ONE_MINUS_SRC_ALPHA);
+            // Screen surfaces sit on block faces. Keep them above the backing
+            // face on mobile depth buffers, as the MinePad pass already does.
+            GL33.glEnable(GL33.GL_POLYGON_OFFSET_FILL);
+            GL33.glPolygonOffset(-1f,-4f);
             GL33.glActiveTexture(GL33.GL_TEXTURE0);
             for (int index = 0; index < displaySnapshotCount; index++) {
                 DisplayController.Renderable renderable = displaySnapshots[index];
@@ -2688,7 +2970,7 @@ public final class LtwScene implements AutoCloseable {
                 if (texture <= 0 || !gpu.owns(texture)) continue;
                 putDisplayQuad(renderable.display);
                 GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, displayVbo);
-                GL33.glBufferSubData(GL33.GL_ARRAY_BUFFER, 0, displayVertices);
+                GL33.glBufferData(GL33.GL_ARRAY_BUFFER, displayVertices, GL33.GL_STREAM_DRAW);
                 GL33.glBindTexture(GL33.GL_TEXTURE_2D, texture);
                 GL33.glDrawArrays(GL33.GL_TRIANGLE_STRIP, 0, 4);
                 if (!gpu.frameLogged && displayFrameLogCount < MAX_DISPLAYS) {
@@ -2696,9 +2978,11 @@ public final class LtwScene implements AutoCloseable {
                     displayFrameLogCount++;
                     System.out.println("[NH-THIN] Gecko GPU display ready browser="
                             + gpu.browserId + " size=" + gpu.width + "x" + gpu.height);
+                    // iOS keeps browser pixels exclusively on the GPU, including diagnostics.
                 }
             }
             GL33.glBindTexture(GL33.GL_TEXTURE_2D, 0);
+            GL33.glDisable(GL33.GL_POLYGON_OFFSET_FILL);
             GL33.glDisable(GL33.GL_BLEND);
             GL33.glEnable(GL33.GL_CULL_FACE);
         }
@@ -2764,27 +3048,15 @@ public final class LtwScene implements AutoCloseable {
     }
 
     private void putDisplayQuad(VirtualDisplay display) {
-        float[] right = rightAxis(display.side);
-        float[] up = upAxis(display.side);
-        float[] forward = forwardAxis(display.side);
-        float halfWidth = display.widthBlocks * 0.5f;
-        float halfHeight = display.heightBlocks * 0.5f;
-        float centerX = (float) display.x + forward[0] * 0.008f;
-        float centerY = (float) display.y + forward[1] * 0.008f;
-        float centerZ = (float) display.z + forward[2] * 0.008f;
+        float[] right=rightAxis(display.side),up=upAxis(display.side),forward=forwardAxis(display.side);
         displayVertices.clear();
-        putDisplayVertex(centerX - right[0] * halfWidth + up[0] * halfHeight,
-                centerY - right[1] * halfWidth + up[1] * halfHeight,
-                centerZ - right[2] * halfWidth + up[2] * halfHeight, 0f, 0f);
-        putDisplayVertex(centerX + right[0] * halfWidth + up[0] * halfHeight,
-                centerY + right[1] * halfWidth + up[1] * halfHeight,
-                centerZ + right[2] * halfWidth + up[2] * halfHeight, 1f, 0f);
-        putDisplayVertex(centerX - right[0] * halfWidth - up[0] * halfHeight,
-                centerY - right[1] * halfWidth - up[1] * halfHeight,
-                centerZ - right[2] * halfWidth - up[2] * halfHeight, 0f, 1f);
-        putDisplayVertex(centerX + right[0] * halfWidth - up[0] * halfHeight,
-                centerY + right[1] * halfWidth - up[1] * halfHeight,
-                centerZ + right[2] * halfWidth - up[2] * halfHeight, 1f, 1f);
+        for(int i=0;i<4;i++){
+            float u=(i&1),v=i<2?0:1;
+            float x=(float)display.x+forward[0]*.008f+right[0]*(u-.5f)*display.widthBlocks+up[0]*(.5f-v)*display.heightBlocks;
+            float y=(float)display.y+forward[1]*.008f+right[1]*(u-.5f)*display.widthBlocks+up[1]*(.5f-v)*display.heightBlocks;
+            float z=(float)display.z+forward[2]*.008f+right[2]*(u-.5f)*display.widthBlocks+up[2]*(.5f-v)*display.heightBlocks;
+            putDisplayVertex(x,y,z,ScreenUv.u(u,v,display.rotation),ScreenUv.v(u,v,display.rotation));
+        }
         displayVertices.flip();
     }
 
@@ -2821,12 +3093,13 @@ public final class LtwScene implements AutoCloseable {
     }
 
     private void processMouseEvent(int button, int action) {
-        if(inventoryOpen||chatOpen||minePads.isOpen()||runtime.combat.dead()||runtime.riding.sleeping())return;
+        if(pauseOpen||inventoryOpen||chatOpen||minePads.isOpen()||runtime.combat.dead()||runtime.riding.sleeping())return;
         boolean primary = button == GLFW.GLFW_MOUSE_BUTTON_LEFT;
         if (action == GLFW.GLFW_PRESS) {
             if (primary) primaryHeld = true;
             else secondaryHeld = true;
             if(!primary){
+                System.out.println("[NH-USE] press slot="+runtime.inventory.selectedHotbar()+" material="+runtime.inventory.selectedHotbarMaterial()+" id="+runtime.inventory.selectedHotbarProtocolId());
                 int padSlot=isMinePad(runtime.inventory.selectedHotbarMaterial())?runtime.inventory.selectedHotbar():isMinePad(runtime.inventory.offhandMaterial())?40:-1;
                 if(padSlot>=0){minePads.open(runtime.inventory,padSlot,sneaking,System.nanoTime());
                     primaryHeld=secondaryHeld=false;releaseVanillaItem();stopVanillaAttack();java.util.Arrays.fill(pressedKeys,false);flightToggleRequested=false;return;}
@@ -2847,7 +3120,7 @@ public final class LtwScene implements AutoCloseable {
     private boolean mayInteractWithDisplay() {
         return com.newhorizon.thinclient.display.DisplayInteractionPolicy.allowed(
                 runtime.inventory.selectedHotbarMaterial(),runtime.inventory.offhandMaterial(),
-                inventoryOpen||chatOpen||minePads.isOpen()||runtime.riding.sleeping(),runtime.combat.dead());
+                pauseOpen||inventoryOpen||chatOpen||minePads.isOpen()||runtime.riding.sleeping(),runtime.combat.dead());
     }
     private void updateDisplayInputPermission() {
         boolean allowed=mayInteractWithDisplay();
@@ -2937,24 +3210,7 @@ public final class LtwScene implements AutoCloseable {
                 return;
             }
             if (vanillaHit.type == VanillaHitResult.BLOCK) {
-                expectBlockBreak(vanillaHit.blockX, vanillaHit.blockY,
-                        vanillaHit.blockZ, System.nanoTime());
-                connection.sendPlayerAction(ACTION_START_DESTROY_BLOCK,
-                        vanillaHit.blockX, vanillaHit.blockY, vanillaHit.blockZ,
-                        vanillaHit.direction);
-                swingMainHand();
-                heldHit.copyBlockFrom(vanillaHit);
-                destroyingBlock = true;
-                destroyStartNanos = System.nanoTime();
-                nextMiningSoundNanos = destroyStartNanos;
-                int breakTicks = vanillaHit.breakTicks > 0
-                        ? vanillaHit.breakTicks : LEGACY_BREAK_TICKS;
-                destroyRequiredNanos = breakTicks * 50_000_000L;
-                nextDestroySwingNanos = destroyStartNanos
-                        + DESTROY_SWING_INTERVAL_NANOS;
-                logVanillaInteraction("start block=" + vanillaHit.blockX + ","
-                        + vanillaHit.blockY + "," + vanillaHit.blockZ
-                        + " face=" + vanillaHit.direction);
+                startBlockAttack(now);
                 return;
             }
             swingMainHand();
@@ -2963,6 +3219,24 @@ public final class LtwScene implements AutoCloseable {
         } catch (IOException | ProtocolException exception) {
             throw new IllegalStateException("Unable to send vanilla attack", exception);
         }
+    }
+
+    private void startBlockAttack(long now) throws IOException,ProtocolException {
+        nextDestroyStartNanos=now+250_000_000L;
+        int state=runtime.world.blockStateAt(vanillaHit.blockX,vanillaHit.blockY,vanillaHit.blockZ);
+        boolean fire=com.newhorizon.thinclient.world.BlockAttack.isFire(state);
+        if(!fire)expectBlockBreak(vanillaHit.blockX,vanillaHit.blockY,vanillaHit.blockZ,now);
+        connection.sendPlayerAction(ACTION_START_DESTROY_BLOCK,vanillaHit.blockX,vanillaHit.blockY,vanillaHit.blockZ,vanillaHit.direction);
+        swingMainHand();
+        // Fire has zero destroy time. Server event 1009 supplies its extinguish sound;
+        // no block cracks, digging particles, wood break sound or STOP/ABORT packet.
+        destroyingBlock=!fire;
+        if(fire){logVanillaInteraction("extinguish fire="+vanillaHit.blockX+","+vanillaHit.blockY+","+vanillaHit.blockZ);return;}
+        heldHit.copyBlockFrom(vanillaHit);destroyStartNanos=nextMiningSoundNanos=now;
+        int ticks=vanillaHit.breakTicks>0?vanillaHit.breakTicks:LEGACY_BREAK_TICKS;
+        destroyRequiredNanos=ticks*50_000_000L;
+        nextDestroySwingNanos=now+DESTROY_SWING_INTERVAL_NANOS;
+        logVanillaInteraction("start block="+vanillaHit.blockX+","+vanillaHit.blockY+","+vanillaHit.blockZ+" face="+vanillaHit.direction);
     }
 
     private void stopVanillaAttack() {
@@ -2984,27 +3258,33 @@ public final class LtwScene implements AutoCloseable {
     }
 
     private void useVanillaTarget() {
-        if(runtime.combat.dead()||runtime.riding.sleeping()||inventoryOpen||chatOpen||minePads.isOpen()||connection.isSpectator())return;
+        if(runtime.combat.dead()||runtime.riding.sleeping()||pauseOpen||inventoryOpen||chatOpen||minePads.isOpen()||connection.isSpectator())return;
         if (chargingItem) return;
         String material=runtime.inventory.selectedHotbarMaterial();
         findVanillaHit(vanillaHit);
         chargingHand=0;
-        if((!com.newhorizon.thinclient.world.ProjectileKind.airUseItem(material) || runtime.itemUse.coolingDown(material,System.nanoTime()))
+        boolean mainEntityAction=vanillaHit.type==VanillaHitResult.ENTITY
+                && com.newhorizon.thinclient.inventory.ItemUseRouting.entityBeforeAir(material,runtime.entities.typeOf(vanillaHit.entityId));
+        if(!mainEntityAction && (!com.newhorizon.thinclient.world.ProjectileKind.airUseItem(material) || runtime.itemUse.coolingDown(material,System.nanoTime()))
                 && "SHIELD".equals(com.newhorizon.thinclient.world.ProjectileKind.materialKey(runtime.inventory.offhandMaterial()))
                 && !targetConsumesUse()
                 && !(vanillaHit.type==VanillaHitResult.BLOCK && com.newhorizon.thinclient.world.ProjectileKind.blockUseItem(material))) {material=runtime.inventory.offhandMaterial();chargingHand=1;}
-        if(!com.newhorizon.thinclient.world.ProjectileKind.airUseItem(material)
+        if(!mainEntityAction && !com.newhorizon.thinclient.world.ProjectileKind.airUseItem(material)
                 && !(vanillaHit.type==VanillaHitResult.BLOCK && com.newhorizon.thinclient.world.ProjectileKind.blockUseItem(material))
                 && "FISHING_ROD".equals(com.newhorizon.thinclient.world.ProjectileKind.materialKey(runtime.inventory.offhandMaterial()))) {
             material=runtime.inventory.offhandMaterial();chargingHand=1;
         }
         // Try food in the offhand when the main hand has no usable air action.
         String offhand=runtime.inventory.offhandMaterial();
-        if((!com.newhorizon.thinclient.world.ProjectileKind.airUseItem(material)
+        if(!mainEntityAction && (!com.newhorizon.thinclient.world.ProjectileKind.airUseItem(material)
                 || ConsumableUse.durationTicks(material)>0&&!ConsumableUse.canStart(material,runtime.combat.food(),runtime.inventory.isCreativeMode()))
                 && ConsumableUse.canStart(offhand,runtime.combat.food(),runtime.inventory.isCreativeMode())
                 && !targetConsumesUse()
                 && !(vanillaHit.type==VanillaHitResult.BLOCK&&com.newhorizon.thinclient.world.ProjectileKind.blockUseItem(material))) {
+            material=offhand;chargingHand=1;
+        }
+        if(chargingHand==0 && vanillaHit.type==VanillaHitResult.BLOCK
+                && com.newhorizon.thinclient.inventory.ItemUseRouting.blockHand(material,offhand,targetConsumesUse())==1){
             material=offhand;chargingHand=1;
         }
         if(runtime.itemUse.coolingDown(material,System.nanoTime()))return;
@@ -3019,10 +3299,12 @@ public final class LtwScene implements AutoCloseable {
                 nextUseNanos=System.nanoTime()+USE_REPEAT_INTERVAL_NANOS;return;
             }
             if(vanillaHit.type==VanillaHitResult.ENTITY && com.newhorizon.thinclient.world.RidingState.mountable(runtime.entities.typeOf(vanillaHit.entityId))){
-                connection.interactEntity(vanillaHit.entityId,sneaking);nextUseNanos=System.nanoTime()+USE_REPEAT_INTERVAL_NANOS;return;
+                connection.interactEntity(vanillaHit.entityId,sneaking,chargingHand);nextUseNanos=System.nanoTime()+USE_REPEAT_INTERVAL_NANOS;return;
             }
             if (com.newhorizon.thinclient.world.ProjectileKind.airUseItem(material)
-                    && !targetConsumesUse()) {
+                    && !targetConsumesUse()
+                    && !(vanillaHit.type==VanillaHitResult.ENTITY && com.newhorizon.thinclient.inventory.ItemUseRouting.entityBeforeAir(material,runtime.entities.typeOf(vanillaHit.entityId)))
+                    && !(vanillaHit.type==VanillaHitResult.BLOCK && com.newhorizon.thinclient.inventory.ItemUseRouting.blockBeforeAir(material,runtime.world,vanillaHit.blockX,vanillaHit.blockY,vanillaHit.blockZ,vanillaHit.direction))) {
                 if(!usePress.allows(material))return;
                 if(ConsumableUse.durationTicks(material)>0
                         && !ConsumableUse.canStart(material,runtime.combat.food(),runtime.inventory.isCreativeMode()))return;
@@ -3042,23 +3324,23 @@ public final class LtwScene implements AutoCloseable {
                     }
                     runtime.combat.use(chargingItem,chargingHand==1);
                     if(!chargingItem) swingMainHand();
-                    logVanillaInteraction("projectile use="+material+" held="+chargingItem);
+                    System.out.println("[NH-USE] use="+material+" hand="+chargingHand+" charged="+chargingItem);
                 }
                 nextUseNanos=System.nanoTime()+USE_REPEAT_INTERVAL_NANOS;
                 return;
             }
             if (vanillaHit.type == VanillaHitResult.ENTITY) {
-                connection.interactEntity(vanillaHit.entityId, sneaking);
+                connection.interactEntity(vanillaHit.entityId, sneaking, chargingHand);
                 logVanillaInteraction("use entity=" + vanillaHit.entityId);
             } else if (vanillaHit.type == VanillaHitResult.BLOCK) {
-                localSounds.expectPlace(vanillaHit.blockX, vanillaHit.blockY, vanillaHit.blockZ,
-                        vanillaHit.direction, runtime.inventory.selectedHotbarMaterial(), System.nanoTime());
-                boolean used=connection.useItemOn(vanillaHit.blockX, vanillaHit.blockY,
+                localSounds.expectUse(vanillaHit.blockX, vanillaHit.blockY, vanillaHit.blockZ,
+                        vanillaHit.direction, material, offhand, sneaking, System.nanoTime());
+                boolean used=connection.useItemOn(chargingHand,vanillaHit.blockX, vanillaHit.blockY,
                         vanillaHit.blockZ, vanillaHit.direction,
                         vanillaHit.hitX - vanillaHit.blockX,
                         vanillaHit.hitY - vanillaHit.blockY,
                         vanillaHit.hitZ - vanillaHit.blockZ,
-                        false);
+                        vanillaHit.inside);
                 if(used)swingMainHand();
                 logVanillaInteraction("use block=" + vanillaHit.blockX + ","
                         + vanillaHit.blockY + "," + vanillaHit.blockZ
@@ -3100,8 +3382,7 @@ public final class LtwScene implements AutoCloseable {
             runtime.entities.worldParticles.hitBlock(runtime.world,heldHit.blockX,heldHit.blockY,heldHit.blockZ,heldHit.direction,now);
             nextMiningSoundNanos = now + 200_000_000L;
         }
-        if (primaryHeld && activePrimaryBrowser < 0 && destroyingBlock
-                && now >= nextDestroySwingNanos) {
+        if (primaryHeld && activePrimaryBrowser < 0 && destroyingBlock) {
             findVanillaHit(vanillaHit);
             try {
                 if (!vanillaHit.sameBlock(heldHit)) {
@@ -3109,25 +3390,16 @@ public final class LtwScene implements AutoCloseable {
                             heldHit.blockX, heldHit.blockY, heldHit.blockZ,
                             heldHit.direction);
                     destroyingBlock = false;
-                    if (vanillaHit.type == VanillaHitResult.BLOCK) {
-                        expectBlockBreak(vanillaHit.blockX, vanillaHit.blockY,
-                                vanillaHit.blockZ, now);
-                        connection.sendPlayerAction(ACTION_START_DESTROY_BLOCK,
-                                vanillaHit.blockX, vanillaHit.blockY,
-                                vanillaHit.blockZ, vanillaHit.direction);
-                        heldHit.copyBlockFrom(vanillaHit);
-                        destroyingBlock = true;
-                        destroyStartNanos = now;
-                        int breakTicks = vanillaHit.breakTicks > 0
-                                ? vanillaHit.breakTicks : LEGACY_BREAK_TICKS;
-                        destroyRequiredNanos = breakTicks * 50_000_000L;
+                    if (vanillaHit.type == VanillaHitResult.BLOCK && !runtime.inventory.isCreativeMode()) {
+                        startBlockAttack(now);
                     }
                 }
-                if (destroyingBlock) swingMainHand();
+                if (destroyingBlock && now >= nextDestroySwingNanos) {
+                    swingMainHand();nextDestroySwingNanos = now + DESTROY_SWING_INTERVAL_NANOS;
+                }
             } catch (IOException | ProtocolException exception) {
                 throw new IllegalStateException("Unable to continue vanilla attack", exception);
             }
-            nextDestroySwingNanos = now + DESTROY_SWING_INTERVAL_NANOS;
         }
         if (primaryHeld && activePrimaryBrowser < 0 && destroyingBlock
                 && now - destroyStartNanos >= destroyRequiredNanos) {
@@ -3143,6 +3415,16 @@ public final class LtwScene implements AutoCloseable {
                 throw new IllegalStateException("Unable to finish vanilla attack", exception);
             }
             destroyingBlock = false;
+            nextDestroyStartNanos=now+250_000_000L;
+        }
+        // A held attack continues mining, but never repeatedly attacks entities.
+        if(primaryHeld && activePrimaryBrowser<0 && !destroyingBlock && !chargingItem
+                && !pauseOpen && !inventoryOpen && !chatOpen && !minePads.isOpen()
+                && !runtime.combat.dead() && !runtime.riding.sleeping() && !connection.isSpectator()
+                && now>=nextDestroyStartNanos && runtime.combat.mayAttack(now)) {
+            findVanillaHit(vanillaHit);
+            if(vanillaHit.type==VanillaHitResult.BLOCK)try {startBlockAttack(now);}
+            catch(IOException | ProtocolException error){throw new IllegalStateException("Unable to repeat mining",error);}
         }
         if (!inventoryOpen && secondaryHeld && !chargingItem
                 && activeSecondaryBrowser < 0 && now >= nextUseNanos) {
@@ -3160,7 +3442,7 @@ public final class LtwScene implements AutoCloseable {
             connection.sendMovement(cameraPosition[0],cameraPosition[1],cameraPosition[2],
                     cameraRotation[0],cameraRotation[1],onGround);
             connection.sendPlayerAction(5,0,0,0,0); // RELEASE_USE_ITEM, BlockPos.ZERO, DOWN
-            logVanillaInteraction("item release="+chargingMaterial+" elapsedMs="+(System.nanoTime()-itemUseStarted)/1_000_000);
+            System.out.println("[NH-USE] release="+chargingMaterial+" elapsedMs="+(System.nanoTime()-itemUseStarted)/1_000_000);
         } catch(IOException | ProtocolException error) {
             throw new IllegalStateException("Unable to release item",error);
         }
@@ -3199,7 +3481,7 @@ public final class LtwScene implements AutoCloseable {
                 || name.endsWith("crafting_table") || name.endsWith("enchanting_table")
                 || name.endsWith("anvil") || name.endsWith("barrel") || name.endsWith("hopper")
                 || name.endsWith("dispenser") || name.endsWith("dropper") || name.endsWith("lever")
-                || name.endsWith("jukebox") || name.endsWith("brewing_stand")
+                || name.endsWith("jukebox") || name.endsWith("brewing_stand") || name.endsWith("cauldron")
                 || name.endsWith("smoker") || name.endsWith("stonecutter") || name.endsWith("loom")
                 || name.endsWith("cartography_table") || name.endsWith("smithing_table")
                 || name.endsWith("grindstone") || name.endsWith("_bed");
@@ -3233,50 +3515,17 @@ public final class LtwScene implements AutoCloseable {
     private void raycastBlock(double originX, double originY, double originZ,
                               double rayX, double rayY, double rayZ,
                               VanillaHitResult output) {
-        int previousX = floor(originX);
-        int previousY = floor(originY);
-        int previousZ = floor(originZ);
-        for (double distance = BLOCK_RAY_STEP;
-             distance <= (runtime.inventory.isCreativeMode()?5.0:VANILLA_INTERACTION_RANGE);
-             distance += BLOCK_RAY_STEP) {
-            double hitX = originX + rayX * distance;
-            double hitY = originY + rayY * distance;
-            double hitZ = originZ + rayZ * distance;
-            int blockX = floor(hitX);
-            int blockY = floor(hitY);
-            int blockZ = floor(hitZ);
-            boolean enteredNewCell = blockX != previousX || blockY != previousY
-                    || blockZ != previousZ;
-            if (enteredNewCell
-                    && runtime.world.isTargetableBlock(blockX, blockY, blockZ)) {
-                int state=runtime.world.blockStateAt(blockX,blockY,blockZ);
-                boolean rail=com.newhorizon.thinclient.world.RailState.isRail(state);
-                double exact=rail ? com.newhorizon.thinclient.world.RailState.hit(state,originX,originY,originZ,rayX,rayY,rayZ,
-                        blockX,blockY,blockZ,runtime.inventory.isCreativeMode()?5.0:VANILLA_INTERACTION_RANGE) : distance;
-                if(exact<0) { previousX=blockX;previousY=blockY;previousZ=blockZ;continue; }
-                if(rail) { hitX=originX+rayX*exact;hitY=originY+rayY*exact;hitZ=originZ+rayZ*exact; }
-                output.type = VanillaHitResult.BLOCK;
-                output.blockX = blockX;
-                output.blockY = blockY;
-                output.blockZ = blockZ;
-                output.direction = enteredFace(previousX, previousY, previousZ,
-                        blockX, blockY, blockZ, rayX, rayY, rayZ);
-                output.hitX = (float) hitX;
-                output.hitY = (float) hitY;
-                output.hitZ = (float) hitZ;
-                if(rail) {
-                    if(Math.abs(hitY-blockY-com.newhorizon.thinclient.world.RailState.outlineHeight(state))<1e-6)output.direction=1;
-                    else if(Math.abs(hitY-blockY)<1e-6)output.direction=0;
-                }
-                output.distance = exact;
-                output.breakTicks = runtime.world.breakTicksAt(
-                        blockX, blockY, blockZ);
-                return;
-            }
-            previousX = blockX;
-            previousY = blockY;
-            previousZ = blockZ;
-        }
+        double limit=runtime.inventory.isCreativeMode()?5.0:VANILLA_INTERACTION_RANGE;
+        if(!com.newhorizon.thinclient.world.WorldBlockRaycast.trace(runtime.world,originX,originY,originZ,
+                rayX,rayY,rayZ,limit,blockOutlineHit))return;
+        output.type=VanillaHitResult.BLOCK;
+        output.blockX=blockOutlineHit.blockX;output.blockY=blockOutlineHit.blockY;output.blockZ=blockOutlineHit.blockZ;
+        output.direction=blockOutlineHit.face;output.inside=blockOutlineHit.inside;
+        output.distance=blockOutlineHit.distance;
+        output.hitX=(float)(originX+rayX*output.distance);
+        output.hitY=(float)(originY+rayY*output.distance);
+        output.hitZ=(float)(originZ+rayZ*output.distance);
+        output.breakTicks=runtime.world.breakTicksAt(output.blockX,output.blockY,output.blockZ);
     }
 
     private static int enteredFace(int previousX, int previousY, int previousZ,
@@ -3343,10 +3592,9 @@ public final class LtwScene implements AutoCloseable {
             nearest = distance;
             output.browserId = renderable.browserId;
             output.distance = distance;
-            output.pixelX = clamp((int) ((localRight / display.widthBlocks + 0.5)
-                    * display.pixelWidth), 0, display.pixelWidth - 1);
-            output.pixelY = clamp((int) ((0.5 - localUp / display.heightBlocks)
-                    * display.pixelHeight), 0, display.pixelHeight - 1);
+            float u=(float)(localRight/display.widthBlocks+.5),v=(float)(.5-localUp/display.heightBlocks);
+            output.pixelX=clamp((int)(ScreenUv.u(u,v,display.rotation)*display.pixelWidth),0,display.pixelWidth-1);
+            output.pixelY=clamp((int)(ScreenUv.v(u,v,display.rotation)*display.pixelHeight),0,display.pixelHeight-1);
         }
         return output.browserId >= 0;
     }
@@ -3434,10 +3682,12 @@ public final class LtwScene implements AutoCloseable {
 
     @Override
     public void close() {
+        frameProfile.stopWatching();
         if (released) return;
         released = true;
         stopRequested = true;
         meshWorker.close();
+        GeckoNativeBridge.hidePauseMenu();
         GeckoNativeBridge.hideInventory();
         GeckoNativeBridge.hideHotbar();
         GeckoNativeBridge.resetChat();
@@ -3451,7 +3701,7 @@ public final class LtwScene implements AutoCloseable {
             }
             if(uploadGpu!=null)releaseGpuChunk(uploadGpu);
             if (vao != 0) GL33.glDeleteVertexArrays(vao);
-            railAtlas.close();blockAtlas.close();biomeTints.close();
+            framePacer.close();railAtlas.close();blockAtlas.close();biomeTints.close();
             if(breakingVbo!=0)GL33.glDeleteBuffers(breakingVbo);
             if (shaderProgram != 0) ScreenEffects.deleteProgram(shaderProgram);
             if (displayVbo != 0) GL33.glDeleteBuffers(displayVbo);
@@ -3465,7 +3715,8 @@ public final class LtwScene implements AutoCloseable {
 
 
             if (selectionShaderProgram != 0) ScreenEffects.deleteProgram(selectionShaderProgram);
-            entityRenderer.close();
+            entityLabels.close();
+        entityRenderer.close();mapFrames.close();
             environmentRenderer.close();
         }
         if (window != 0) {
@@ -3480,17 +3731,20 @@ public final class LtwScene implements AutoCloseable {
     private static final class GpuChunk {
         final int vbo;
         final int lightVbo;
+        final TerrainVertexArray vertexArray;
         MemoryBudget.Lease lease;
         int capacityBytes;
         int chunkX = Integer.MIN_VALUE;
         int chunkZ = Integer.MIN_VALUE;
         int revision = Integer.MIN_VALUE;
         long epoch=Long.MIN_VALUE;
-        int vertexCount;
+        int vertexCount,opaqueVertices;final float[] bounds=new float[6];
+        final TerrainRanges ranges=new TerrainRanges();
 
         GpuChunk(int vbo,int lightVbo, MemoryBudget.Lease lease, int capacityBytes) {
             this.vbo = vbo;
             this.lightVbo=lightVbo;
+            this.vertexArray=new TerrainVertexArray(vbo,lightVbo);
             this.lease = lease;
             this.capacityBytes = capacityBytes;
         }
@@ -3541,9 +3795,11 @@ public final class LtwScene implements AutoCloseable {
         float hitY;
         float hitZ;
         double distance;
+        boolean inside;
 
         void clear() {
             type = NONE;
+            inside = false;
             entityId = -1;
             breakTicks = 0;
             distance = VANILLA_INTERACTION_RANGE + 1.0;
@@ -3555,6 +3811,7 @@ public final class LtwScene implements AutoCloseable {
             blockY = source.blockY;
             blockZ = source.blockZ;
             direction = source.direction;
+            inside = source.inside;
             hitX = source.hitX;
             hitY = source.hitY;
             hitZ = source.hitZ;
@@ -3620,7 +3877,7 @@ public final class LtwScene implements AutoCloseable {
             + "uniform float uAspect;\n"
             + "uniform float uProjection;\n"
             + "uniform float uSwing;\n"
-            + "uniform vec3 uEat;\n"
+            + "uniform vec3 uEat;uniform vec3 uTridentUse;\n"
             + "uniform int uHandKind;\n"
             + "vec3 rx(vec3 p,float a){float c=cos(a),s=sin(a);return vec3(p.x,p.y*c-p.z*s,p.y*s+p.z*c);}\n"
             + "vec3 ry(vec3 p,float a){float c=cos(a),s=sin(a);return vec3(p.x*c+p.z*s,p.y,-p.x*s+p.z*c);}\n"
@@ -3637,6 +3894,12 @@ public final class LtwScene implements AutoCloseable {
             + "  else if(uHandKind==2){vec3 pivot=vec3(.64000005,-.6,-.71999997);p=ry(p-pivot,radians(-45.0));\n"
             + "    p=rz(p,radians(-20.0*squared));p=ry(p,radians(45.0+70.0*wave));\n"
             + "    p+=pivot+vec3(-.3*wave,.4*sin(root*6.28318530),-.4*sin(swing*3.14159265));}\n"
+            // ItemInHandRenderer SPEAR transform, animated on GPU without rebuilding the model.
+            + "  if(uTridentUse.x>0.5){float side=uTridentUse.z,t=max(0.,uTridentUse.y),charge=min(t/10.,1.);p.x*=side;\n"
+            + "    p-=vec3(.56,-.52,-.72);p=ry(p,radians(-45.));p.z*=1.+charge*.2;p.z+=charge*.2;\n"
+            + "    if(charge>.1)p.y+=sin((t-.1)*1.3)*(charge-.1)*.004;\n"
+            + "    p=rz(p,radians(-9.785));p=ry(p,radians(35.3));p=rx(p,radians(-55.));\n"
+            + "    p+=vec3(.06,.18,-.62);p.x*=side;}\n"
             // applyEatTransform precedes the ordinary hand/model pose. No per-frame mesh rebuild.
             + "  float f=uEat.x, side=uEat.z;float a=radians(side*f*30.0);\n"
             + "  p.xy=mat2(cos(a),sin(a),-sin(a),cos(a))*p.xy;\n"

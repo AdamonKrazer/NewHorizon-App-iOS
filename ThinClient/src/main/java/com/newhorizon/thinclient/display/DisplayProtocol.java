@@ -39,12 +39,12 @@ public final class DisplayProtocol {
         BinaryCodec.require(input, 6);
         if (input.getInt() != MAGIC) throw new ProtocolException("Invalid display magic");
         int version = input.get() & 0xff;
-        if (version != VERSION) throw new ProtocolException("Unsupported display version " + version);
+        if (version != VERSION && version != 2) throw new ProtocolException("Unsupported display version " + version);
         int type = input.get() & 0xff;
         DisplayMessage result;
         switch (type) {
             case DisplayMessage.SPAWN:
-                result = new DisplayMessage.Spawn(readSpawn(input));
+                result = new DisplayMessage.Spawn(readSpawn(input,version));
                 break;
             case DisplayMessage.REMOVE:
                 result = new DisplayMessage.Remove(BinaryCodec.readUuid(input));
@@ -75,7 +75,7 @@ public final class DisplayProtocol {
         BinaryCodec.writeString(output, display.url, MAX_URL_BYTES);
     }
 
-    private static VirtualDisplay readSpawn(ByteBuffer input) throws ProtocolException {
+    private static VirtualDisplay readSpawn(ByteBuffer input,int version) throws ProtocolException {
         UUID id = BinaryCodec.readUuid(input);
         String dimension = BinaryCodec.readString(input, MAX_DIMENSION_BYTES);
         BinaryCodec.require(input, 24 + 12 + 1);
@@ -89,10 +89,11 @@ public final class DisplayProtocol {
         int lifetime = VarInts.read(input);
         int pixelWidth = VarInts.read(input);
         int pixelHeight = VarInts.read(input);
-        String url = BinaryCodec.readString(input, MAX_URL_BYTES);
+        String url = WebDisplaysPacketDecoder.sanitizeUrl(BinaryCodec.readString(input, MAX_URL_BYTES));
+        int rotation=0;if(version==2){BinaryCodec.require(input,1);rotation=input.get()&255;if(rotation>3)throw new ProtocolException("Screen rotation");}
         try {
             return new VirtualDisplay(id, dimension, x, y, z, yaw, width, height,
-                    side, lifetime, pixelWidth, pixelHeight, url);
+                    side, lifetime, pixelWidth, pixelHeight, url,rotation);
         } catch (IllegalArgumentException exception) {
             throw new ProtocolException("Invalid display dimensions");
         }

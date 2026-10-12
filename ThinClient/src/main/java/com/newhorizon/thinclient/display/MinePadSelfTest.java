@@ -35,6 +35,10 @@ public final class MinePadSelfTest {
         writeSlot(inv,initialized[0],new String[]{MinePadData.HOME},0);
         pads.update(inv,1_100_000_000L);check(pads.heldBrowser(false)==first,"ack preserves page instance");
         pads.hide();pads.update(inv,1_200_000_000L);check(!pads.isOpen()&&port.live.contains(first),"closing retains session for hand display");
+        inv.selectHotbar(1);pads.update(inv,1_210_000_000L);
+        check(pads.heldBrowser(false)<0&&port.live.contains(first)&&!port.visible.contains(first),"putting tablet away hides only its surface, retaining its page");
+        inv.selectHotbar(0);pads.update(inv,1_220_000_000L);
+        check(pads.heldBrowser(false)==first&&port.visible.contains(first)&&port.creates==1,"taking tablet out restores the same page");
         pads.open(inv,0,false,1_300_000_000L);check(port.shown==first&&port.creates==1,"reopen uses same Gecko session");
         pads.action(1,0,"example.org");int second=port.shown;check(second!=first&&commands.get(commands.size()-1).startsWith("1:"),"new tab");
         pads.action(2,0,"");check(port.shown==first,"switch restores original page");
@@ -43,6 +47,16 @@ public final class MinePadSelfTest {
         int requests=commands.size();pads.update(inv,2_300_000_000L);check(commands.size()==requests,"no navigation echo loop");
         pads.action(3,1,"");check(!port.live.contains(second)&&port.live.contains(first),"closing one tab retains the other");
         pads.action(2,-1,"");check(port.shown==first,"tab index wraps");
+        pads.hide();int beforePopup=commands.size();
+        pads.popup(first,"about:blank");check(commands.size()==beforePopup,"blank popup waits for destination");
+        pads.popup(first,"https://example.org/deferred");
+        check(!pads.isOpen()&&port.shown==-1&&commands.get(commands.size()-1).equals("1:0:https://example.org/deferred"),"delayed popup retains tab without reopening GUI");
+        pads.open(inv,0,false,2_310_000_000L);int popupBrowser=port.shown;
+        check(popupBrowser!=first,"deferred popup becomes selected tab");
+        pads.popup(first,"mod://webdisplays/blacklisted.html");
+        check(port.shown!=popupBrowser&&commands.get(commands.size()-1).endsWith("blacklisted.html"),"popup from background tab reaches owning tablet and blocked page");
+        int afterPopup=commands.size();pads.popup(-999,"https://example.org/stale");
+        check(commands.size()==afterPopup,"closed/unknown popup source ignored");
         for(int i=0;i<12;i++)pads.action(1,0,"https://example.org/"+i);
         check(port.live.size()<=MinePadController.MAX_LIVE,"bounded live browser count");
         pads.action(4,0,"");check(!pads.isOpen()&&port.live.isEmpty()&&commands.get(commands.size()-1).startsWith("4:"),"shutdown closes sessions and sends shutdown action");
@@ -88,13 +102,13 @@ public final class MinePadSelfTest {
         out.writeByte(3);out.writeUTF("PadTabIdx");out.writeInt(index);out.writeByte(8);out.writeUTF("PadURL");out.writeUTF(tabs[index]);out.writeByte(0);return bytes.toByteArray();
     }
     private static final class Fake implements MinePadController.Port {
-        final Set<Integer> live=new HashSet<>();int shown=-1,creates,errors;
-        public void create(int id,String url,boolean transparent){check(live.add(id),"duplicate browser id");creates++;}
+        final Set<Integer> live=new HashSet<>(),visible=new HashSet<>();int shown=-1,creates,errors;
+        public void create(int id,String url,boolean transparent){check(live.add(id),"duplicate browser id");visible.add(id);creates++;}
         public void resize(int id,int width,int height){}
         public void navigate(int id,String url){}
-        public void setVisible(int id,boolean value){}
+        public void setVisible(int id,boolean value){if(value)visible.add(id);else visible.remove(id);}
         public void setFocused(int id,boolean value){}
-        public void destroy(int id){check(live.remove(id),"destroy live browser");}
+        public void destroy(int id){check(live.remove(id),"destroy live browser");visible.remove(id);}
         public void show(int id,String url,int index,String[] tabs,boolean edit){shown=id;}
         public void hide(){shown=-1;}
         public void error(String value){errors++;System.out.println(value);}

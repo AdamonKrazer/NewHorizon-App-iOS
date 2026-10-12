@@ -20,6 +20,11 @@
 #define NH_GL_RGBA 0x1908
 #define NH_GL_BGRA_EXT 0x80E1
 
+static JavaVM *g_java_vm;
+static jclass g_navigation_policy;
+static jmethodID g_filter_navigation;
+static pthread_mutex_t g_policy_lock = PTHREAD_MUTEX_INITIALIZER;
+
 typedef void (*NHGLBindTexture)(uint32_t target, uint32_t texture);
 typedef void (*NHReynardCommand)(
         const char *operation, const char *const *arguments, int32_t count);
@@ -371,6 +376,52 @@ static jstring nh_string_from_utf8(JNIEnv *env, const char *value) {
     return result;
 }
 
+// Caller owns the UTF-8 result. NULL fails closed in the Swift navigation delegate.
+__attribute__((visibility("default")))
+char *nh_reynard_filter_minepad_url(const char *url) {
+    if (!g_java_vm || !url) return NULL;
+    JNIEnv *env = NULL;
+    int attached = 0;
+    jint status = (*g_java_vm)->GetEnv(g_java_vm, (void **)&env, JNI_VERSION_1_6);
+    if (status == JNI_EDETACHED) {
+        if ((*g_java_vm)->AttachCurrentThread(g_java_vm, &env, NULL) != JNI_OK) return NULL;
+        attached = 1;
+    } else if (status != JNI_OK) return NULL;
+    pthread_mutex_lock(&g_policy_lock);
+    jclass policy = g_navigation_policy ? (*env)->NewLocalRef(env, g_navigation_policy) : NULL;
+    jmethodID method = g_filter_navigation;
+    pthread_mutex_unlock(&g_policy_lock);
+    char *result = NULL;
+    if (policy && method) {
+        jstring input = nh_string_from_utf8(env, url);
+        if (input) {
+            jstring filtered = (*env)->CallStaticObjectMethod(env, policy, method, input);
+            if (!(*env)->ExceptionCheck(env) && filtered) {
+                result = nh_java_utf8(env, filtered);
+                (*env)->DeleteLocalRef(env, filtered);
+            }
+            (*env)->DeleteLocalRef(env, input);
+        }
+        (*env)->DeleteLocalRef(env, policy);
+    }
+    if ((*env)->ExceptionCheck(env)) { (*env)->ExceptionClear(env); free(result); result = NULL; }
+    if (attached) (*g_java_vm)->DetachCurrentThread(g_java_vm);
+    return result;
+}
+
+JNIEXPORT void JNICALL Java_com_newhorizon_thinclient_display_GeckoNativeBridge_nativeInstallNavigationPolicy(
+        JNIEnv *env, jclass clazz) {
+    jmethodID method = (*env)->GetStaticMethodID(env, clazz, "filterMinePadURL", "(Ljava/lang/String;)Ljava/lang/String;");
+    if (!method) return;
+    jclass reference = (*env)->NewGlobalRef(env, clazz);
+    if (!reference) return;
+    pthread_mutex_lock(&g_policy_lock);
+    if (g_navigation_policy) (*env)->DeleteGlobalRef(env, g_navigation_policy);
+    g_navigation_policy = reference;
+    g_filter_navigation = method;
+    pthread_mutex_unlock(&g_policy_lock);
+}
+
 static jstring nh_native_command(JNIEnv *env, jstring operation, jobjectArray args) {
     const char *operation_chars = operation == NULL
             ? "" : (*env)->GetStringUTFChars(env, operation, NULL);
@@ -461,7 +512,7 @@ static jlong nh_native_wait_for_work(jlong observed_generation, jint timeout_ms)
 }
 
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
-    (void) vm;
+    g_java_vm = vm;
     (void) reserved;
     pthread_once(&g_gpu_api_once, nh_initialize_gpu_api);
     return JNI_VERSION_1_6;

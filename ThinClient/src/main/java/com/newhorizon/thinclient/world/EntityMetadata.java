@@ -7,6 +7,10 @@ import java.nio.ByteBuffer;
 public final class EntityMetadata {
     public static final class Values {
         public final int[] appearance=new int[32];
+        public final float[] armorStandPose=ArmorStandState.create();
+        public String customName="",displayText="";
+        public boolean customNameVisible;
+        public int frameDirection=2;
         public int blockState=-1;public int itemId=-1;public String itemTag="";
         public int present,flags,air=300,livingFlags,pose,size=1,vehicleVariant,horseFlags;
         public boolean saddled;
@@ -39,15 +43,19 @@ public final class EntityMetadata {
                 if(index==9)out.interactionHeight=Math.max(0,value);
             } else switch(type) {
                 case 2:VarInts.readLong(in);break;
-                case 4:case 5:{String text=BinaryCodec.readString(in,262144);if(type==4&&index==17)out.appearance[index]="brown".equals(text)?1:0;break;}
-                case 6:if(flag(in))BinaryCodec.readString(in,262144);break;
+                case 4:case 5:{String text=BinaryCodec.readString(in,262144);if(type==5&&index==22)out.displayText=text.length()<=4096?text:"";if(type==4&&index==17)out.appearance[index]="brown".equals(text)?1:0;break;}
+                case 6:{String text=flag(in)?BinaryCodec.readString(in,262144):"";if(index==2)out.customName=text.length()<=4096?text:"";break;}
                 case 7:{boolean present=flag(in);int item=-1;String tag="";
                     if(present){item=VarInts.read(in);skip(in,1);int start=in.position();NbtSkipper.skipRoot(in);int length=in.position()-start;
                         if((index==8||index==22)&&length>1&&length<=4096){char[] hex=new char[length*2];String digits="0123456789abcdef";
                             for(int n=0;n<length;n++){int value=in.get(start+n)&255;hex[n*2]=digits.charAt(value>>>4);hex[n*2+1]=digits.charAt(value&15);}tag=new String(hex);}}
                     if(index==8||index==22){out.itemId=item;out.itemTag=tag;}break;}
-                case 8:{boolean value=flag(in);if(index<32)out.appearance[index]=value?1:0;if(index==16)out.baby=value;if(index==17||index==19)out.saddled=value;break;}
-                case 9:case 26:skip(in,12);break;
+                case 8:{boolean value=flag(in);if(index==3)out.customNameVisible=value;if(index<32)out.appearance[index]=value?1:0;if(index==16)out.baby=value;if(index==17||index==19)out.saddled=value;break;}
+                case 9:{BinaryCodec.require(in,12);for(int axis=0;axis<3;axis++){
+                    float value=in.getFloat();value=Float.isFinite(value)?value%360:0;
+                    if(index>=16&&index<=21)out.armorStandPose[(index-16)*3+axis]=value;
+                }break;}
+                case 26:skip(in,12);break;
                 case 10:skip(in,8);break;
                 case 11:{boolean present=flag(in);long pos=0;if(present){BinaryCodec.require(in,8);pos=in.getLong();}if(index==14){out.bedPresent=present;out.bed=pos;out.present|=64;}break;}
                 case 20:{int value=VarInts.read(in);if(index==6){out.pose=value;out.present|=32;}break;}

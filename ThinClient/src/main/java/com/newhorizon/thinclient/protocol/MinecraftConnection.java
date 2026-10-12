@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
+import com.newhorizon.thinclient.inventory.WorkbenchState;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
 import com.newhorizon.thinclient.inventory.InventoryProtocol;
@@ -33,7 +34,9 @@ public final class MinecraftConnection implements AutoCloseable {
     private final MinecraftSessionAuthenticator authenticator;
     private final Listener listener;
     private final MinecraftFrameCodec frameCodec;
-    private SocketChannel channel;
+    private volatile SocketChannel channel;
+    private final RetryingSocketConnector connector = new RetryingSocketConnector();
+    public boolean isPlaying() { return state == State.PLAY && !closed; }
     private int playerEntityId = -1;
     private volatile int gameMode;
     public boolean isSpectator() {return gameMode==3;}
@@ -41,8 +44,8 @@ public final class MinecraftConnection implements AutoCloseable {
     private volatile boolean flying;
     private volatile float flyingSpeed = 0.05f;
     private MinecraftStreamCipher streamCipher;
-    private State state = State.DISCONNECTED;
-    private boolean closed;
+    private volatile State state = State.DISCONNECTED;
+    private volatile boolean closed;
     private int compatibilityHelloAttempts;
     private long nextCompatibilityHelloNanos;
     private boolean playHellosSent;
@@ -85,13 +88,17 @@ public final class MinecraftConnection implements AutoCloseable {
             throws IOException, ProtocolException {
         if (closed || state != State.DISCONNECTED) throw new IllegalStateException();
         if (port < 0 || port > 65535) throw new IllegalArgumentException("port");
-        channel = SocketChannel.open();
-        channel.configureBlocking(true);
-        channel.socket().setTcpNoDelay(true);
-        channel.socket().setKeepAlive(true);
-        channel.socket().connect(new InetSocketAddress(host, port), 10_000);
-
-        state = State.LOGIN;
+        SocketChannel connected = connector.connect(host, port, new RetryingSocketConnector.Observer() {
+            public void attempting(int attempt, int total) { listener.onConnectAttempt(attempt,total); }
+            public void failed(int attempt, IOException failure, boolean retrying) {
+                listener.onConnectFailure(attempt,failure,retrying);
+            }
+        });
+        synchronized(this) {
+            if(closed) { connected.close(); throw new java.io.InterruptedIOException("Connection cancelled"); }
+            channel=connected;
+            state = State.LOGIN;
+        }
         sendPacket(packet -> MinecraftPackets.writeHandshake(packet, host, port));
         sendPacket(packet -> MinecraftPackets.writeLoginStart(
                 packet, credentials.username, credentials.profileId));
@@ -130,7 +137,7 @@ public final class MinecraftConnection implements AutoCloseable {
 
     public synchronized void sendCustomPayload(String channelName, ByteBuffer payload)
             throws IOException, ProtocolException {
-        if (state != State.PLAY) throw new IllegalStateException("Not in play state");
+        if (state != State.PLAY || closed) return;
         sendPacket(packet -> MinecraftPackets.writeCustomPayload(packet, channelName, payload));
     }
 
@@ -194,6 +201,18 @@ public final class MinecraftConnection implements AutoCloseable {
         return true;
     }
 
+    public synchronized void clickWorkbench(int expectedWindow, int slot, int button, boolean shift)
+            throws IOException, ProtocolException {
+        if (state != State.PLAY || closed || expectedWindow != runtime.workbench.window() || !runtime.workbench.ready()) return;
+        sendPacket(packet -> runtime.workbench.writeMenuClick(packet, expectedWindow, slot, button, shift));
+    }
+
+    public synchronized void closeWorkbench(int expectedWindow) throws IOException, ProtocolException {
+        if (expectedWindow <= 0 || expectedWindow != runtime.workbench.window()) return;
+        if (state == State.PLAY && !closed) sendPacket(packet -> WorkbenchState.writeClose(packet, expectedWindow));
+        runtime.workbench.clear();
+    }
+
     public synchronized boolean setCreativeHotbarSlot(int hotbarSlot,
                                                        int protocolItemId, int count)
             throws IOException, ProtocolException {
@@ -230,10 +249,17 @@ public final class MinecraftConnection implements AutoCloseable {
                                           float hitX, float hitY, float hitZ,
                                           boolean insideBlock)
             throws IOException, ProtocolException {
+        return useItemOn(0,x,y,z,direction,hitX,hitY,hitZ,insideBlock);
+    }
+
+    public synchronized boolean useItemOn(int hand, int x, int y, int z, int direction,
+                                          float hitX, float hitY, float hitZ,
+                                          boolean insideBlock)
+            throws IOException, ProtocolException {
         if (state != State.PLAY || closed) return false;
         int sequence = nextInteractionSequence();
         sendPacket(packet -> MinecraftPackets.writeUseItemOn(packet,
-                x, y, z, direction, hitX, hitY, hitZ, insideBlock, sequence));
+                hand, x, y, z, direction, hitX, hitY, hitZ, insideBlock, sequence));
         return true;
     }
 
@@ -370,7 +396,14 @@ public final class MinecraftConnection implements AutoCloseable {
             if(com.newhorizon.thinclient.world.ServerHudState.handles(packetId)){
                 runtime.hud.read(packetId,packet);completePlayHandshake();return;
             }
+            if (packetId == WorkbenchState.OPEN_SCREEN) {
+                runtime.workbench.open(packet); completePlayHandshake(); return;
+            }
+            if (packetId == WorkbenchState.CLOSE_SCREEN) {
+                runtime.workbench.serverClose(packet); completePlayHandshake(); return;
+            }
             if(packetId==0x12 || packetId==0x14) {
+                runtime.workbench.readContent(packet.duplicate(), packetId==0x14);
                 runtime.inventory.readVanillaContent(packet,packetId==0x14); completePlayHandshake(); return;
             }
             if(packetId==0x46||packetId==0x64){
@@ -525,7 +558,11 @@ public final class MinecraftConnection implements AutoCloseable {
                     gameMode=(int)packet.getFloat(packet.position()+1);
                     runtime.inventory.setCreativeMode(gameMode==1);
                 }
+                boolean endReturn = packet.remaining()==5 && (packet.get(packet.position())&255)==4;
                 runtime.environment.readGameEvent(packet);
+                // The server suspends the player at the exit portal until PERFORM_RESPAWN.
+                // The thin client has no credits screen; acknowledge the return directly.
+                if (endReturn) sendPacket(MinecraftPackets::writeRespawnRequest);
                 completePlayHandshake();
                 return;
             }
@@ -539,7 +576,7 @@ public final class MinecraftConnection implements AutoCloseable {
                 runtime.effects.clear();
                 runtime.combat.clear();
                 runtime.riding.clear();
-                runtime.inventory.clear();
+                runtime.inventory.clear(); runtime.workbench.clear();
                 runtime.sounds.clear();
                 runtime.itemUse.clear();
                 BinaryCodec.require(packet, Integer.BYTES + 2);
@@ -553,7 +590,12 @@ public final class MinecraftConnection implements AutoCloseable {
                 if (dimensionCount < 0 || dimensionCount > 1024)
                     throw new ProtocolException("Dimension count outside limit");
                 for (int i = 0; i < dimensionCount; i++) BinaryCodec.readString(packet, 1024);
+                runtime.portal.clear();
+                runtime.dimensions.readRegistry(packet.duplicate());
                 runtime.soundBiomes.read(packet);
+                String dimensionType = BinaryCodec.readString(packet, 32767);
+                String dimension = BinaryCodec.readString(packet, 32767);
+                runtime.dimensions.enter(dimensionType, dimension, runtime.world, runtime.environment, true);
                 System.out.println("[NH-THIN] vanilla game mode=" + gameMode
                         + " creativeInventory=" + (gameMode == 1));
                 completePlayHandshake();
@@ -656,6 +698,7 @@ public final class MinecraftConnection implements AutoCloseable {
                 }
                 runtime.world.applyServerTeleport(
                         x, y, z, yaw, pitch, relativeFlags);
+                runtime.dimensions.teleported();
                 sendPacket(output -> MinecraftPackets.writeAcceptTeleportation(
                         output, teleportId));
                 completePlayHandshake();
@@ -703,15 +746,22 @@ public final class MinecraftConnection implements AutoCloseable {
                 return;
             }
             if (packetId == MinecraftPacketIds.PLAY_CLIENTBOUND_RESPAWN) {
-                int respawnFlags=MinecraftPackets.readRespawnFlags(packet),keep=respawnFlags>>>8;
+                MinecraftPackets.Respawn respawn = MinecraftPackets.readRespawn(packet);
+                int respawnFlags=respawn.flags,keep=respawnFlags>>>8;
+                runtime.dimensions.enter(respawn.type, respawn.dimension, runtime.world, runtime.environment, false);
+                if ((keep&2)==0) runtime.portal.clear();
+                runtime.portal.arrive(respawn.portalCooldown);
                 gameMode=respawnFlags&255;runtime.inventory.setCreativeMode(gameMode==1);
                 if((keep&2)==0)runtime.effects.clear();
-                runtime.combat.respawn(keep);runtime.riding.clear();
+                runtime.combat.respawn(keep);runtime.riding.clear();runtime.workbench.clear();
                 if((keep&2)==0)runtime.inventory.clear();
                 runtime.entities.clear();
                 runtime.sounds.clear();
                 runtime.itemUse.clear();
                 completePlayHandshake();return;
+            }
+            if (packetId == MinecraftPacketIds.PLAY_CLIENTBOUND_MAP_ITEM_DATA) {
+                runtime.maps.read(packet);completePlayHandshake();return;
             }
             if (packetId == MinecraftPacketIds.PLAY_CLIENTBOUND_CUSTOM_PAYLOAD) {
                 MinecraftPackets.CustomPayload custom =
@@ -725,8 +775,12 @@ public final class MinecraftConnection implements AutoCloseable {
                     }
                 } else if (WorldProtocol.CHANNEL.equals(custom.channel)) {
                     WorldMessage message = WorldProtocol.decode(custom.payload);
-                    if (message instanceof WorldMessage.Reset) runtime.sounds.clear();
-                    runtime.world.handle(message);
+                    // Login/Respawn owns dimension identity and geometry. A delayed bridge
+                    // reset must not reinterpret new vanilla chunks or rename the level.
+                    if (!(message instanceof WorldMessage.Reset) || !runtime.dimensions.active()) {
+                        if (message instanceof WorldMessage.Reset) runtime.sounds.clear();
+                        runtime.world.handle(message);
+                    }
                     if (message instanceof WorldMessage.PlayerPosition) {
                         WorldMessage.PlayerPosition position =
                                 (WorldMessage.PlayerPosition) message;
@@ -1043,11 +1097,12 @@ public final class MinecraftConnection implements AutoCloseable {
     public synchronized void close() {
         if (closed && state == State.DISCONNECTED) return;
         closed = true;
+        connector.close();
         state = State.DISCONNECTED;
         runtime.effects.clear();
                 runtime.combat.clear();
                 runtime.riding.clear();
-                runtime.inventory.clear();
+                runtime.inventory.clear(); runtime.workbench.clear();
         runtime.sounds.clear();
         runtime.itemUse.clear();
         frameCodec.close();
@@ -1069,6 +1124,8 @@ public final class MinecraftConnection implements AutoCloseable {
     }
 
     public interface Listener {
+        default void onConnectAttempt(int attempt, int total) { }
+        default void onConnectFailure(int attempt, IOException failure, boolean retrying) { }
         void onConnected();
 
         void onLoginSuccess(java.util.UUID profileId, String username);

@@ -57,6 +57,22 @@ public final class ThinClientMain {
                 try {
                     System.out.println("[NH-THIN] network connect begin");
                     connection.run(options.host, options.port, options.credentials);
+                    if (!stopping.get()) scene.requestStop();
+                } catch (java.io.IOException failure) {
+                    if (!stopping.get()) {
+                        System.out.println("[NH-THIN] connection unavailable (handled): " + failure);
+                        runtime.connectionStatus = "Falha na conexao. Voltando ao launcher...";
+                        connection.close();
+                        System.out.println("[NH-THIN] network failure handled; returning normally to launcher");
+                        scene.requestStop();
+                    }
+                } catch (com.newhorizon.thinclient.protocol.ProtocolException failure) {
+                    if (!stopping.get()) {
+                        failure.printStackTrace(System.out);
+                        runtime.connectionStatus = "Falha ao entrar no servidor. Voltando ao launcher...";
+                        connection.close();
+                        scene.requestStop();
+                    }
                 } catch (Throwable throwable) {
                     if (!stopping.get()) {
                         throwable.printStackTrace(System.out);
@@ -73,6 +89,7 @@ public final class ThinClientMain {
             } finally {
                 stopping.set(true);
                 connection.close();
+                network.interrupt();
                 network.join(2_000L);
             }
         }
@@ -86,13 +103,23 @@ public final class ThinClientMain {
         LogListener(ThinClientRuntime runtime) {
             this.runtime = runtime;
         }
+        @Override public void onConnectAttempt(int attempt, int total) {
+            runtime.connectionStatus = "Conectando ao servidor... tentativa " + attempt + "/" + total;
+            System.out.println("[NH-THIN] connect attempt="+attempt+"/"+total+" timeoutMs=10000");
+        }
+        @Override public void onConnectFailure(int attempt, java.io.IOException failure, boolean retrying) {
+            System.out.println("[NH-THIN] connect attempt="+attempt+" failed="+failure+" retry="+retrying);
+            if(retrying) runtime.connectionStatus = "Servidor indisponivel. Nova tentativa em 2 segundos...";
+        }
         @Override
         public void onConnected() {
+            runtime.connectionStatus = "Servidor encontrado. Entrando...";
             System.out.println("[NH-THIN] socket connected");
         }
 
         @Override
         public void onLoginSuccess(UUID profileId, String username) {
+            runtime.connectionStatus = "";
             System.out.println("[NH-THIN] login complete user=" + username);
         }
 
@@ -122,7 +149,9 @@ public final class ThinClientMain {
 
         @Override
         public void onDisconnected(String reason) {
+            runtime.connectionStatus = "O servidor encerrou a conexao. Voltar abre o menu.";
             System.out.println("[NH-THIN] server disconnected: " + reason);
         }
     }
 }
+

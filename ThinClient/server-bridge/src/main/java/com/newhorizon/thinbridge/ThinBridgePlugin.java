@@ -66,9 +66,13 @@ public final class ThinBridgePlugin extends JavaPlugin
     private final Map<UUID, ClientState> clients = new HashMap<>();
     private ThreadPoolExecutor mesher;
     private int tick;
+    private BlockScreenBridge blockScreens;
+    private boolean streamTerrain;
 
     @Override
     public void onEnable() {
+        streamTerrain = getConfig().getBoolean("stream-terrain", true);
+        blockScreens=new BlockScreenBridge(this);
         getServer().getMessenger().registerIncomingPluginChannel(this,
                 HELLO_CHANNEL, this);
         getServer().getMessenger().registerIncomingPluginChannel(this,
@@ -76,7 +80,7 @@ public final class ThinBridgePlugin extends JavaPlugin
         getServer().getMessenger().registerOutgoingPluginChannel(this, WORLD_CHANNEL);
         getServer().getMessenger().registerOutgoingPluginChannel(this, INVENTORY_CHANNEL);
         getServer().getPluginManager().registerEvents(this, this);
-        mesher = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
+        if (streamTerrain) mesher = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
                 new ArrayBlockingQueue<>(8), runnable -> {
                     Thread thread = new Thread(runnable, "NH-Thin-Surface-Mesher");
                     thread.setDaemon(true);
@@ -84,7 +88,7 @@ public final class ThinBridgePlugin extends JavaPlugin
                     return thread;
                 }, new ThreadPoolExecutor.DiscardPolicy());
         getServer().getScheduler().runTaskTimer(this, this::updateClients, 1L, 2L);
-        getLogger().info("Bounded thin-client bridge ready");
+        getLogger().info("Bounded thin-client bridge ready; stream-terrain=" + streamTerrain);
     }
 
     @Override
@@ -107,6 +111,7 @@ public final class ThinBridgePlugin extends JavaPlugin
             if (input.getInt() != HELLO_MAGIC || (input.get() & 0xff) != VERSION) return;
             ClientState state = new ClientState(player.getUniqueId());
             clients.put(player.getUniqueId(), state);
+            blockScreens.join(player);
             resetWorld(player, state);
             sendInventory(player, state);
             getLogger().info("Thin client connected: " + player.getName());
@@ -527,11 +532,13 @@ public final class ThinBridgePlugin extends JavaPlugin
 
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
+        blockScreens.quit(event.getPlayer().getUniqueId());
         ClientState state = clients.remove(event.getPlayer().getUniqueId());
         if (state != null) returnCursor(event.getPlayer(), state);
     }
 
     private void updateClients() {
+        blockScreens.update();
         tick++;
         Iterator<ClientState> iterator = clients.values().iterator();
         while (iterator.hasNext()) {
@@ -543,16 +550,18 @@ public final class ThinBridgePlugin extends JavaPlugin
             }
             String dimension = player.getWorld().getKey().toString();
             if (!dimension.equals(state.dimension)) resetWorld(player, state);
-            observeMovement(player, state);
-            sendPosition(player);
+            if (streamTerrain) {
+                observeMovement(player, state);
+                sendPosition(player);
+            }
             if (tick % 5 == 0) {
                 int fingerprint = inventoryFingerprint(player, state);
                 if (fingerprint != state.inventoryFingerprint) {
                     sendInventory(player, state);
                 }
             }
-            refreshDesiredChunks(player, state);
-            if (!state.meshInFlight && !state.pending.isEmpty()
+            if (streamTerrain) refreshDesiredChunks(player, state);
+            if (streamTerrain && !state.meshInFlight && !state.pending.isEmpty()
                     && mesher.getQueue().remainingCapacity() > 0) {
                 requestMesh(player, state, state.pending.removeFirst());
             }
@@ -587,6 +596,7 @@ public final class ThinBridgePlugin extends JavaPlugin
         state.pending.clear();
         state.sent.clear();
         state.meshInFlight = false;
+        if (!streamTerrain) return; // Vanilla chunk/light packets already own the terrain.
         ByteBuffer packet = packet(256);
         header(packet, RESET);
         writeString(packet, state.dimension);

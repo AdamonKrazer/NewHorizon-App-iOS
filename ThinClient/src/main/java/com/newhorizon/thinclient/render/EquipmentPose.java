@@ -7,6 +7,8 @@ import java.util.*;
 
 /** ItemInHandLayer and original thirdperson transforms, attached to the animated arm joint. */
 final class EquipmentPose {
+    private static final float[] TRIDENT={0,60,0,11,17,-2,1,1,1,0,60,0,3,17,12,1,1,1};
+    private static final float[] TRIDENT_THROW={0,90,180,8,-17,9,1,1,1,0,90,180,8,-17,-7,1,1,1};
     private static final Map<String,float[]> TRANSFORMS=load();
     private final EntityModelAnimation animation=new EntityModelAnimation();
     final float[] matrix=new float[16];
@@ -19,12 +21,13 @@ final class EquipmentPose {
         // SkeletonModel.translateToHand offsets its narrower two-pixel arms by one pixel.
         if(e.type==86||e.type==97||e.type==114)matrix[12]+=(left?1:-1)/16f;
         rotate(0,-90);rotate(1,180);translate((left?-1:1)/16f,.125f,-.625f);
-        float[] t=TRANSFORMS.get(material);if(t!=null){int p=left?9:0;
+        float[] t=material.equals("trident")?(e.blocking?TRIDENT_THROW:TRIDENT):TRANSFORMS.get(material);if(t!=null){int p=left?9:0;
             translate((left?-1:1)*t[p+3]/16,t[p+4]/16,t[p+5]/16);
             rotate(0,t[p]);rotate(1,t[p+1]*(left?-1:1));rotate(2,t[p+2]*(left?-1:1));
             for(int col=0;col<3;col++)for(int row=0;row<3;row++)matrix[col*4+row]*=t[p+6+col];
         }
         float scale=e.player?.9375f:e.type==114?1.2f:e.type==42?6:1;if(e.baby)scale*=.5f;
+        if(com.newhorizon.thinclient.world.ArmorStandState.small(e))scale*=.5f;
         matrix[13]+=1.5f;
         float yaw=(Float.isFinite(e.bodyYaw)?e.bodyYaw:e.yaw)+180;
         float c=(float)Math.cos(Math.toRadians(yaw)),s=(float)Math.sin(Math.toRadians(yaw));

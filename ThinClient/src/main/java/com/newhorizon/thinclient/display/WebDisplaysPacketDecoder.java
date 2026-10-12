@@ -278,7 +278,7 @@ public final class WebDisplaysPacketDecoder {
         return Math.max(minimum, Math.min(maximum, value));
     }
 
-    private static String sanitizeUrl(String value) {
+    static String sanitizeUrl(String value) {
         if (value == null) return "about:blank";
         String url = value.trim();
         if (url.length() == 0) return "about:blank";

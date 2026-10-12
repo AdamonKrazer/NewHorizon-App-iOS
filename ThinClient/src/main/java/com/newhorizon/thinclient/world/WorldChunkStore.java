@@ -9,7 +9,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 /** Fixed-slot world cache. Eviction reuses direct storage and allocates nothing. */
-public final class WorldChunkStore implements AutoCloseable {
+public final class WorldChunkStore implements AutoCloseable, WorldBlockRaycast.Blocks {
     /** Bounded DDA against the existing vanilla collision boxes, for visual flight. */
     public synchronized double projectileClip(double ox, double oy, double oz,
                                                double dx, double dy, double dz) {
@@ -41,6 +41,8 @@ public final class WorldChunkStore implements AutoCloseable {
     }
     private final MemoryBudget budget;
     private final SurfaceChunk[] chunks;
+    // Slot indices plus one; a fixed, half-full table rebuilt only when resident identities change.
+    private final int[] residentSlots;
     private final MemoryBudget.Lease[] leases;
     private final int bytesPerChunk;
     private final int activeRadius;
@@ -51,6 +53,7 @@ public final class WorldChunkStore implements AutoCloseable {
     private final long[] updatePositions = new long[UPDATE_JOURNAL_CAPACITY];
     private final int[] updateStates = new int[UPDATE_JOURNAL_CAPACITY];
     private final long[] updateStamps = new long[UPDATE_JOURNAL_CAPACITY];
+    private final boolean[] updateLightChanged=new boolean[UPDATE_JOURNAL_CAPACITY];
     private int updateCount;
     private long updateClock;
     private ColdChunkCache coldChunks;
@@ -76,11 +79,19 @@ public final class WorldChunkStore implements AutoCloseable {
     private int rejectedFarChunkCount;
     private int decodedCountMismatchLogCount;
     private int bridgeAuditLogCount;
+    private final boolean bridgeSurfaceAudit=Boolean.getBoolean("newhorizon.thin.auditBridgeSurface");
     private boolean closed;
     private String dimension = "minecraft:overworld";
     private int minY = -64;
     private int height = 384;
     private long meshEpoch;
+    private long lightUpdateClock;
+    private int pendingLightWrites;
+    private static final int LIGHT_QUEUE_CAPACITY=8192;
+    private final MemoryBudget.Lease lightQueueLease;
+    private final long[] lightQueue;
+    private int blockLightLogCount;
+    private int lightQueueSize,lightRescanPass,lightRescanSlot,lightRescanSection;
     private boolean deferredPromotions, promotionPending;
     private final Object chunkDecodeLock=new Object();
     private SurfaceChunk decodedScratch;
@@ -91,10 +102,10 @@ public final class WorldChunkStore implements AutoCloseable {
     /** Called by the mesh worker, never by the GL/input thread. */
     public void serviceColdPromotion() {
         synchronized(chunkDecodeLock) {
-            ColdChunkCache cache;int x=0,z=0,worldHeight;long epoch;boolean found=false;
+            ColdChunkCache cache;int x=0,z=0,worldHeight;long epoch,lightClock;boolean found=false;
             synchronized(this) {
-                if(closed||!promotionPending||coldChunks==null)return;
-                cache=coldChunks;worldHeight=Math.min(height,512);epoch=meshEpoch;
+                if(closed||!promotionPending||coldChunks==null||pendingLightWrites!=0)return;
+                cache=coldChunks;worldHeight=Math.min(height,512);epoch=meshEpoch;lightClock=lightUpdateClock;
                 search:for(int ring=0;ring<=activeRadius;ring++)for(int cz=playerChunkZ-ring;cz<=playerChunkZ+ring;cz++)for(int cx=playerChunkX-ring;cx<=playerChunkX+ring;cx++) {
                     if(Math.max(Math.abs(cx-playerChunkX),Math.abs(cz-playerChunkZ))!=ring)continue;
                     int slot=find(cx,cz);if(slot>=0&&chunks[slot].hasFullBlockStates)continue;
@@ -106,9 +117,12 @@ public final class WorldChunkStore implements AutoCloseable {
                 if(!cache.readInto(ColdChunkCache.KIND_SECTIONS,x,z,coldReadScratch))return;
                 SurfaceChunk decoded=decodeScratch(x,z,coldReadScratch,worldHeight);
                 if(cache.readInto(ColdChunkCache.KIND_AUXILIARY,x,z,coldReadScratch))vanillaChunkAuxDecoder.decodeInitial(coldReadScratch,decoded,worldHeight);
+                if(cache.readInto(ColdChunkCache.KIND_LIGHT,x,z,coldReadScratch))vanillaChunkAuxDecoder.decodeLightUpdate(coldReadScratch,decoded,worldHeight);
                 if(cache.readInto(ColdChunkCache.KIND_BIOMES,x,z,coldReadScratch))offThreadDecoder.decodeBiomeUpdate(coldReadScratch,decoded,worldHeight);
                 synchronized(this) {
                     if(closed||meshEpoch!=epoch||!withinActiveRadius(x,z)||coldChunks!=cache)return;
+                    // Retry instead of publishing a snapshot older than a concurrent network light update.
+                    if(lightUpdateClock!=lightClock||pendingLightWrites!=0)return;
                     replayBlockUpdates(decoded);publishDecoded(decoded);
                 }
             } catch(IOException|ProtocolException error) { synchronized(this){promotionPending=false;} System.err.println("[NH-THIN] cold promotion: "+error); }
@@ -125,6 +139,7 @@ public final class WorldChunkStore implements AutoCloseable {
                 active=activeRadius<0||(hasPlayerPosition&&withinActiveRadius(x,z))||cache==null;
             }
             if(cache!=null)try {
+                cache.removeKind(ColdChunkCache.KIND_LIGHT,x,z);
                 cache.put(ColdChunkCache.KIND_SECTIONS,x,z,sections.asReadOnlyBuffer());
                 cache.put(ColdChunkCache.KIND_AUXILIARY,x,z,auxiliary.asReadOnlyBuffer());
             }catch(IOException error){System.err.println("[NH-THIN] cold write: "+error);}
@@ -152,12 +167,15 @@ public final class WorldChunkStore implements AutoCloseable {
         if(slot<0)return;SurfaceChunk target=chunks[slot];int revision=target.revision+1;
         target.copyFrom(decoded);target.revision=revision;target.lastTouched=++clock;
         invalidateMeshingNeighbors(target.chunkX,target.chunkZ);
+        queueJournalLightsNear(target.chunkX,target.chunkZ);
     }
 
     public static final class MeshSnapshot {
         public final SurfaceChunk[] neighbors=new SurfaceChunk[9];
         private final SurfaceChunk[] storage=new SurfaceChunk[9];
         public int slot, minY;
+        public int lightX,lightY,lightZ;
+        private final int[] lightSlots=new int[9];
         public long epoch;
         private MeshSnapshot(int recordBytes) {
             for(int i=0;i<9;i++) storage[i]=new SurfaceChunk(
@@ -204,6 +222,99 @@ public final class WorldChunkStore implements AutoCloseable {
         out.slot=selected;out.minY=minY;out.epoch=meshEpoch;return true;
     }
 
+    private void queueBlockLight(int x,int y,int z) {
+        long position=packBlockPosition(x,y,z);
+        for(int i=0;i<lightQueueSize;i++)if(lightQueue[i]==position)return;
+        if(lightQueueSize<LIGHT_QUEUE_CAPACITY)lightQueue[lightQueueSize++]=position;
+        else {
+            // Emergency bounded fallback for a burst larger than the update journal.
+            // Repeated section sweeps also extinguish stale light supplied by their borders.
+            lightRescanPass=16;lightRescanSlot=lightRescanSection=0;
+        }
+    }
+
+    private void queueJournalLightsNear(int chunkX,int chunkZ) {
+        for(int i=0;i<updateCount;i++) {
+            long p=updatePositions[i];int x=unpackBlockX(p),z=unpackBlockZ(p);
+            if(updateLightChanged[i]&&Math.abs((x>>4)-chunkX)<=1&&Math.abs((z>>4)-chunkZ)<=1)
+                queueBlockLight(x,unpackBlockY(p),z);
+        }
+    }
+
+    /** Worker reuses its existing 3x3 buffers; no lighting work runs on the GL thread. */
+    public synchronized boolean nextLightSnapshot(MeshSnapshot out) {
+        if(closed||pendingLightWrites!=0)return false;
+        while(lightQueueSize>0||lightRescanPass>0) {
+            int x,y,z;
+            if(lightQueueSize>0) {
+                long p=lightQueue[--lightQueueSize];x=unpackBlockX(p);y=unpackBlockY(p);z=unpackBlockZ(p);
+            } else {
+                if(lightRescanSlot>=size) {
+                    lightRescanPass--;lightRescanSlot=lightRescanSection=0;
+                    if(lightRescanPass==0||size==0){lightRescanPass=0;return false;}
+                }
+                SurfaceChunk c=chunks[lightRescanSlot];
+                x=(c.chunkX<<4)+8;y=minY+(lightRescanSection<<4)+8;z=(c.chunkZ<<4)+8;
+                if(++lightRescanSection>=Math.min(height,512)/16){lightRescanSection=0;lightRescanSlot++;}
+            }
+            int center=find(x>>4,z>>4);
+            if(center<0||!chunks[center].hasFullBlockStates||y<minY||y>=minY+Math.min(height,512))continue;
+            boolean complete=true;
+            for(int cz=(z-15)>>4;cz<=(z+15)>>4&&complete;cz++)for(int cx=(x-15)>>4;cx<=(x+15)>>4;cx++) {
+                int required=find(cx,cz);
+                if(required<0||!chunks[required].hasFullBlockStates){complete=false;break;}
+            }
+            // Missing columns may contain sources. Keep their existing light until
+            // arrival requeues this retained journal entry; never treat them as dark air.
+            if(!complete)continue;
+            java.util.Arrays.fill(out.neighbors,null);
+            for(int i=0;i<9;i++) {
+                int slot=find((x>>4)+(i%3)-1,(z>>4)+(i/3)-1);
+                if(slot<0||!chunks[slot].hasFullBlockStates)continue;
+                out.storage[i].copyFrom(chunks[slot]);out.neighbors[i]=out.storage[i];
+            }
+            out.slot=center;out.minY=minY;out.epoch=meshEpoch;
+            out.lightX=x;out.lightY=y;out.lightZ=z;
+            return true;
+        }
+        return false;
+    }
+
+    /** Applies only changed light nibbles if all nine input chunks still match. */
+    public synchronized boolean commitBlockLight(MeshSnapshot snapshot,BlockLightEngine light) {
+        if(closed||snapshot.epoch!=meshEpoch)return false;
+        int cx=snapshot.lightX>>4,cz=snapshot.lightZ>>4;
+        for(int n=0;n<9;n++) {
+            int slot=find(cx+n%3-1,cz+n/3-1);SurfaceChunk before=snapshot.neighbors[n];
+            boolean present=slot>=0&&chunks[slot].hasFullBlockStates;
+            if((before==null)!=(!present)||(present&&before.revision!=chunks[slot].revision)) {
+                queueBlockLight(snapshot.lightX,snapshot.lightY,snapshot.lightZ);return false;
+            }
+            snapshot.lightSlots[n]=present?slot:-1;
+        }
+        int changedMask=0;
+        for(int i=0;i<light.changedCount();i++) {
+            int x=light.changedX(i),y=light.changedY(i),z=light.changedZ(i);
+            int dx=(x>>4)-cx,dz=(z>>4)-cz,ry=y-minY;
+            if(dx<-1||dx>1||dz<-1||dz>1||ry<0||ry>=Math.min(height,512))continue;
+            int n=(dz+1)*3+dx+1,slot=snapshot.lightSlots[n];if(slot<0)continue;
+            SurfaceChunk chunk=chunks[slot];int level=light.changedLevel(i);
+            if(chunk.light(false,x&15,ry,z&15)==level)continue;
+            chunk.setLight(false,x&15,ry,z&15,level);changedMask|=1<<n;
+        }
+        for(int i=0;i<size;i++) {
+            SurfaceChunk chunk=chunks[i];boolean dirty=false;
+            for(int n=0;n<9;n++)if((changedMask&(1<<n))!=0) {
+                if(Math.abs(chunk.chunkX-(cx+n%3-1))<=1&&Math.abs(chunk.chunkZ-(cz+n/3-1))<=1){dirty=true;break;}
+            }
+            if(dirty){chunk.revision++;chunk.lastTouched=++clock;}
+        }
+        if(changedMask!=0&&blockLightLogCount++<8)
+            System.out.println("[NH-LIGHT] source="+snapshot.lightX+","+snapshot.lightY+","+snapshot.lightZ
+                    +" changed="+light.changedCount()+" chunks="+Integer.toHexString(changedMask));
+        return true;
+    }
+
     public WorldChunkStore(MemoryBudget budget, int maxChunks, int maxRecordsPerChunk) {
         this(budget, maxChunks, maxRecordsPerChunk, -1);
     }
@@ -218,10 +329,33 @@ public final class WorldChunkStore implements AutoCloseable {
             throw new IllegalArgumentException();
         }
         this.budget = budget;
+        int residentCapacity=4;
+        while(residentCapacity<maxChunks*2L){
+            if(residentCapacity>1<<28)throw new IllegalArgumentException("Resident chunk capacity");
+            residentCapacity<<=1;
+        }
+        lightQueueLease=budget.reserve(MemoryCategory.WORLD,LIGHT_QUEUE_CAPACITY*8L+UPDATE_JOURNAL_CAPACITY+residentCapacity*4L);
+        residentSlots=new int[residentCapacity];
+        lightQueue=new long[LIGHT_QUEUE_CAPACITY];
         this.activeRadius = activeRadius;
         chunks = new SurfaceChunk[maxChunks];
         leases = new MemoryBudget.Lease[maxChunks];
         bytesPerChunk = maxRecordsPerChunk * SurfaceChunk.RECORD_BYTES;
+    }
+
+    /** Native dimension boundary; invalidate old GPU jobs, light, journals and disk chunks together. */
+    public synchronized void enterDimension(String name, int bottom, int span) {
+        ensureOpen();
+        if (span < 16 || span > 512 || span % 16 != 0 || bottom % 16 != 0)
+            throw new IllegalArgumentException("Dimension geometry");
+        dimension = name; minY = bottom; height = span;
+        meshEpoch++;
+        for (int i = 0; i < size; i++) chunks[i].revision++;
+        size = updateCount = lightQueueSize = lightRescanPass = lightRescanSlot = lightRescanSection = 0;
+        rebuildResidentIndex();
+        promotionPending = false; hasPlayerPosition = false;
+        playerChunkX = playerChunkZ = 0;
+        if (coldChunks != null) coldChunks.clear();
     }
 
     public synchronized void handle(WorldMessage message) {
@@ -250,9 +384,10 @@ public final class WorldChunkStore implements AutoCloseable {
             // LevelChunkWithLight. Do not let that announcement erase the
             // authoritative complete chunks and replace them with its surface.
             if (!hasVanillaChunks) {
+                lightQueueSize=lightRescanPass=0;
                 meshEpoch++;
                 for(int i=0;i<size;i++)chunks[i].revision++;
-                size=0;
+                size=0;rebuildResidentIndex();
             }
             return;
         }
@@ -380,6 +515,7 @@ public final class WorldChunkStore implements AutoCloseable {
         int nextRevision=chunks[index].revision+1;
         chunks[index].reset(chunkX, chunkZ);
         chunks[index].revision=nextRevision;
+        rebuildResidentIndex();
         invalidateMeshingNeighbors(chunkX,chunkZ);
         return index;
     }
@@ -414,11 +550,24 @@ public final class WorldChunkStore implements AutoCloseable {
     }
 
     private int find(int x, int z) {
-        for (int index = 0; index < size; index++) {
-            SurfaceChunk chunk = chunks[index];
-            if (chunk.chunkX == x && chunk.chunkZ == z) return index;
+        int at=residentHash(x,z)&(residentSlots.length-1);
+        for(int entry;(entry=residentSlots[at])!=0;at=(at+1)&(residentSlots.length-1)){
+            int slot=entry-1;SurfaceChunk chunk=chunks[slot];
+            if(chunk.chunkX==x&&chunk.chunkZ==z)return slot;
         }
         return -1;
+    }
+    private static int residentHash(int x,int z){
+        int h=x*0x9e3779b9+Integer.rotateLeft(z*0x85ebca6b,16);
+        h^=h>>>16;h*=0x7feb352d;return h^(h>>>15);
+    }
+    private void rebuildResidentIndex(){
+        java.util.Arrays.fill(residentSlots,0);
+        for(int slot=0;slot<size;slot++){
+            SurfaceChunk chunk=chunks[slot];int at=residentHash(chunk.chunkX,chunk.chunkZ)&(residentSlots.length-1);
+            while(residentSlots[at]!=0)at=(at+1)&(residentSlots.length-1);
+            residentSlots[at]=slot+1;
+        }
     }
     /** Dirty only direct neighbours; revision increments never recurse into their neighbours. */
     private void invalidateMeshingNeighbors(int chunkX,int chunkZ) {
@@ -466,6 +615,7 @@ public final class WorldChunkStore implements AutoCloseable {
             chunks[last] = removed;
             leases[last] = removedLease;
         }
+        rebuildResidentIndex();
     }
 
     public synchronized int size() {
@@ -618,11 +768,9 @@ public final class WorldChunkStore implements AutoCloseable {
         if (chunk.hasFullBlockStates) {
             int state = chunk.fullBlockState(
                     worldX & 15, relativeY, worldZ & 15);
-            int liquids = BlockStatePhysics.WATER | BlockStatePhysics.LAVA;
-            // LocalPlayer.pick uses ClipContext.Fluid.NONE for ordinary mouse
-            // targeting: water/lava affect movement but do not get an outline.
-            return !BlockStatePhysics.isAir(state)
-                    && (RailState.isRail(state) || FenceState.isFence(state) || (BlockStatePhysics.flags(state) & liquids) == 0);
+            // Fluid.NONE excludes the fluid shape, not the solid block that
+            // contains it. Waterlogged slabs, plants and doors retain outlines.
+            return BlockStateOutline.boxCount(state) != 0;
         }
         return chunk.isTargetableCell(worldX & 15, relativeY, worldZ & 15);
     }
@@ -687,14 +835,7 @@ public final class WorldChunkStore implements AutoCloseable {
     public synchronized int rainSurface(int x, int z) {
         int index = find(x >> 4, z >> 4);
         if (index < 0 || !chunks[index].hasFullBlockStates()) return Integer.MIN_VALUE;
-        SurfaceChunk chunk = chunks[index];
-        for (int y = Math.min(height, 512) - 1; y >= 0; y--) {
-            int state = chunk.fullBlockState(x & 15, y, z & 15);
-            if (BlockStatePhysics.blocksMovement(state)
-                    || (BlockStatePhysics.flags(state) & (BlockStatePhysics.WATER | BlockStatePhysics.LAVA)) != 0)
-                return minY + y + 1;
-        }
-        return minY;
+        return minY + chunks[index].rainHeight(x & 15, z & 15);
     }
 
     public synchronized int physicsFlagsAt(int worldX, int worldY, int worldZ) {
@@ -766,8 +907,10 @@ public final class WorldChunkStore implements AutoCloseable {
                                                         int worldZ, int stateId) {
         int relativeY = worldY - minY;
         if (relativeY < 0 || relativeY >= Math.min(height, 512)) return false;
-        recordBlockUpdate(worldX, worldY, worldZ, stateId);
         int index = find(worldX >> 4, worldZ >> 4);
+        boolean lightingChanged=index<0||!chunks[index].hasFullBlockStates
+                ||!BlockStateLighting.sameLighting(chunks[index].fullBlockState(worldX&15,relativeY,worldZ&15),stateId);
+        recordBlockUpdate(worldX,worldY,worldZ,stateId,lightingChanged);
         if (index < 0) return false;
 
         SurfaceChunk chunk = chunks[index];
@@ -776,6 +919,7 @@ public final class WorldChunkStore implements AutoCloseable {
                     worldX & 15, relativeY, worldZ & 15);
             if (oldState == stateId) return false;
             chunk.putFullBlockState(worldX & 15, relativeY, worldZ & 15, stateId);
+            if(lightingChanged)queueBlockLight(worldX,worldY,worldZ);
             if(BlockStatePhysics.fullyOccludesUnitCube(oldState)&&BlockStatePhysics.isAir(stateId)) {
                 // Vanilla's client light engine immediately lights a newly exposed
                 // air cell. Do not mesh the surrounding faces with the removed
@@ -880,10 +1024,12 @@ public final class WorldChunkStore implements AutoCloseable {
         // Rebuilding the discarded legacy surface scanned the entire column a second time.
         chunk.recordCount=0;
         chunk.lastTouched = ++clock;
+        queueJournalLightsNear(chunkX,chunkZ);
     }
 
     private void auditBridgeSurface(SurfaceChunk chunk, ByteBuffer source,
                                     int declaredCount) {
+        if(!bridgeSurfaceAudit)return;
         ByteBuffer records = source.asReadOnlyBuffer().order(ByteOrder.BIG_ENDIAN);
         int available = Math.min(declaredCount,
                 records.remaining() / SurfaceChunk.RECORD_BYTES);
@@ -917,11 +1063,12 @@ public final class WorldChunkStore implements AutoCloseable {
         }
     }
 
-    private void recordBlockUpdate(int worldX, int worldY, int worldZ, int stateId) {
+    private void recordBlockUpdate(int worldX,int worldY,int worldZ,int stateId,boolean lightingChanged) {
         long packed = packBlockPosition(worldX, worldY, worldZ);
         for (int index = 0; index < updateCount; index++) {
             if (updatePositions[index] != packed) continue;
             updateStates[index] = stateId;
+            updateLightChanged[index]|=lightingChanged;
             updateStamps[index] = ++updateClock;
             return;
         }
@@ -936,6 +1083,7 @@ public final class WorldChunkStore implements AutoCloseable {
         }
         updatePositions[slot] = packed;
         updateStates[slot] = stateId;
+        updateLightChanged[slot]=lightingChanged;
         updateStamps[slot] = ++updateClock;
     }
 
@@ -949,6 +1097,7 @@ public final class WorldChunkStore implements AutoCloseable {
             updatePositions[index] = updatePositions[last];
             updateStates[index] = updateStates[last];
             updateStamps[index] = updateStamps[last];
+            updateLightChanged[index]=updateLightChanged[last];
         }
     }
 
@@ -963,6 +1112,7 @@ public final class WorldChunkStore implements AutoCloseable {
             if (relativeY < 0 || relativeY >= Math.min(height, 512)) continue;
             chunk.putFullBlockState(worldX & 15, relativeY, worldZ & 15,
                     updateStates[index]);
+            if(updateLightChanged[index])queueBlockLight(worldX,unpackBlockY(packed),worldZ);
             changed = true;
         }
         if (changed) {
@@ -1002,7 +1152,8 @@ public final class WorldChunkStore implements AutoCloseable {
         MemoryBudget.Lease lease = null;
         ColdChunkCache cache = null;
         try {
-            lease = budget.reserve(MemoryCategory.WORLD, ColdChunkCache.MAX_RECORD_BYTES);
+            lease = budget.reserve(MemoryCategory.WORLD,
+                    ColdChunkCache.MAX_RECORD_BYTES + ColdChunkCache.LIGHT_SCRATCH_BYTES);
             ByteBuffer scratch = ByteBuffer.allocateDirect(ColdChunkCache.MAX_RECORD_BYTES)
                     .order(ByteOrder.BIG_ENDIAN);
             cache = new ColdChunkCache();
@@ -1051,6 +1202,11 @@ public final class WorldChunkStore implements AutoCloseable {
                                 vanillaChunkAuxDecoder.decodeInitial(coldReadScratch,
                                         chunks[promotedIndex], Math.min(height, 512));
                             }
+                            if (coldChunks.readInto(ColdChunkCache.KIND_LIGHT,
+                                    x,z,coldReadScratch)) {
+                                vanillaChunkAuxDecoder.decodeLightUpdate(coldReadScratch,
+                                        chunks[promotedIndex],Math.min(height,512));
+                            }
                             if (coldChunks.readInto(ColdChunkCache.KIND_BIOMES,
                                     x, z, coldReadScratch)) {
                                 invalidateMeshingNeighbors(x,z);
@@ -1059,6 +1215,7 @@ public final class WorldChunkStore implements AutoCloseable {
                                         chunks[promotedIndex], Math.min(height, 512));
                             }
                         }
+                        queueJournalLightsNear(x,z);
                         promoted++;
                         // One column per worker iteration: never decode an entire newly
                         // entered ring while holding the world's collision/read lock.
@@ -1097,6 +1254,7 @@ public final class WorldChunkStore implements AutoCloseable {
             throws ProtocolException {
         if (activeRadius >= 0 && ensureColdCache()) {
             try {
+                coldChunks.removeKind(ColdChunkCache.KIND_LIGHT,chunkX,chunkZ);
                 coldChunks.put(ColdChunkCache.KIND_AUXILIARY, chunkX, chunkZ,
                         auxiliaryData.asReadOnlyBuffer());
             } catch (IOException exception) {
@@ -1112,6 +1270,7 @@ public final class WorldChunkStore implements AutoCloseable {
         vanillaChunkAuxDecoder.decodeInitial(auxiliaryData, chunks[index],
                 Math.min(height, 512));
         chunks[index].lastTouched = ++clock;
+        queueJournalLightsNear(chunkX,chunkZ);
     }
 
     public synchronized void applyVanillaBiomeData(int chunkX, int chunkZ,
@@ -1134,16 +1293,30 @@ public final class WorldChunkStore implements AutoCloseable {
         chunks[index].lastTouched = ++clock;
     }
 
-    public synchronized void applyVanillaLightData(int chunkX, int chunkZ,
-                                                    ByteBuffer lightData)
+    public void applyVanillaLightData(int chunkX,int chunkZ,ByteBuffer lightData)
             throws ProtocolException {
-        int index = find(chunkX, chunkZ);
-        if (index < 0 || !chunks[index].hasFullBlockStates) return;
-        invalidateMeshingNeighbors(chunkX,chunkZ);
-        chunks[index].revision++;
-        vanillaChunkAuxDecoder.decodeLightUpdate(lightData, chunks[index],
-                Math.min(height, 512));
-        chunks[index].lastTouched = ++clock;
+        ColdChunkCache cache;long epoch;
+        synchronized(this) {
+            cache=coldChunks;epoch=meshEpoch;lightUpdateClock++;pendingLightWrites++;
+        }
+        try {
+            // Disk merging stays off the world's collision/render-read lock.
+            if(cache!=null)try {
+                cache.putLightUpdate(chunkX,chunkZ,lightData.asReadOnlyBuffer());
+            } catch(IOException exception) {
+                synchronized(this) {if(coldChunks==cache)disableColdCache("light write",exception);}
+            }
+            synchronized(this) {
+                int index=find(chunkX,chunkZ);
+                if(closed||meshEpoch!=epoch||index<0||!chunks[index].hasFullBlockStates)return;
+                invalidateMeshingNeighbors(chunkX,chunkZ);
+                chunks[index].revision++;
+                vanillaChunkAuxDecoder.decodeLightUpdate(lightData,chunks[index],Math.min(height,512));
+                chunks[index].lastTouched=++clock;
+            }
+        } finally {
+            synchronized(this) {pendingLightWrites--;lightUpdateClock++;}
+        }
     }
 
     public synchronized void applyVanillaBlockEntity(int worldX, int worldY,
@@ -1241,7 +1414,9 @@ public final class WorldChunkStore implements AutoCloseable {
     public synchronized void close() {
         if (closed) return;
         closed = true;
-        size = 0;
+        lightQueueLease.close();
+        lightQueueSize=lightRescanPass=0;
+        size = 0;rebuildResidentIndex();
         if (coldChunks != null) coldChunks.close();
         coldChunks = null;
         coldReadScratch = null;

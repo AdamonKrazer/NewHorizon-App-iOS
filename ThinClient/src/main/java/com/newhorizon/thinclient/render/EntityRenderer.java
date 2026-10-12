@@ -137,7 +137,7 @@ final class EntityRenderer implements AutoCloseable {
         if (instanceCount == 0) { drawExtras(count,cameraX,cameraY,cameraZ,yaw,pitch,aspect,projection,medium); return; }
         instances.flip();
         GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, instanceVbo);
-        GL33.glBufferSubData(GL33.GL_ARRAY_BUFFER, 0, instances);
+        GL33.glBufferData(GL33.GL_ARRAY_BUFFER, instances, GL33.GL_STREAM_DRAW);
         ScreenEffects.bind(program);skins.bind();
         GL33.glUniform3f(cameraUniform, cameraX, cameraY, cameraZ);
         GL33.glUniform2f(rotationUniform, yaw, pitch);
@@ -153,6 +153,7 @@ final class EntityRenderer implements AutoCloseable {
         drawExtras(count,cameraX,cameraY,cameraZ,yaw,pitch,aspect,projection,medium);
     }
     void drawFireOverlay(boolean burning,float aspect){worldEffects.overlay(burning,aspect);}
+    void drawPortalOverlay(float progress){worldEffects.portal(progress);}
     private void drawExtras(int count,float cameraX,float cameraY,float cameraZ,float yaw,float pitch,float aspect,float projection,float medium) {
         droppedItems.draw(snapshots,count,cameraX,cameraY,cameraZ,yaw,pitch,aspect,projection,medium);
         ropes.draw(tracker,cameraX,cameraY,cameraZ,yaw,pitch,aspect,projection,medium);projectiles.draw(snapshots,count,cameraX,cameraY,cameraZ,yaw,pitch,aspect,projection,medium,tracker.combatParticles,tracker.fireworks,tracker);
@@ -164,8 +165,10 @@ final class EntityRenderer implements AutoCloseable {
                 |(Math.round((rgb>>8&255)*entityLight[1])<<8)|Math.round((rgb&255)*entityLight[2]);
     }
 
+    private final java.util.LinkedHashMap<String,Boolean> frameTags=new java.util.LinkedHashMap<String,Boolean>(16,.75f,true){protected boolean removeEldestEntry(java.util.Map.Entry<String,Boolean> e){return size()>256;}};
     private void addModel(EntityTracker.Renderable entity) {
-        if(entity.invisible || entity.type==58 || entity.type==101 || com.newhorizon.thinclient.world.ProjectileKind.isProjectile(entity.type)) return;
+        if(entity.type==43||entity.type==56){Boolean map=frameTags.get(entity.itemTag);if(map==null){map=VanillaItemTag.read(entity.itemTag).hasMap;frameTags.put(entity.itemTag,map);}if(map)return;}
+        if(entity.type==58 || entity.type==101 || com.newhorizon.thinclient.world.ProjectileKind.isProjectile(entity.type)) return;
         String skin=EntityAppearance.name(entity);if(skin==null)return;
         SceneAtmosphere.light(entity.x,entity.y+.5f,entity.z,entityLight);
         currentSkin=EntitySkins.find(skin);currentPart=0;modelTint=entity.type==105?(EntityAppearance.dye((entity.appearance[17]>>>16)&255)<<8)|255:0xffffffff;
@@ -177,9 +180,12 @@ final class EntityRenderer implements AutoCloseable {
         overlay0=overlayOrigin(EntityAppearance.overlay(entity,0));overlay1=overlayOrigin(EntityAppearance.overlay(entity,1));
         overlayTint0=litOverlay(EntityAppearance.overlayColor(entity,0));overlayTint1=litOverlay(EntityAppearance.overlayColor(entity,1));
         VanillaEntityModels.Model baked=VanillaEntityModels.model(entity);
-        if(baked!=null){bakedModel(entity,baked);
-            if(entity.type==82&&(entity.appearance[17]&16)==0){currentSkin=EntitySkins.find("sheep/sheep_fur");modelTint=(EntityAppearance.dye(entity.appearance[17]&15)<<8)|255;bakedModel(entity,VanillaEntityModels.find("SheepFurModel."));}
+        if(baked!=null){
+            if(!entity.invisible)bakedModel(entity,baked);
+            wornEquipment(entity,baked);
+            if(!entity.invisible&&entity.type==82&&(entity.appearance[17]&16)==0){currentSkin=EntitySkins.find("sheep/sheep_fur");modelTint=(EntityAppearance.dye(entity.appearance[17]&15)<<8)|255;bakedModel(entity,VanillaEntityModels.find("SheepFurModel."));}
             return;}
+        if(entity.invisible)return;
         int category = category(entity.type, entity.player);
         int color = 0xffffffff;
         switch (category) {
@@ -334,15 +340,83 @@ final class EntityRenderer implements AutoCloseable {
 
     private static int overlayOrigin(String name){if(name==null)return -1;int a=EntitySkins.find(name)*4;return EntitySkins.RECTS[a]+EntitySkins.RECTS[a+1]*EntitySkins.WIDTH;}
 
+    private final java.util.LinkedHashMap<String,VanillaItemTag> equipmentTags=new java.util.LinkedHashMap<String,VanillaItemTag>(32,.75f,true){
+        protected boolean removeEldestEntry(java.util.Map.Entry<String,VanillaItemTag> e){return size()>128;}
+    };
+    private VanillaItemTag equipmentTag(String tag){
+        VanillaItemTag value=equipmentTags.get(tag);
+        if(value==null){value=VanillaItemTag.read(tag);equipmentTags.put(tag,value);}return value;
+    }
+    private void wornEquipment(EntityTracker.Renderable e,VanillaEntityModels.Model base){
+        boolean humanoid=WornEquipment.humanoid(e.type,e.player);
+        boolean any=false;for(int slot=2;slot<6;slot++)if(e.equipment[slot]>0)any=true;
+        if(!any)return;
+        modelAnimation.prepare(base,e);
+        overlay0=overlay1=-1;playerOrigin=-1;centered=true;explicitUv=true;
+        float scale=e.player||e.type==122?.9375f:e.type==114?1.2f:e.type==42?6:1;
+        if(com.newhorizon.thinclient.world.ArmorStandState.small(e))scale*=.5f;
+        float unit=scale/16;
+        VanillaEntityModels.Model armor=humanoid?VanillaEntityModels.find(e.type==2?"ArmorStandArmorModel.":"HumanoidModel.mesh"):null;
+        for(int slot=2;slot<6;slot++){
+            String item=DroppedItemRenderer.name(e.equipment[slot]),skin=humanoid?WornEquipment.armor(item,slot):null;
+            if(skin==null)continue;
+            VanillaItemTag tag=equipmentTag(e.equipmentTags[slot]);
+            int passes=skin.startsWith("armor/leather_")?2:1;
+            for(int pass=0;pass<passes;pass++){
+                currentSkin=EntitySkins.find(skin+(pass==1?"_overlay":""));
+                modelTint=passes==2&&pass==0?(tag.leatherColor<<8)|255:0xffffffff;
+                float inflate=slot==3?.5f:1;
+                for(int part=0;part<armor.paths.length;part++){
+                    String path=armor.paths[part];if(!WornEquipment.part(slot,path))continue;
+                    int p=part*VanillaEntityModels.STRIDE,c=part*3;float[] b=armor.boxes;
+                    if(!modelAnimation.attachedBox(path,armor.rig.centers[c],armor.rig.centers[c+1],armor.rig.centers[c+2],partCenter,basis))continue;
+                    texU=b[p+15];texV=b[p+16];texW=b[p+17];texH=b[p+18];texD=b[p+19];mirror=b[p+20];
+                    boolean youngHead=slot==5&&com.newhorizon.thinclient.world.ArmorStandState.small(e);
+                    float armorUnit=youngHead?unit*1.5f:unit;
+                    equipmentBox(e,armorUnit,(b[p+3]+inflate*2)*armorUnit,(b[p+4]+inflate*2)*armorUnit,(b[p+5]+inflate*2)*armorUnit,youngHead?16:24);
+                }
+            }
+        }
+        String head=DroppedItemRenderer.name(e.equipment[5]);
+        if("player_head".equals(head)){
+            VanillaItemTag tag=equipmentTag(e.equipmentTags[5]);
+            // UUID-specific defaults live in the dynamic skin atlas, not EntitySkins.
+            currentSkin=EntitySkins.find("player/wide/steve");
+            if(playerSkins!=null&&tag.skullId!=null){
+                com.newhorizon.thinclient.world.PlayerSkins.Slot slot=playerSkins.request(tag.skullId,tag.skullTexture);
+                if(slot!=null)playerOrigin=skins.player(slot);
+            }
+            modelTint=0xffffffff;mirror=0;
+            // CustomHeadLayer has its own young-entity transform (0.7 and 1/32),
+            // separate from AgeableListModel's half-sized body and 0.75-sized head.
+            boolean youngSkull=com.newhorizon.thinclient.world.ArmorStandState.small(e);
+            float skullUnit=youngSkull?.7f/16:unit;
+            for(int layer=0;layer<2;layer++){
+                if(!modelAnimation.attachedBox("/head",0,4*1.1875f,0,partCenter,basis))break;
+                texU=layer==0?0:32;texV=0;texW=texH=texD=8;
+                float size=(8+layer*.5f)*1.1875f*skullUnit;
+                equipmentBox(e,skullUnit,size,size,size,youngSkull?.76875f/skullUnit:24);
+            }
+        }
+        playerOrigin=-1;modelTint=0xffffffff;centered=false;explicitUv=false;mirror=0;
+        java.util.Arrays.fill(basis,0);basis[0]=basis[4]=basis[8]=1;
+    }
+    private void equipmentBox(EntityTracker.Renderable e,float unit,float sx,float sy,float sz,float baseline){
+        if((e.player||e.type==122)&&e.swimAmount>0)EntityModelAnimation.swimmingBody(e,partCenter,basis,unit);
+        addBox(e,partCenter[0]*unit,(baseline+partCenter[1])*unit,partCenter[2]*unit,sx,sy,sz,modelTint,Float.isFinite(e.bodyYaw)?e.bodyYaw:e.yaw);
+    }
+
     private void bakedModel(EntityTracker.Renderable e,VanillaEntityModels.Model model) {
         float scale=e.player||e.type==122?.9375f:e.type==42?6f:e.type==12?.7f:e.type==114?1.2f:e.type==5?.35f:e.type==41?4f:e.type==25?2.35f:1f;
         if(e.type==88||e.type==62)scale=Math.max(1,e.size);
+        if(com.newhorizon.thinclient.world.ArmorStandState.small(e))scale*=.5f;
         boolean boat=com.newhorizon.thinclient.world.RidingState.boat(e.type),cart=com.newhorizon.thinclient.world.RidingState.minecart(e.type);
         float unit=scale/16f,baseline=boat||cart?6:24;
         centered=true;explicitUv=true;
         modelAnimation.prepare(model,e);
         for(int part=0;part<model.paths.length;part++) {
             String path=model.paths[part];
+            if(!com.newhorizon.thinclient.world.ArmorStandState.visiblePart(e,path))continue;
             if(path.contains("baby_leg"))continue;
             if(e.player||e.type==122){
                 int mask=e.appearance[17];int layer=path.endsWith("hat")?64:path.endsWith("jacket")?2:path.endsWith("left_sleeve")?4:path.endsWith("right_sleeve")?8:path.endsWith("left_pants")?16:path.endsWith("right_pants")?32:0;
@@ -364,7 +438,9 @@ final class EntityRenderer implements AutoCloseable {
             if(e.type==44||e.type==96)EntityModelAnimation.squidBody(e,partCenter,basis);
             if((e.player||e.type==122)&&e.swimAmount>0)EntityModelAnimation.swimmingBody(e,partCenter,basis,unit);
             if(boat)yaw+=90;
-            addBox(e,partCenter[0]*unit,(baseline+partCenter[1])*unit,partCenter[2]*unit,(b[p+3]-(slimArm?1:0))*unit,b[p+4]*unit,b[p+5]*unit,modelTint,yaw);
+            boolean youngHead=com.newhorizon.thinclient.world.ArmorStandState.small(e)&&path.equals("/head");
+            float partUnit=youngHead?unit*1.5f:unit,partBaseline=youngHead?16:baseline;
+            addBox(e,partCenter[0]*partUnit,(partBaseline+partCenter[1])*partUnit,partCenter[2]*partUnit,(b[p+3]-(slimArm?1:0))*partUnit,b[p+4]*partUnit,b[p+5]*partUnit,modelTint,yaw);
         }
         centered=false;explicitUv=false;mirror=0;java.util.Arrays.fill(basis,0);basis[0]=basis[4]=basis[8]=1;
     }

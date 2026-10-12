@@ -132,6 +132,20 @@ public final class MinePadController implements AutoCloseable {
         }else return;
         pad.optimisticUntil=clock+3_000_000_000L;show(false);
     }
+    /** Route delayed popup destinations to their owning tablet, even after its GUI closes. */
+    public void popup(int browser,String url){
+        try{url=MinePadData.normalize(url);}catch(IllegalArgumentException ignored){return;}
+        if("about:blank".equals(url))return;
+        for(Pad pad:pads.values())for(Tab tab:pad.tabs)if(tab.browser==browser){
+            if(pad.tabs.size()>=MinePadData.MAX_TABS)return;
+            persist(pad,pad.tabs.get(pad.index));
+            if(!send(pad.id,1,0,url))return;
+            pad.tabs.add(new Tab(url));pad.index=pad.tabs.size()-1;
+            pad.optimisticUntil=clock+3_000_000_000L;
+            if(opened==pad)show(false);
+            return;
+        }
+    }
     public void location(int browser,String url){
         try{url=MinePadData.normalize(url);}catch(IllegalArgumentException ignored){return;}
         for(Pad pad:pads.values())for(Tab tab:pad.tabs)if(tab.browser==browser){
@@ -140,7 +154,7 @@ public final class MinePadController implements AutoCloseable {
         }
     }
     public void hide(){
-        if(opened==null)return;Tab tab=opened.tabs.get(opened.index);persist(opened,tab);tab.visible=false;opened=null;port.hide();
+        if(opened==null)return;Tab tab=opened.tabs.get(opened.index);persist(opened,tab);opened=null;port.hide();
     }
     private void persist(Pad pad,Tab tab){
         if(tab.changed==0||tab.url.equals(tab.persisted)){tab.changed=0;return;}

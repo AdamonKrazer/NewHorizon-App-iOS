@@ -31,6 +31,7 @@ public final class TerrainTextureSelfTest {
         count=SurfaceMesher.mesh(chunk,63,mesh);int solid=0;
         for(int i=0;i<count;i++) {
             int p=i*16+12;int meta=(mesh.get(p)&255)|((mesh.get(p+1)&255)<<8)|((mesh.get(p+2)&255)<<16)|((mesh.get(p+3)&255)<<24);
+            if(VanillaBlockModels.isToken(meta))meta=VanillaBlockModels.descriptor(meta&VanillaBlockModels.CORNER_MASK);
             if((meta&(1<<18))==0) {solid++;check(mesh.getFloat(i*16+4)<=63.50001f,"waterlogged slab does not become a full cube");}
         }
         check(solid==36,"waterlogged slab keeps its original solid shell");

@@ -19,6 +19,7 @@ final class WorldEffectsRenderer implements AutoCloseable {
     private final float[] light=new float[3];
     private int program,vao,vbo,atlas;private long frame;
     private double rx,rz,ux,uy,uz;
+    private final WeatherView weatherView = new WeatherView();
     WorldEffectsRenderer(){for(int i=0;i<particles.length;i++)particles[i]=new WorldParticles.Particle();java.util.Arrays.fill(items,-1);}
     void initializeGl() {
         int vs=shader(GL33.GL_VERTEX_SHADER,VERTEX),fs=shader(GL33.GL_FRAGMENT_SHADER,FRAGMENT);
@@ -49,9 +50,11 @@ final class WorldEffectsRenderer implements AutoCloseable {
     void draw(EntityTracker tracker,EntityTracker.Renderable[] entities,int count,float x,float y,float z,float yaw,float pitch,float aspect,float projection) {
         vertices.clear();frame++;bindAtlas();long now=System.nanoTime();
         double a=Math.toRadians(yaw),b=Math.toRadians(pitch);rx=-Math.cos(a);rz=-Math.sin(a);ux=-Math.sin(a)*Math.sin(b);uy=Math.cos(b);uz=Math.cos(a)*Math.sin(b);
+        weatherView.camera(x,y,z,yaw,pitch,aspect,projection);
         int n=tracker.worldParticles(particles,now,x,y,z);visibleParticles=n;
         for(int i=0;i<n;i++) {
             WorldParticles.Particle p=particles[i];int tile,atlasKind=0,color=p.color;float u=p.u,v=p.v,du=.25f,size=p.size,alpha=1;
+            if(p.type==50&&!weatherView.visible(p.x,p.y,p.z,size,size,size))continue;
             boolean debris=p.type==WorldParticles.BLOCK||p.type==WorldParticles.ITEM||p.type==25;
             if(p.type==WorldParticles.BLOCK||p.type==25) {
                 int descriptor=VanillaBlockTextures.representative(p.data);tile=VanillaBlockTextures.tile(descriptor);atlasKind=1;
@@ -60,13 +63,17 @@ final class WorldEffectsRenderer implements AutoCloseable {
                 if(VanillaBlockTextures.name(tile).equals("dirt"))color=0xffffff;
                 color=scaleColor(color,.6f,.6f,.6f);
             } else if(p.type==WorldParticles.ITEM){tile=item(p.data);if(tile<0)continue;}
-            else {tile=ParticleSprites.frame(p.type,p.age,p.life);u=v=0;du=1;
+            else {tile=p.type==50?ParticleSprites.frame(50,p.data,4):ParticleSprites.frame(p.type,p.age,p.life);u=v=0;du=1;
                 if(p.type==5||p.type==44||p.type==48||p.type==51){size*=Math.min(1,p.age/4);color=p.type==48?color:0x777777;}
                 if(p.type==0)alpha=.15f;
                 if(p.type==65||p.type==66)alpha=Math.min(1,(p.life-p.age)/20);
             }
             boolean emissive=p.type==28||p.type==33||p.type==81||p.type==23||p.type==20||p.type==91;
-            if(!emissive){SceneAtmosphere.light((float)p.x,(float)p.y,(float)p.z,light);color=scaleColor(color,light[0],light[1],light[2]);}
+            if(!emissive){
+                if(p.type==WorldParticles.BLOCK||p.type==25)SceneAtmosphere.debrisLight((float)p.x,(float)p.y,(float)p.z,light);
+                else SceneAtmosphere.light((float)p.x,(float)p.y,(float)p.z,light);
+                color=scaleColor(color,light[0],light[1],light[2]);
+            }
             quad(p.x,p.y,p.z,rx*size/2,0,rz*size/2,ux*size/2,uy*size/2,uz*size/2,tile,atlasKind,u,v,u+du,v+du,color,alpha);
         }
         int fire0=VanillaBlockTextures.tileId("fire_0"),fire1=VanillaBlockTextures.tileId("fire_1");
@@ -86,6 +93,13 @@ final class WorldEffectsRenderer implements AutoCloseable {
         if(!burning)return;int tile=VanillaBlockTextures.tileId("fire_1");if(tile<0)return;
         vertices.clear();for(int side=-1;side<=1;side+=2){double a=Math.toRadians(side*10);quad(side*.45,-.7,0,Math.cos(a)*.5,Math.sin(a)*.5,0,-Math.sin(a)*.65,Math.cos(a)*.65,0,tile,1,0,0,1,1,0xffffff,.9f);}
         flush(0,0,0,0,0,aspect,1,true);
+    }
+    void portal(float progress) {
+        if(progress<=0)return;
+        int tile=VanillaBlockTextures.tileId("nether_portal");if(tile<0)return;
+        vertices.clear();
+        quad(0,0,0,1,0,0,0,1,0,tile,1,0,0,1,1,0xffffff,PortalState.opacity(progress));
+        flush(0,0,0,0,0,1,1,true);
     }
     private void flush(float x,float y,float z,float yaw,float pitch,float aspect,float projection,boolean overlay) {
         int count=vertices.position()/STRIDE;if(count==0)return;vertices.flip();ScreenEffects.bind(program);bindAtlas();

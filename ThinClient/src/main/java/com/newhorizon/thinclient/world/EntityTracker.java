@@ -17,6 +17,9 @@ public final class EntityTracker {
     private static final double PLAYER_HEIGHT = 1.80;
     private static final double DEFAULT_HEIGHT = 1.40;
     private static final double PICK_MARGIN = 0.0;
+    // ClientPacketListener passes three ticks to LivingEntity.lerpTo/lerpHeadTo.
+    // Finishing in two ticks makes a regular three-tick stream burst, then stop.
+    private static final long LIVING_INTERPOLATION_NANOS = 150_000_000L;
     private static final long INTERPOLATION_NANOS = 100_000_000L;
     private final int[] ids;
     private final int[] types;
@@ -41,6 +44,7 @@ public final class EntityTracker {
     private final java.util.UUID[] profileIds;
     private int replacementCursor;
     private int spawnLogCount;
+    private int traderLogCount;
     private final ProjectileMotion[] projectiles;
     private final long[] hurtUntil,deathAt,swingAt;
     private final int[] animations;
@@ -83,6 +87,50 @@ public final class EntityTracker {
     private double[] mountSpeed,mountJump;
     public synchronized void setRiding(RidingState state){riding=state;}
     public synchronized void localVehicle(int id,double x,double y,double z,float yaw,float pitch){localVehicle=id;localVehiclePose[0]=x;localVehiclePose[1]=y;localVehiclePose[2]=z;localVehiclePose[3]=yaw;localVehiclePose[4]=pitch;}
+
+    private final double[] collisionPosition=new double[3];
+
+    /** Boat hulls are solid for players outside their passenger graph, as in vanilla. */
+    public synchronized boolean collidesBoatBox(int player,long now,double minX,double minY,double minZ,
+                                                 double maxX,double maxY,double maxZ) {
+        for(int slot=0;slot<ids.length;slot++) {
+            if(!boatCollisionCandidate(slot,player)||!position(ids[slot],now,collisionPosition))continue;
+            double x=collisionPosition[0],y=collisionPosition[1],z=collisionPosition[2];
+            if(maxX>x-.6875&&minX<x+.6875&&maxY>y&&minY<y+.5625&&maxZ>z-.6875&&minZ<z+.6875)return true;
+        }
+        return false;
+    }
+    /** Clip after block shapes; axis/overlap tests implement the same swept AABB rule. */
+    public synchronized double clipBoatMovement(int player,long now,int axis,double minX,double minY,double minZ,
+                                                double maxX,double maxY,double maxZ,double movement) {
+        if(Math.abs(movement)<1e-7)return 0;
+        for(int slot=0;slot<ids.length;slot++) {
+            if(!boatCollisionCandidate(slot,player)||!position(ids[slot],now,collisionPosition))continue;
+            double x=collisionPosition[0],y=collisionPosition[1],z=collisionPosition[2];
+            if(axis==0&&maxY>y+1e-7&&minY<y+.5625-1e-7&&maxZ>z-.6875+1e-7&&minZ<z+.6875-1e-7)
+                movement=clipHull(minX,maxX,x-.6875,x+.6875,movement);
+            else if(axis==1&&maxX>x-.6875+1e-7&&minX<x+.6875-1e-7&&maxZ>z-.6875+1e-7&&minZ<z+.6875-1e-7)
+                movement=clipHull(minY,maxY,y,y+.5625,movement);
+            else if(axis==2&&maxX>x-.6875+1e-7&&minX<x+.6875-1e-7&&maxY>y+1e-7&&minY<y+.5625-1e-7)
+                movement=clipHull(minZ,maxZ,z-.6875,z+.6875,movement);
+        }
+        return movement;
+    }
+    private boolean boatCollisionCandidate(int slot,int player) {
+        return ids[slot]>=0&&ids[slot]!=player&&RidingState.boat(types[slot])&&deathAt[slot]==0
+                &&(riding==null||!riding.sameVehicle(ids[slot],player));
+    }
+    private static double clipHull(double min,double max,double hullMin,double hullMax,double movement) {
+        if(movement>0&&max<=hullMin+1e-7)return Math.min(movement,Math.max(0,hullMin-max));
+        if(movement<0&&min>=hullMax-1e-7)return Math.max(movement,Math.min(0,hullMax-min));
+        return movement;
+    }
+    /** Keep the last simulated position when local control ends; spawn coordinates are stale. */
+    public synchronized void finishLocalVehicle(int id,double x,double y,double z,float yaw,float pitch) {
+        if(localVehicle!=id)return;
+        correctVehicle(id,x,y,z,yaw,pitch);
+        localVehicle=-1;
+    }
 
     public synchronized void setWorld(WorldChunkStore world) { this.world=world; }
     public synchronized int worldParticles(WorldParticles.Particle[] out,long now,double x,double y,double z){return worldParticles.snapshot(out,now,world,x,y,z);}
@@ -135,9 +183,18 @@ public final class EntityTracker {
         requireConsumed(packet);
         if (id<0 || type<0 || !Double.isFinite(x) || !Double.isFinite(y)
                 || !Double.isFinite(z)) throw new ProtocolException("Invalid entity spawn");
+        if(type==43||type==56){
+            // ItemFrame's spawn packet carries its hanging BlockPos, not the
+            // entity center. Vanilla recreates its position from that anchor.
+            int d=Math.abs(spawnData%6);
+            x=Math.floor(x)+.5-(d==4?-1:d==5?1:0)*.46875;
+            y=Math.floor(y)+.5-(d==0?-1:d==1?1:0)*.46875;
+            z=Math.floor(z)+.5-(d==2?-1:d==3?1:0)*.46875;
+        }
         put(id, type, x, y, z, yaw, pitch, headYaw, false);
         profileIds[find(id)]=profile;
         if(type==36)living[find(id)].blockState=spawnData;
+        if(type==43||type==56)living[find(id)].frameDirection=spawnData;
         projectiles[find(id)].reset(type,x,y,z,yaw,pitch,vx,vy,vz,System.nanoTime());
         if(type==ProjectileKind.FISHING) {
             projectiles[find(id)].owner=spawnData;
@@ -175,6 +232,12 @@ public final class EntityTracker {
 
     public synchronized void moveEntity(ByteBuffer packet, boolean includesRotation)
             throws ProtocolException {
+        moveEntity(packet, includesRotation, System.nanoTime());
+    }
+
+    /** Explicit receipt time for deterministic network replay tests. */
+    synchronized void moveEntity(ByteBuffer packet, boolean includesRotation, long now)
+            throws ProtocolException {
         int id = VarInts.read(packet);
         BinaryCodec.require(packet, includesRotation ? 9 : 7);
         short dx = packet.getShort();
@@ -190,7 +253,7 @@ public final class EntityTracker {
         requireConsumed(packet);
         int slot = find(id);
         if (slot >= 0) {
-            beginInterpolation(slot);
+            beginInterpolation(slot, now);
             onGround[slot]=grounded;
             xs[slot] += dx / 4096.0;
             ys[slot] += dy / 4096.0;
@@ -286,6 +349,34 @@ public final class EntityTracker {
                                             double centerX, double centerY,
                                             double centerZ, double maximumDistance,
                                             int ignoredId) {
+        return snapshot(output,now,centerX,centerY,centerZ,maximumDistance,ignoredId,0);
+    }
+
+    /**
+     * Label-only projection. Retains snapshotVisible's exact order, range and
+     * capacity semantics, including entities that ultimately have no label.
+     * Only identity, position, label metadata and appearance[15] are populated.
+     * Equipment, model rotations, water queries and animation poses are omitted.
+     */
+    public synchronized int snapshotLabels(Renderable[] output,long now,
+                                          double centerX,double centerY,double centerZ,
+                                          double maximumDistance,int ignoredId) {
+        return snapshot(output,now,centerX,centerY,centerZ,maximumDistance,ignoredId,1);
+    }
+
+    /**
+     * Map-only projection with the same ordering/range/capacity as snapshotVisible.
+     * Populates identity, position, invisibility, frameDirection, itemId, itemTag
+     * and appearance[9]. Positions of non-frame entries must not be rendered.
+     */
+    public synchronized int snapshotMapFrames(Renderable[] output,long now,
+                                             double centerX,double centerY,double centerZ,
+                                             double maximumDistance,int ignoredId) {
+        return snapshot(output,now,centerX,centerY,centerZ,maximumDistance,ignoredId,2);
+    }
+
+    private int snapshot(Renderable[] output,long now,double centerX,double centerY,
+                         double centerZ,double maximumDistance,int ignoredId,int pass) {
         double maximumDistanceSquared = maximumDistance * maximumDistance;
         int count = 0;
         for (int slot = 0; slot < ids.length && count < output.length; slot++) {
@@ -306,8 +397,35 @@ public final class EntityTracker {
             double dz = z - centerZ;
             if (dx * dx + dy * dy + dz * dz > maximumDistanceSquared) continue;
             Renderable item = output[count++];
+            if(pass!=0) {
+                item.entityId=ids[slot];item.type=types[slot];
+                item.x=(float)x;item.y=(float)y;item.z=(float)z;
+                item.invisible=(living[slot].flags&32)!=0;
+                if(pass==1) {
+                    item.customName=living[slot].customName;
+                    item.nameVisible=living[slot].customNameVisible;
+                    item.displayText=living[slot].displayText;
+                    item.labelHeight=(float)entityHeight(slot);
+                    item.appearance[15]=living[slot].appearance[15];
+                    item.player=players[slot];item.profileId=profileIds[slot];
+                    item.sneaking=living[slot].pose==5;
+                    // RailPath.pose changes label Y at slope transitions; a
+                    // center-only projection would not preserve that height.
+                    if(RidingState.minecart(item.type))RailPath.pose(world,item,railCenter,railFront,railBack);
+                } else {
+                    item.frameDirection=living[slot].frameDirection;
+                    item.itemId=(item.type==43||item.type==56||item.type==54||item.type==55)?living[slot].itemId:projectile.itemId;
+                    item.itemTag=living[slot].itemTag;
+                    item.appearance[9]=living[slot].appearance[9];
+                }
+                // Keep simulation side effects for entities beyond the smaller
+                // model pass, even when the HUD/label pass is disabled.
+                advanceVisualAnimation(slot,now);
+                continue;
+            }
+            item.customName=living[slot].customName;item.nameVisible=living[slot].customNameVisible;item.displayText=living[slot].displayText;item.labelHeight=(float)entityHeight(slot);
             item.entityId = ids[slot];
-            item.type = types[slot];
+            item.type = types[slot];item.frameDirection=living[slot].frameDirection;
             item.x = (float) x;
             item.y = (float) y;
             item.z = (float) z;
@@ -318,18 +436,20 @@ public final class EntityTracker {
             if(ids[slot]==localVehicle){item.yaw=(float)localVehiclePose[3];item.pitch=(float)localVehiclePose[4];}
             if(RidingState.minecart(item.type))RailPath.pose(world,item,railCenter,railFront,railBack);
             System.arraycopy(equipment[slot].items,0,item.equipment,0,6);System.arraycopy(equipment[slot].tags,0,item.equipmentTags,0,6);
+            System.arraycopy(living[slot].armorStandPose,0,item.armorStandPose,0,18);
             item.player = players[slot];item.profileId=profileIds[slot];item.sneaking=living[slot].pose==5;
             item.prone=living[slot].pose==3;item.swimming=(living[slot].flags&16)!=0;
             System.arraycopy(living[slot].appearance,0,item.appearance,0,32);item.baby=types[slot]==73?living[slot].appearance[17]!=0:CombatHitboxes.hasBabySize(types[slot])&&living[slot].baby;item.size=living[slot].size;
             item.riding=riding!=null && riding.vehicleOf(ids[slot])>=0;item.sleeping=living[slot].pose==2;
             item.hurt=now<hurtUntil[slot];
             item.deathProgress=deathAt[slot]==0?0:Math.min(1,(now-deathAt[slot])/1_000_000_000f);
-            item.swingProgress=swingAt[slot]==0?0:Math.max(0,Math.min(1,(now-swingAt[slot])/300_000_000f));
+            long swingElapsed=now-swingAt[slot];
+            item.swingProgress=swingAt[slot]==0||swingElapsed<0||swingElapsed>=300_000_000L?0:swingElapsed/300_000_000f;
             item.offhandSwing=animations[slot]==3;
             item.blocking=(living[slot].livingFlags&1)!=0;
             item.invisible=(living[slot].flags&32)!=0;
             item.burning=(living[slot].flags&1)!=0;
-            item.blockState=living[slot].blockState;item.itemId=(item.type==54||item.type==55)?living[slot].itemId:projectile.itemId;item.itemTag=living[slot].itemTag; item.color=projectile.color;
+            item.blockState=living[slot].blockState;item.itemId=(item.type==43||item.type==56||item.type==54||item.type==55)?living[slot].itemId:projectile.itemId;item.itemTag=living[slot].itemTag; item.color=projectile.color;
             if(projectile.active) { item.yaw=projectile.yaw; item.pitch=projectile.pitch; }
             item.bodyYaw=item.yaw;
             if(bodyRotationType(item.type)) {
@@ -394,7 +514,11 @@ public final class EntityTracker {
             double halfWidth=CombatHitboxes.width(types[slot])/2;
             double height=CombatHitboxes.height(types[slot]);
             EntityMetadata.Values meta=living[slot];
-            if(types[slot]==122) {
+            if(types[slot]==2) {
+                // Marker stands carry hologram labels but have no selectable body.
+                if((meta.appearance[15]&0x10)!=0)continue;
+                if((meta.appearance[15]&0x01)!=0){halfWidth*=.5;height*=.5;}
+            } else if(types[slot]==122) {
                 if(meta.pose==5)height=1.5;
                 else if(meta.pose==1||meta.pose==3||meta.pose==4)height=.6;
                 else if(meta.pose==2||meta.pose==7){halfWidth=.1;height=.2;}
@@ -438,7 +562,9 @@ public final class EntityTracker {
         if(ids[slot]>=0&&ids[slot]!=id)leashes.remove(ids[slot]);
         ids[slot] = id;
         hurtUntil[slot]=deathAt[slot]=swingAt[slot]=0;
-        equipment[slot].clear();living[slot].blockState=-1;living[slot].itemId=-1;living[slot].itemTag="";java.util.Arrays.fill(living[slot].appearance,0);if(type==83)living[slot].appearance[18]=16;if(type==60)living[slot].appearance[20]=-1;if(type==11)living[slot].appearance[22]=14;if(type==116)living[slot].appearance[20]=14;if(type==108||type==120)living[slot].appearance[28]=2;
+        ArmorStandState.reset(living[slot].armorStandPose);
+        living[slot].customName="";living[slot].displayText="";living[slot].customNameVisible=false;
+        equipment[slot].clear();living[slot].blockState=-1;living[slot].itemId=-1;living[slot].itemTag="";java.util.Arrays.fill(living[slot].appearance,0);if(type==122)living[slot].appearance[18]=1;if(type==83)living[slot].appearance[18]=16;if(type==60)living[slot].appearance[20]=-1;if(type==11)living[slot].appearance[22]=14;if(type==116)living[slot].appearance[20]=14;if(type==108||type==120)living[slot].appearance[28]=2;
         living[slot].flags=living[slot].livingFlags=0;living[slot].health=20;
         living[slot].pose=0;living[slot].baby=false;living[slot].size=1;living[slot].horseFlags=0;living[slot].saddled=false;living[slot].vehicleVariant=0;
         mountSpeed[slot]=type==21||type==66?.175:type==10?.09:.225;mountJump[slot]=.7;
@@ -451,7 +577,7 @@ public final class EntityTracker {
         pitches[slot] = previousPitches[slot] = pitch;
         headYaws[slot] = previousHeadYaws[slot] = headYaw;
         long now=System.nanoTime();
-        updateNanos[slot] = headUpdateNanos[slot] = now - INTERPOLATION_NANOS;
+        updateNanos[slot] = headUpdateNanos[slot] = now - LIVING_INTERPOLATION_NANOS;
         visualAnimations[slot].reset(id,x,y,z,yaw,now);onGround[slot]=true;
         if(bodyRotationType(type)) {
             if(chickenBodyRotations[slot]==null)chickenBodyRotations[slot]=new ChickenBodyRotation();
@@ -459,6 +585,10 @@ public final class EntityTracker {
         }
         players[slot] = player;profileIds[slot]=null;
         projectiles[slot].reset(type,x,y,z,yaw,pitch,0,0,0,System.nanoTime());
+        if ((type==103 || type==110) && traderLogCount<32) {
+            traderLogCount++;
+            System.out.println("[NH-ENTITY] trader spawn id="+id+" type="+type);
+        }
         if (spawnLogCount < 16) {
             spawnLogCount++;
             System.out.println("[NH-THIN] entity spawn id=" + id + " type=" + type
@@ -467,7 +597,10 @@ public final class EntityTracker {
     }
 
     private void beginInterpolation(int slot) {
-        long now = System.nanoTime();
+        beginInterpolation(slot, System.nanoTime());
+    }
+
+    private void beginInterpolation(int slot, long now) {
         advanceChickenBody(slot,now);
         advanceVisualAnimation(slot,now);
         double progress = interpolation(slot, now);
@@ -567,7 +700,14 @@ public final class EntityTracker {
         int id=VarInts.read(packet),slot=find(id);
         if(slot<0) { packet.position(packet.limit()); return; }
         if(projectiles[slot].active) ProjectileMetadata.read(packet,projectiles[slot]);
-        else EntityMetadata.read(packet,living[slot]);
+        else {
+            EntityMetadata.read(packet,living[slot]);
+            if(types[slot]==110 && (living[slot].present&1)!=0 && traderLogCount<32) {
+                traderLogCount++;
+                System.out.println("[NH-ENTITY] trader metadata id="+id
+                        +" serverInvisible="+((living[slot].flags&32)!=0));
+            }
+        }
     }
 
     private void advanceProjectile(ProjectileMotion p,long now) {
@@ -658,7 +798,12 @@ public final class EntityTracker {
     }
     public synchronized void animate(int entity,int animation,long now) {
         int slot=find(entity);if(slot<0)return;
-        if(animation==0||animation==3) {swingAt[slot]=now;animations[slot]=animation;}
+        if(animation==0||animation==3) {
+            // LivingEntity.swing ignores another start during the first half of
+            // the stroke. Mining packets must not pin remote arms at frame zero.
+            long elapsed=now-swingAt[slot];
+            if(swingAt[slot]==0||elapsed<0||elapsed>=150_000_000L){swingAt[slot]=now;animations[slot]=animation;}
+        }
         if(animation==4||animation==5)combatParticles.burst(xs[slot],ys[slot]+.9,zs[slot],animation==5?1:0,now);
     }
     public synchronized boolean alive(int entity) {int slot=find(entity);return slot>=0 && deathAt[slot]==0 && living[slot].health>0;}
@@ -698,13 +843,15 @@ public final class EntityTracker {
     }
 
     private double interpolation(int slot, long now) {
+        long duration=mobType(types[slot]) || players[slot] || types[slot]==122
+                ? LIVING_INTERPOLATION_NANOS : INTERPOLATION_NANOS;
         return Math.max(0.0, Math.min(1.0,
-                (now - updateNanos[slot]) / (double) INTERPOLATION_NANOS));
+                (now - updateNanos[slot]) / (double) duration));
     }
 
     private double headInterpolation(int slot,long now) {
         return Math.max(0.0,Math.min(1.0,
-                (now-headUpdateNanos[slot])/(double)INTERPOLATION_NANOS));
+                (now-headUpdateNanos[slot])/(double)LIVING_INTERPOLATION_NANOS));
     }
 
     private int find(int id) {
@@ -788,6 +935,8 @@ public final class EntityTracker {
         public final int[] equipment={-1,-1,-1,-1,-1,-1};
         public final String[] equipmentTags={"","","","","",""};
         public boolean hasBow(){return equipment[0]==EntityEquipment.BOW||equipment[1]==EntityEquipment.BOW;}
+        public String customName="",displayText="";public boolean nameVisible;public float labelHeight;
+        public int frameDirection=2;
         public int entityId;
         public int type;
         public float x;
@@ -802,6 +951,7 @@ public final class EntityTracker {
         public boolean slim,sneaking,swimming,prone;
         public float swimAmount;
         public final int[] appearance=new int[32];
+        public final float[] armorStandPose=ArmorStandState.create();
         public boolean baby;public int size=1;
         public int blockState=-1;public int itemId;
         public String itemTag="";

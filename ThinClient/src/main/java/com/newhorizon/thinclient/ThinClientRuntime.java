@@ -17,19 +17,25 @@ public final class ThinClientRuntime implements AutoCloseable {
     public static final int PROTOCOL_1_20_1 = 763;
     public static final int MAX_PACKET_BYTES = 2 * 1024 * 1024;
 
+    public volatile String connectionStatus = "";
     public final MemoryBudget budget;
     public final BoundedBufferPool packetBuffers;
     public final FramedPacketDecoder packetDecoder;
     public final DisplayController displays;
+    public final com.newhorizon.thinclient.world.MapState maps;
     public final WorldChunkStore world;
     public final EntityTracker entities;
     public final EnvironmentState environment;
+    public final com.newhorizon.thinclient.world.DimensionState dimensions = new com.newhorizon.thinclient.world.DimensionState();
     public final com.newhorizon.thinclient.world.RidingState riding=new com.newhorizon.thinclient.world.RidingState();
     public final com.newhorizon.thinclient.world.PlayerEffects effects =
             new com.newhorizon.thinclient.world.PlayerEffects();
     public final com.newhorizon.thinclient.world.CombatState combat =
             new com.newhorizon.thinclient.world.CombatState();
+    public final com.newhorizon.thinclient.world.PortalState portal = new com.newhorizon.thinclient.world.PortalState();
     public final InventoryState inventory;
+    public final com.newhorizon.thinclient.inventory.WorkbenchState workbench =
+            new com.newhorizon.thinclient.inventory.WorkbenchState();
     public final com.newhorizon.thinclient.world.PlayerListState players=new com.newhorizon.thinclient.world.PlayerListState();
     public final com.newhorizon.thinclient.world.PlayerSkins playerSkins=new com.newhorizon.thinclient.world.PlayerSkins();
     public final com.newhorizon.thinclient.world.ServerHudState hud=new com.newhorizon.thinclient.world.ServerHudState();
@@ -45,6 +51,7 @@ public final class ThinClientRuntime implements AutoCloseable {
         packetBuffers = new BoundedBufferPool(
                 budget, MemoryCategory.NETWORK, 256 * 1024, 8);
         packetDecoder = new FramedPacketDecoder(budget, MAX_PACKET_BYTES);
+        maps = new com.newhorizon.thinclient.world.MapState(budget,256);
         displays = new DisplayController(budget, browserPort, 8, 32.0, 48.0);
         // Complete vanilla view-distance 4 footprint (9 x 9 chunks).
         world = new WorldChunkStore(budget, 9 * 9, 4_000, 4);
@@ -61,7 +68,7 @@ public final class ThinClientRuntime implements AutoCloseable {
     public void close() {
         playerSkins.close();players.clear();
         sounds.clear();
-        displays.close();
+        displays.close();maps.close();
         world.close();
         entities.clear();
         packetDecoder.close();

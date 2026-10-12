@@ -16,6 +16,11 @@ public final class DisplayController implements AutoCloseable {
     private final double visibleRadiusSquared;
     private final double retainRadiusSquared;
     private final LinkedHashMap<UUID, Entry> displays = new LinkedHashMap<>();
+    private final Entry[] selected;
+    private boolean viewKnown;private double viewX,viewY,viewZ,viewCy,viewSy,viewCp,viewSp,viewAspect,viewProjection;
+    private boolean playerKnown;
+    private String playerDimension;
+    private double playerX,playerY,playerZ;
     /** Native Gecko frame slots are indexed directly and currently span 0..127. */
     private int nextBrowserId = 1;
     private final java.util.BitSet auxiliaryBrowsers=new java.util.BitSet(128);
@@ -32,6 +37,7 @@ public final class DisplayController implements AutoCloseable {
         this.budget = budget;
         this.browsers = browsers;
         this.maxDisplays = maxDisplays;
+        this.selected = new Entry[maxDisplays];
         this.visibleRadiusSquared = visibleRadius * visibleRadius;
         this.retainRadiusSquared = retainRadius * retainRadius;
     }
@@ -61,7 +67,14 @@ public final class DisplayController implements AutoCloseable {
 
     private boolean spawn(VirtualDisplay display) {
         remove(display.id);
-        if (displays.size() >= maxDisplays) return false;
+        // Keep cheap server records independently of expensive Gecko sessions.
+        // Otherwise eight distant screens permanently discard new nearby ones.
+        if (displays.size() >= 128) {
+            Entry farthest=null;
+            for(Entry e:displays.values())if(e.browserId<0&&(farthest==null||e.distance>farthest.distance))farthest=e;
+            if(farthest==null)return false;
+            remove(farthest.display.id);
+        }
         MemoryBudget.Lease lease = budget.tryReserve(
                 MemoryCategory.DISPLAY_STATE, display.estimatedStateBytes());
         if (lease == null) return false;
@@ -72,7 +85,8 @@ public final class DisplayController implements AutoCloseable {
                 + " side=" + display.side + " blocks=" + display.widthBlocks
                 + "x" + display.heightBlocks + " pixels=" + display.pixelWidth
                 + "x" + display.pixelHeight + " url=" + describeUrl(display.url));
-        openBrowser(entry);
+        if(playerKnown)updatePlayer(playerDimension,playerX,playerY,playerZ);
+        else if(activeBrowsers()<maxDisplays)openBrowser(entry);
         return true;
     }
 
@@ -81,6 +95,8 @@ public final class DisplayController implements AutoCloseable {
      * display record remains; returning recreates the Gecko surface on demand.
      */
     public synchronized void updatePlayer(String dimension, double x, double y, double z) {
+        playerKnown=true;playerDimension=dimension;playerX=x;playerY=y;playerZ=z;
+        java.util.Arrays.fill(selected,null);
         for (Entry entry : displays.values()) {
             VirtualDisplay display = entry.display;
             boolean sameDimension = display.dimension.equals(dimension);
@@ -89,20 +105,42 @@ public final class DisplayController implements AutoCloseable {
             double dz = display.z - z;
             double distanceSquared = sameDimension
                     ? dx * dx + dy * dy + dz * dz : Double.POSITIVE_INFINITY;
-            if (distanceSquared <= retainRadiusSquared) {
-                if (entry.browserId < 0) openBrowser(entry);
-                boolean visible = distanceSquared <= visibleRadiusSquared;
-                if (visible != entry.visible) {
-                    browsers.setVisible(entry.browserId, visible);
-                    entry.visible = visible;
+            entry.distance=distanceSquared;entry.selected=false;
+            if(distanceSquared<=retainRadiusSquared){
+                for(int i=0;i<selected.length;i++)if(selected[i]==null||distanceSquared<selected[i].distance){
+                    for(int j=selected.length-1;j>i;j--)selected[j]=selected[j-1];selected[i]=entry;break;
                 }
-            } else if (entry.browserId >= 0) {
+            }
+        }
+        for(Entry entry:selected)if(entry!=null)entry.selected=true;
+        // Release first so replacement screens never exceed the browser budget.
+        for(Entry entry:displays.values()){
+            if(!entry.selected&&entry.browserId>=0){
                 browsers.destroy(entry.browserId);
                 entry.browserId = -1;
                 entry.visible = false;
             }
         }
+        for(Entry entry:selected)if(entry!=null){
+            if(entry.browserId<0)openBrowser(entry);
+            boolean visible=entry.distance<=visibleRadiusSquared&&inView(entry.display);
+            if(entry.browserId>=0&&visible!=entry.visible){browsers.setVisible(entry.browserId,visible);entry.visible=visible;}
+        }
     }
+
+    /** Keep off-camera pages resident but suspend their compositor and background activity. */
+    public synchronized void updateView(double x,double y,double z,float yaw,float pitch,float aspect,float projection){
+        viewKnown=true;viewX=x;viewY=y;viewZ=z;viewCy=Math.cos(Math.toRadians(-yaw));viewSy=Math.sin(Math.toRadians(-yaw));viewCp=Math.cos(Math.toRadians(pitch));viewSp=Math.sin(Math.toRadians(pitch));viewAspect=aspect;viewProjection=projection;
+        for(Entry e:displays.values())if(e.browserId>=0){boolean visible=e.distance<=visibleRadiusSquared&&inView(e.display);if(visible!=e.visible){browsers.setVisible(e.browserId,visible);e.visible=visible;}}
+    }
+    private boolean inView(VirtualDisplay d){
+        if(!viewKnown)return true;
+        double dx=d.x-viewX,dy=d.y-viewY,dz=d.z-viewZ,rx=viewCy*dx-viewSy*dz,rz=viewSy*dx+viewCy*dz,py=viewCp*dy+viewSp*rz,depth=viewCp*rz-viewSp*dy;
+        double radius=.5*Math.sqrt(d.widthBlocks*d.widthBlocks+d.heightBlocks*d.heightBlocks)+1;
+        return depth>=-radius&&Math.abs(rx)<=Math.max(0,depth)*viewAspect/viewProjection+radius*(1+viewAspect/viewProjection)&&Math.abs(py)<=Math.max(0,depth)/viewProjection+radius*(1+1/viewProjection);
+    }
+
+    private int activeBrowsers(){int count=0;for(Entry e:displays.values())if(e.browserId>=0)count++;return count;}
 
     public synchronized VirtualDisplay get(UUID id) {
         Entry entry = displays.get(id);
@@ -194,6 +232,8 @@ public final class DisplayController implements AutoCloseable {
         String url;
         int browserId = -1;
         boolean visible;
+        boolean selected;
+        double distance=Double.POSITIVE_INFINITY;
 
         Entry(VirtualDisplay display, MemoryBudget.Lease lease) {
             this.display = display;

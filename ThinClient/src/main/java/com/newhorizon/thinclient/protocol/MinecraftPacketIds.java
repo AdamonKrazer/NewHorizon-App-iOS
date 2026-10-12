@@ -13,6 +13,7 @@ public final class MinecraftPacketIds {
     public static final int LOGIN_CLIENTBOUND_COMPRESSION = 0x03;
     public static final int LOGIN_CLIENTBOUND_CUSTOM_QUERY = 0x04;
 
+    public static final int PLAY_CLIENTBOUND_MAP_ITEM_DATA = 0x29;
     public static final int PLAY_CLIENTBOUND_CUSTOM_PAYLOAD = 0x17;
     public static final int PLAY_CLIENTBOUND_COOLDOWN = 0x15;
     public static final int PLAY_CLIENTBOUND_SET_EQUIPMENT = 0x55;

@@ -1,0 +1,3 @@
+# The Android domain-table parser expects sorted ASCII records terminated by LF.
+# Preserve the snapshot byte-for-byte even in Windows checkouts with autocrlf.
+ThinClient/src/main/resources/minepad/adult-domains.txt -text

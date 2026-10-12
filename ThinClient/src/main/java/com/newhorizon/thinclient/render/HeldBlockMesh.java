@@ -3,7 +3,7 @@ package com.newhorizon.thinclient.render;
 import com.newhorizon.thinclient.world.VanillaBlockTextures;
 import java.nio.FloatBuffer;
 
-/** Textured block items need only 36 vertices, rather than a cuboid per texture pixel. */
+/** Original compact block-item meshes, with a bounded cube fallback for dedicated block entities. */
 public final class HeldBlockMesh {
     private static final float[][][] FACES={
         {{0,0,0},{1,0,1},{1,0,0},{0,0,0},{0,0,1},{1,0,1}},
@@ -13,7 +13,13 @@ public final class HeldBlockMesh {
         {{0,0,0},{0,1,0},{0,1,1},{0,0,0},{0,1,1},{0,0,1}},
         {{1,0,0},{1,0,1},{1,1,1},{1,0,0},{1,1,1},{1,1,0}}};
     private HeldBlockMesh() { }
+    public static int maxVertices() { return Math.max(36,VanillaBlockItemModels.maxVertices()); }
+    public static int vertexCount(int state) { return VanillaBlockItemModels.vertexCount(state); }
+    public static float[] firstPersonTransform(int state) { return VanillaBlockItemModels.firstPerson(state); }
+    public static float[] groundTransform(int state) { return VanillaBlockItemModels.ground(state); }
     public static int append(FloatBuffer out,int state,float[] m) {
+        int original=VanillaBlockItemModels.append(out,state,m);
+        if(original>=0)return original;
         if(out.remaining()<36*9)return 0;
         for(int face=0;face<6;face++) {
             int descriptor=VanillaBlockTextures.face(state,face),tile=descriptor&4095,tint=(descriptor>>14)&7;

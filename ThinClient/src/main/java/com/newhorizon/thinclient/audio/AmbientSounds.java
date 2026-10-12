@@ -46,7 +46,7 @@ public final class AmbientSounds {
         if (biome.mood != null) mood(biome, x, eyeY, z);
         runtime.environment.sample(now, environment);
         if (environment.rain > 0 && runtime.world.dimension().equals("minecraft:overworld"))
-            rain(x, eyeY, z, environment.rain);
+            rain(x, eyeY, z, environment.rain, now);
     }
 
     private void music(BiomeSoundRegistry.Biome biome, boolean canFly) {
@@ -126,7 +126,7 @@ public final class AmbientSounds {
         } else mood = Math.max(0, mood);
     }
 
-    private void rain(double x, double y, double z, float amount) {
+    private void rain(double x, double y, double z, float amount, long now) {
         int chosenX = 0, chosenY = Integer.MIN_VALUE, chosenZ = 0;
         int tries = (int) (100 * amount * amount);
         for (int i = 0; i < tries; i++) {
@@ -137,6 +137,10 @@ public final class AmbientSounds {
             BiomeSoundRegistry.Biome biome = runtime.soundBiomes.get(runtime.world.biomeAt(bx, top, bz));
             if (biome == null || !biome.precipitation || biome.temperature < 0.15f) continue;
             chosenX = bx; chosenY = top; chosenZ = bz;
+            int state=runtime.world.blockStateAt(bx,top-1,bz);
+            double localX=random.nextDouble(),localZ=random.nextDouble();
+            double height=com.newhorizon.thinclient.world.Precipitation.impactHeight(state,localX,localZ);
+            if(height>0)runtime.entities.worldParticles.rainHit(bx+localX,top-1+height+.01,bz+localZ,state,now);
         }
         if (chosenY != Integer.MIN_VALUE && random.nextInt(3) < rainSoundTime++) {
             rainSoundTime = 0;

@@ -1,6 +1,6 @@
 # New Horizon Launcher for iOS
 
-Port of the New Horizon Android launcher to iOS/iPadOS, built on the Amethyst native launcher base. Version **1.1** imports the Android source snapshot from **2026-09-22**, including the independent New Horizon thin client alongside **Minecraft 1.20.1 + Forge 47.4.0**.
+Port of the New Horizon Android launcher to iOS/iPadOS, built on the Amethyst native launcher base. Version **1.2** imports the Android source snapshot from **2026-10-12**, including the independent New Horizon thin client alongside **Minecraft 1.20.1 + Forge 47.4.0**.
 
 ## Production contract
 
@@ -16,6 +16,16 @@ Port of the New Horizon Android launcher to iOS/iPadOS, built on the Amethyst na
 The imported thin core includes bounded chunk streaming/mesh workers, vanilla block/item/entity resources, animation, swimming, riding, rails, fishing, combat, effects, weather/day-night, OpenAL audio, inventories, protocol chat and WebDisplays/MinePad state. UIKit presents the iOS inventory/creative catalog, hotbar, HUD, chat, respawn and tablet controls. It is a native presentation of the shared state, not an Android Canvas view embedded in iOS; its layout and styling differ from Android.
 
 `ThinClient/server-bridge/src` records the matching Android server plugin source for protocol compatibility. It is not shipped in the IPA and this update does not deploy or restart any server.
+
+### Changes in 1.2
+
+- Updated the shared runtime: original block/item models, animated textures, server/block lighting, Overworld/Nether/End and portals, precipitation, interaction sounds, entity interpolation/equipment, maps, labels, frame pacing and bounded terrain work.
+- Native crafting-table and 1–6-row chest/NPC menus preserve server slot IDs, cursor state, item names and lore. UIKit adds a Details mode, localized item names (Portuguese/English/Spanish), accent-insensitive creative search and the Android item icon snapshot.
+- The in-game Menu exposes resume, confirmed disconnect, sensitivity, inverted Y, double-tap sprint and master volume, persisted on the device. Android keyboard remapping/touch-editor screens are not transplanted; Amethyst's native controls remain in use. Inventory language selection does not translate the entire UIKit interface.
+- MinePad uses the unchanged Android domain/search/redirect policy through JNI, including the bundled 84,133-rule snapshot and dynamic popup capture. Displays receive the latest physical-pixel viewport script; the initial `about:blank` document no longer prematurely ends the redirect allowance. All browser transport remains GPU-only.
+- Refreshed WebDisplays for Forge and the matching server-bridge source. Existing iOS superflat creation, session/low-memory mods and LTW remain intact.
+
+The Windows checks do not certify iPhone behavior or produce an IPA. Build `main` in Codemagic, then smoke-test connection/retries, chest/NPC clicks, crafting, portals, MinePad redirects/tabs, browser textures and touch/audio on the device.
 
 ## GPU architecture
 

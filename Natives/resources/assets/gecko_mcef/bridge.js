@@ -242,6 +242,10 @@
     });
   });
 
+  window.addEventListener("__nh_pad_popup", event => {
+    const url = event.detail && event.detail.url;
+    if (typeof url === "string" && /^https?:/i.test(url)) port.postMessage({type: "popup", url, mainFrame});
+  });
   window.addEventListener("__nh_mcef_popup", event => {
     const detail = event.detail || {};
     port.postMessage({

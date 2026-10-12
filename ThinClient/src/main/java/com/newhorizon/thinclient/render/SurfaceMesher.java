@@ -41,7 +41,7 @@ public final class SurfaceMesher {
             {0.85f,1,0.15f},{0.15f,1,0.85f},{0.85f,0,0.15f}
     };
     private static final int[] GREEDY_PLANE = new int[16 * 512];
-    private static final byte[] GREEDY_LIGHT = new byte[16 * 512];
+    private static final int[] GREEDY_LIGHT = new int[16 * 512];
     private static boolean lastMeshTruncated;
 
     private SurfaceMesher() {
@@ -117,7 +117,7 @@ public final class SurfaceMesher {
                 if (lastMeshTruncated) return vertices;
             }
         }
-        vertices += emitPlants(chunk, minY, output);
+        vertices += emitPlants(chunk, minY, output,neighbors);
         if(lastMeshTruncated)return vertices;
         vertices += FluidSurfaceMesher.append(chunk,minY,neighbors,output);
         lastMeshTruncated=FluidSurfaceMesher.wasTruncated();
@@ -153,7 +153,7 @@ public final class SurfaceMesher {
                 // Fluids use shared corner heights and cross-chunk face visibility.
                 // Solid geometry inside waterlogged cells is emitted separately below.
                 if((BlockStatePhysics.flags(state)&fluidMask)!=0||BlockStateRender.isPlant(state)
-                        ||RailState.isRail(state)||FenceState.isFence(state)||CocoaModel.contains(state)||ClimbingPlantModels.contains(state))continue;
+                        ||RailState.isRail(state)||FenceState.isFence(state)||CocoaModel.contains(state)||ClimbingPlantModels.contains(state)||VanillaBlockModels.contains(state))continue;
                 int nx = x;
                 int ny = y;
                 int nz = z;
@@ -171,7 +171,8 @@ public final class SurfaceMesher {
                 }
                 GREEDY_PLANE[v * width + u] = meshToken(
                         chunk, state, x, y, z, face);
-                GREEDY_LIGHT[v*width+u]=(byte)MeshLighting.face(chunk,neighbors,x,y,z,face);
+                int light=MeshLighting.face(chunk,neighbors,x,y,z,face);
+                GREEDY_LIGHT[v*width+u]=MeshLighting.uniform(chunk,neighbors,x,y,z,face,light)?light:256+v*width+u;
             }
         }
     }
@@ -196,13 +197,8 @@ public final class SurfaceMesher {
      */
     private static boolean faceIsOccluded(int state, int neighbour) {
         if (neighbour<0||BlockStatePhysics.isAir(neighbour)) return false;
-        int fluidMask = BlockStatePhysics.WATER | BlockStatePhysics.LAVA;
-        int stateFluid = BlockStatePhysics.flags(state) & fluidMask;
-        int neighbourFluid = BlockStatePhysics.flags(neighbour) & fluidMask;
-        if (stateFluid != 0) {
-            return (stateFluid & neighbourFluid) != 0
-                    || BlockStatePhysics.fullyOccludesUnitCube(neighbour);
-        }
+        // This is solid geometry, including the solid part of waterlogged cells.
+        // Fluid-to-fluid culling belongs exclusively to FluidSurfaceMesher.
         int neighbourTexture=VanillaBlockTextures.face(neighbour,1);
         if((neighbourTexture & ((1<<17)|(1<<18)))!=0)return state==neighbour;
         return BlockStatePhysics.fullyOccludesUnitCube(neighbour);
@@ -216,7 +212,7 @@ public final class SurfaceMesher {
             for (int u = 0; u < width; u++) {
                 int token = GREEDY_PLANE[v * width + u];
                 if (token == 0) continue;
-                byte light=GREEDY_LIGHT[v*width+u];
+                int light=GREEDY_LIGHT[v*width+u];
                 int rectangleWidth = 1;
                 while (u + rectangleWidth < width
                         && GREEDY_PLANE[v * width + u + rectangleWidth] == token
@@ -290,7 +286,7 @@ public final class SurfaceMesher {
 
     private static final int[] RAIL_CORNERS={0,2,1,0,3,2,0,1,2,0,2,3};
 
-    private static int emitPlants(SurfaceChunk chunk, int minY, ByteBuffer output) {
+    private static int emitPlants(SurfaceChunk chunk, int minY, ByteBuffer output,SurfaceChunk[] neighbors) {
         int vertices = 0;
         int height = chunk.fullBlockHeight();
         for (int y = 0; y < height; y++) {
@@ -333,6 +329,20 @@ public final class SurfaceMesher {
                             output.put((byte)(u*255)).put((byte)(v*255)).put((byte)(rail>>6)).put((byte)3);
                         }
                         vertices+=12; continue;
+                    }
+                    if(VanillaBlockModels.contains(state)){
+                        int culled=0;
+                        for(int f=0;f<6;f++){
+                            int nx=x+(f==4?-1:f==5?1:0),ny=y+(f==0?-1:f==1?1:0),nz=z+(f==2?-1:f==3?1:0);
+                            int other=neighborState(chunk,neighbors,nx,ny,nz);
+                            if(faceIsOccluded(state,other))culled|=1<<f;
+                        }
+                        int wx=chunk.chunkX*16+x,wz=chunk.chunkZ*16+z;
+                        int added=VanillaBlockModels.append(output,state,
+                                wx+(float)com.newhorizon.thinclient.world.BlockStateOutline.renderOffset(state,wx,wz,0),
+                                minY+y+(float)com.newhorizon.thinclient.world.BlockStateOutline.renderOffset(state,wx,wz,1),
+                                wz+(float)com.newhorizon.thinclient.world.BlockStateOutline.renderOffset(state,wx,wz,2),biomeBits(chunk,x,y,z)>>>23,culled);
+                        if(added<0){lastMeshTruncated=true;return vertices;}vertices+=added;continue;
                     }
                     int style = BlockStateRender.style(state);
                     if (style == BlockStateRender.CUBE) {

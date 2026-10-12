@@ -1,6 +1,9 @@
 package com.newhorizon.thinclient.render;
 
 import com.newhorizon.thinclient.world.EnvironmentState;
+import com.newhorizon.thinclient.world.Precipitation;
+import com.newhorizon.thinclient.world.WorldChunkStore;
+import com.newhorizon.thinclient.audio.BiomeSoundRegistry;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL33;
 import org.lwjgl.system.MemoryUtil;
@@ -17,10 +20,17 @@ final class EnvironmentRenderer implements AutoCloseable {
     /*
      * This is deliberately a fixed upper bound.  Even with the complete sky
      * dome and the vanilla cloud plane the native upload buffer stays below
-     * 72 KiB and can never grow with play time.
+     * 108 KiB and can never grow with play time.
      */
-    private static final int MAX_VERTICES = 2_048;
+    private static final int MAX_VERTICES = 3_072;
     private static final int VERTEX_FLOATS = 9;
+    // Sky, sun, moon, clouds, rain and snow append into disjoint ranges. Never
+    // overwrite vertices that an earlier pass in this frame is still consuming.
+    private static final int FRAME_VERTICES = MAX_VERTICES * 6;
+    private int frameVertexCursor;
+    long diagnosticWeatherSampleNanos,diagnosticWeatherDrawNanos;
+    int diagnosticWeatherColumns;
+    float diagnosticRain(){return displayedRain;}
     private static final int STAR_COUNT = 96;
     private static final int SKY_SEGMENTS = 20;
     private static final int SKY_BANDS = 6;
@@ -58,9 +68,15 @@ final class EnvironmentRenderer implements AutoCloseable {
     private int projectionUniform;
     private int texturedUniform;
     private int textureUniform;
+    private int weatherUniform;
     private int cloudTexture;
     private int sunTexture, moonTexture, rainTexture, snowTexture, endTexture, renderTexture;
-    private boolean endDimension, snowing;
+    private boolean endDimension;
+    private final Precipitation.Column[] rainColumns = new Precipitation.Column[Precipitation.COLUMNS];
+    private final float[] rainLight = new float[3];
+    private final WeatherView weatherView = new WeatherView();
+    private long nextWeatherSample;
+    private int weatherCenterX,weatherCenterY,weatherCenterZ;
     private long frameNanos;
     private long previousFrameNanos;
     private float displayedRain;
@@ -75,6 +91,7 @@ final class EnvironmentRenderer implements AutoCloseable {
 
     EnvironmentRenderer(EnvironmentState state) {
         this.state = state;
+        for(int i=0;i<rainColumns.length;i++)rainColumns[i]=new Precipitation.Column();
     }
 
     void initializeGl() {
@@ -85,6 +102,7 @@ final class EnvironmentRenderer implements AutoCloseable {
         projectionUniform = GL33.glGetUniformLocation(program, "uProjection");
         texturedUniform = GL33.glGetUniformLocation(program, "uTextured");
         textureUniform = GL33.glGetUniformLocation(program, "uTexture");
+        weatherUniform = GL33.glGetUniformLocation(program, "uWeather");
         vao = GL33.glGenVertexArrays();
         vbo = GL33.glGenBuffers();
         GL33.glBindVertexArray(vao);
@@ -113,6 +131,8 @@ final class EnvironmentRenderer implements AutoCloseable {
     }
 
     void prepare(long now,String dimension,com.newhorizon.thinclient.audio.BiomeSoundRegistry.Biome biome,int medium,int viewChunks,float yaw) {
+        frameVertexCursor=0;
+        diagnosticWeatherSampleNanos=diagnosticWeatherDrawNanos=0;diagnosticWeatherColumns=0;
         frameNanos = now;
         state.sample(now, snapshot);
         double seconds = previousFrameNanos == 0L ? 0.0
@@ -123,6 +143,7 @@ final class EnvironmentRenderer implements AutoCloseable {
         displayedThunder += (snapshot.thunder - displayedThunder) * blend;
         overworld = dimension == null || "minecraft:overworld".equals(dimension);
         endDimension="minecraft:the_end".equals(dimension);
+        if (!overworld) { displayedRain = displayedThunder = 0; nextWeatherSample=0; }
         snapshot.rain=displayedRain;snapshot.thunder=displayedThunder;
         atmosphere.sample(snapshot,dimension,biome,medium,viewChunks,yaw);
         daylight=atmosphere.daylight;
@@ -132,7 +153,6 @@ final class EnvironmentRenderer implements AutoCloseable {
     float clearRed() { return clearRed; }
     float clearGreen() { return clearGreen; }
     float clearBlue() { return clearBlue; }
-    void snowing(boolean value) { snowing=value; }
 
     void drawSky(float cameraX, float cameraY, float cameraZ,
                  float yaw, float pitch, float aspect, float projection) {
@@ -161,34 +181,55 @@ final class EnvironmentRenderer implements AutoCloseable {
                 true, true);
     }
 
-    void drawWeather(float cameraX, float cameraY, float cameraZ,
+    void drawWeather(WorldChunkStore world, BiomeSoundRegistry biomes,
+                     float cameraX, float cameraY, float cameraZ,
                      float yaw, float pitch, float aspect, float projection) {
         if (!overworld || displayedRain < 0.015f) return;
-        vertices.clear();
-        int drops = 24 + Math.round(displayedRain * 96.0f);
-        double tick = snapshot.gameTime
-                + (frameNanos % 50_000_000L) / 50_000_000.0;
-        float rightX = (float) Math.cos(Math.toRadians(yaw)) * 0.5f;
-        float rightZ = (float) -Math.sin(Math.toRadians(yaw)) * 0.5f;
-        renderTexture=snowing?snowTexture:rainTexture;
-        for (int index = 0; index < drops; index++) {
-            int hash = index * 1_103_515_245 + 12_345;
-            float x = cameraX + (((hash >>> 8) & 0xff) / 255.0f - 0.5f) * 25.0f;
-            float z = cameraZ + (((hash >>> 16) & 0xff) / 255.0f - 0.5f) * 25.0f;
-            double phase = (tick * (0.73 + (index & 7) * 0.035)
-                    + (hash & 0xffff) * 0.001) % 1.0;
-            float top = cameraY + 13.0f - (float) phase * 26.0f;
-            float bottom = top - 3.0f - (index & 3) * 0.55f;
-            float alpha = 0.20f + displayedRain * 0.42f;
-            float scroll=(float)(tick*(snowing?.01:.08));
-            addTexturedQuad(x-rightX,bottom,z-rightZ,0,bottom*.25f+scroll,
-                    x+rightX,bottom,z+rightZ,1,bottom*.25f+scroll,
-                    x+rightX,top,z+rightZ,1,top*.25f+scroll,
-                    x-rightX,top,z-rightZ,0,top*.25f+scroll,
-                    1,1,1,alpha);
+        long weatherStart=System.nanoTime();
+        // Continuous world columns, including the camera's neighbours, instead
+        // of sparse short strips which move with the camera and leave a tunnel.
+        double ticks=frameNanos/50_000_000.0;
+        int centerX=(int)Math.floor(cameraX),centerZ=(int)Math.floor(cameraZ);
+        int centerY=(int)Math.floor(cameraY);
+        // World/climate/light data changes on ticks. Animation and view-facing
+        // geometry still update every frame; turning never waits for this cache.
+        if(frameNanos>=nextWeatherSample||centerX!=weatherCenterX||centerY!=weatherCenterY||centerZ!=weatherCenterZ) {
+            nextWeatherSample=frameNanos+50_000_000L;
+            weatherCenterX=centerX;weatherCenterY=centerY;weatherCenterZ=centerZ;
+            int slot=0;
+            for(int z=centerZ-Precipitation.RADIUS;z<=centerZ+Precipitation.RADIUS;z++) {
+                for(int x=centerX-Precipitation.RADIUS;x<=centerX+Precipitation.RADIUS;x++) {
+                    Precipitation.Column c=rainColumns[slot++];c.x=x+.5f;c.z=z+.5f;c.kind=0;
+                    c.surface=world.rainSurface(x,z);
+                    if(c.surface==Integer.MIN_VALUE)continue;
+                    c.kind=Precipitation.kind(biomes.get(world.biomeAt(x,Math.max(c.surface,centerY),z)));
+                    if(c.kind==0)continue;
+                    SceneAtmosphere.light(c.x,Math.max(c.surface,cameraY),c.z,rainLight);
+                    c.red=rainLight[0];c.green=rainLight[1];c.blue=rainLight[2];
+                }
+            }
         }
-        uploadAndDraw(cameraX, cameraY, cameraZ, yaw, pitch, aspect, projection,
-                true, true);
+        long weatherDrawStart=System.nanoTime();
+        diagnosticWeatherSampleNanos=weatherDrawStart-weatherStart;
+        weatherView.camera(cameraX,cameraY,cameraZ,yaw,pitch,aspect,projection);
+        for(int kind=1;kind<=2;kind++) {
+            vertices.clear();renderTexture=kind==2?snowTexture:rainTexture;
+            for(int i=0;i<rainColumns.length;i++) {
+                Precipitation.Column c=rainColumns[i];if(c.kind!=kind)continue;
+                if(!Precipitation.column(c,(int)Math.floor(c.x),(int)Math.floor(c.z),
+                        cameraX,cameraY,cameraZ,yaw,c.surface,kind==2,displayedRain,ticks))continue;
+                if(!weatherView.visible(c.x,(c.bottom+c.top)*.5,c.z,.5,(c.top-c.bottom)*.5,.5))continue;
+                diagnosticWeatherColumns++;
+                float bottomV=c.bottom*.25f+c.scroll,topV=c.top*.25f+c.scroll;
+                addTexturedQuad(c.x-c.rightX,c.bottom,c.z-c.rightZ,c.u,bottomV,
+                        c.x+c.rightX,c.bottom,c.z+c.rightZ,c.u+1,bottomV,
+                        c.x+c.rightX,c.top,c.z+c.rightZ,c.u+1,topV,
+                        c.x-c.rightX,c.top,c.z-c.rightZ,c.u,topV,
+                        c.red,c.green,c.blue,c.alpha);
+            }
+            uploadAndDraw(cameraX,cameraY,cameraZ,yaw,pitch,aspect,projection,true,true);
+        }
+        diagnosticWeatherDrawNanos=System.nanoTime()-weatherDrawStart;
     }
 
     private void addCelestialBodies(float cameraX, float cameraY, float cameraZ) {
@@ -431,7 +472,11 @@ final class EnvironmentRenderer implements AutoCloseable {
         if (count == 0) return;
         vertices.flip();
         GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, vbo);
-        GL33.glBufferSubData(GL33.GL_ARRAY_BUFFER, 0, vertices);
+        if(frameVertexCursor==0)GL33.glBufferData(GL33.GL_ARRAY_BUFFER,
+                (long)FRAME_VERTICES*VERTEX_FLOATS*Float.BYTES,GL33.GL_STREAM_DRAW);
+        if(frameVertexCursor+count>FRAME_VERTICES)throw new IllegalStateException("Environment frame vertex budget exceeded");
+        int first=frameVertexCursor;frameVertexCursor+=count;
+        GL33.glBufferSubData(GL33.GL_ARRAY_BUFFER, (long)first*VERTEX_FLOATS*Float.BYTES, vertices);
         ScreenEffects.bind(program);
         GL33.glUniform3f(cameraUniform, cameraX, cameraY, cameraZ);
         GL33.glUniform2f(rotationUniform, yaw, pitch);
@@ -439,6 +484,7 @@ final class EnvironmentRenderer implements AutoCloseable {
         GL33.glUniform1f(projectionUniform, projection);
         GL33.glUniform1i(texturedUniform, textured ? 1 : 0);
         GL33.glUniform1i(textureUniform, 0);
+        GL33.glUniform1i(weatherUniform, textured&&(renderTexture==rainTexture||renderTexture==snowTexture)?1:0);
         GL33.glActiveTexture(GL33.GL_TEXTURE0);
         GL33.glBindTexture(GL33.GL_TEXTURE_2D, textured ? renderTexture : 0);
         GL33.glBindVertexArray(vao);
@@ -450,7 +496,7 @@ final class EnvironmentRenderer implements AutoCloseable {
         GL33.glDisable(GL33.GL_CULL_FACE);
         if (depthTest) GL33.glEnable(GL33.GL_DEPTH_TEST);
         else GL33.glDisable(GL33.GL_DEPTH_TEST);
-        GL33.glDrawArrays(GL33.GL_TRIANGLES, 0, count);
+        GL33.glDrawArrays(GL33.GL_TRIANGLES, first, count);
         GL33.glEnable(GL33.GL_DEPTH_TEST);
         GL33.glEnable(GL33.GL_CULL_FACE);
         GL33.glDepthMask(true);
@@ -568,6 +614,6 @@ final class EnvironmentRenderer implements AutoCloseable {
             + "float n=0.05; float f=768.0; gl_Position=vec4(p.x*uProjection/uAspect,p.y*uProjection,-(f+n)/(f-n)*p.z-(2.0*f*n)/(f-n),-p.z); vColor=aColor; vTexCoord=aTexCoord;}\n";
     private static final String FRAGMENT_SHADER =
             "#version 150 core\n"
-            + "in vec4 vColor; in vec2 vTexCoord; uniform sampler2D uTexture; uniform int uTextured; out vec4 fragColor;\n"
-            + "void main(){fragColor=uTextured==1?vColor*texture(uTexture,vTexCoord):vColor;}\n";
+            + "in vec4 vColor; in vec2 vTexCoord; uniform sampler2D uTexture; uniform int uTextured,uWeather; out vec4 fragColor;\n"
+            + "void main(){fragColor=uTextured==1?vColor*texture(uTexture,vTexCoord):vColor;if(uWeather!=0&&fragColor.a==0.0)discard;}\n";
 }

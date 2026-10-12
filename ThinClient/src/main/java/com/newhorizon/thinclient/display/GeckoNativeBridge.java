@@ -8,9 +8,12 @@ package com.newhorizon.thinclient.display;
  */
 public final class GeckoNativeBridge implements BrowserPort {
     private static final String PREFIX = "com.cinemamod.mcef.MCEFBrowser.";
+    private static String lastInventory = "";
+    private static boolean inventoryVisible;
 
     static {
         System.loadLibrary("gecko_mcef_jni");
+        if (System.getenv("BUNDLE_PATH") != null) nativeInstallNavigationPolicy();
     }
 
     @Override
@@ -86,7 +89,11 @@ public final class GeckoNativeBridge implements BrowserPort {
 
     public static String[] pollEvent() {
         String[] event = nativePollEvent();
-        if (event != null && event.length >= 3 && "nh-pad-location".equals(event[1])) {
+        if (event != null && event.length >= 3 && "nh-ios-language".equals(event[1])) {
+            net.kdt.pojavlaunch.gecko.IOSInventoryPresentation.language(event[2]);
+            if (inventoryVisible) showInventory(lastInventory);
+        }
+        if (event != null && event.length >= 3 && ("nh-pad-location".equals(event[1]) || "nh-pad-popup".equals(event[1]))) {
             event[2] = MinePadResources.canonical(event[2]);
         }
         return event;
@@ -101,15 +108,22 @@ public final class GeckoNativeBridge implements BrowserPort {
     public static void playerSkin(String id,String pixels,boolean slim){command("__nh_player_skin",id,pixels,slim?"1":"0");}
 
     public static void showInventory(String encodedSlots) {
-        command("__nh_inventory_show", encodedSlots == null ? "" : encodedSlots);
+        lastInventory = encodedSlots == null ? "" : encodedSlots;
+        inventoryVisible = true;
+        command("__nh_inventory_show", net.kdt.pojavlaunch.gecko.IOSInventoryPresentation.project(lastInventory));
     }
 
     public static void hideInventory() {
+        inventoryVisible = false;
         command("__nh_inventory_hide");
     }
 
+    public static void initMenuOptions(float volume){command("__nh_menu_init",Integer.toString(Math.round(volume*100)));}
+    public static void showPauseMenu(){command("__nh_menu_show");}
+    public static void hidePauseMenu(){command("__nh_menu_hide");}
+
     public static void updateHotbar(String encodedSlots) {
-        command("__nh_hotbar_update", encodedSlots == null ? "" : encodedSlots);
+        command("__nh_hotbar_update", net.kdt.pojavlaunch.gecko.IOSInventoryPresentation.project(encodedSlots));
     }
 
     public static void hideHotbar() {
@@ -135,6 +149,12 @@ public final class GeckoNativeBridge implements BrowserPort {
     }
 
     private static native String nativeCommand(String op, String[] args);
+
+    // Called by Reynard on its navigation delegate thread, including redirects.
+    public static String filterMinePadURL(String url) {
+        return MinePadResources.resolve(net.kdt.pojavlaunch.gecko.IOSMinePadPolicy.filter(url));
+    }
+    private static native void nativeInstallNavigationPolicy();
 
     private static native String[] nativePollEvent();
 

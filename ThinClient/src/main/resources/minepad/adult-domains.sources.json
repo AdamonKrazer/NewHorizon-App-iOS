@@ -1,0 +1,12 @@
+{
+  "source": "https://github.com/hagezi/dns-blocklists",
+  "url": "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/wildcard/nsfw-onlydomains.txt",
+  "retrievedUtc": "2026-09-25T19:31:51.453330+00:00",
+  "sourceSha256": "afa59092388934bfa02260e827d18f429901c4a4fb9ed135f6f370fb01b67d58",
+  "assetSha256": "00722cefcb841f8a6eb4da54ee720d2f17157a1adbed25c563c7f814b47cf2d3",
+  "sourceDomains": 84133,
+  "storedRules": 84133,
+  "bytes": 1327992,
+  "license": "GPL-3.0 (see adult-domains.LICENSE.txt)",
+  "changes": "Comments removed; ASCII sorted and deduplicated; original MinePad domains retained; redundant child domains removed because parent rules include subdomains. Snapshot bundled with app; no runtime remote downloads."
+}

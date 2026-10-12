@@ -18,15 +18,6 @@ public final class ItemUseState {
     public synchronized void clear() { java.util.Arrays.fill(cooldownEnds,0); generation++; }
     public synchronized long generation() { return generation; }
     static int itemId(String material) {
-        if(material==null) return -1;
-        material=com.newhorizon.thinclient.world.ProjectileKind.materialKey(material);
-        switch(material) {
-            case "BOW": return 760; case "CROSSBOW": return 1143; case "SHIELD": return 1116;
-            case "TRIDENT": return 1139; case "EGG": return 887;
-            case "SNOWBALL": return 872; case "ENDER_PEARL": return 952;
-            case "SPLASH_POTION": return 1112; case "LINGERING_POTION": return 1115;
-            case "EXPERIENCE_BOTTLE": return 1044; case "FIRE_CHARGE": return 1045;
-            case "FIREWORK_ROCKET": return 1066; default: return -1;
-        }
+        return ItemInteractionCatalog.protocolId(material);
     }
 }

@@ -99,6 +99,9 @@ public final class ThinSoundEngine implements AutoCloseable {
         requestedFeetY = feetY;
     }
 
+    public void setMasterVolume(float volume){master=VanillaSoundMath.clamp(volume,0,1);}
+    public float masterVolume(){return master;}
+
     public void setVolumes(float masterVolume, float[] categories) {
         if (categories == null || categories.length != 10) throw new IllegalArgumentException("10 sound categories required");
         float[] copy = categories.clone();
@@ -223,13 +226,19 @@ public final class ThinSoundEngine implements AutoCloseable {
         checkAl("initialize");
     }
 
-    private synchronized void applyListener() {
-        listenerX = requestedX;
-        listenerY = requestedY;
-        listenerZ = requestedZ;
-        playerEntityId = requestedEntityId;
-        playerFeetY = requestedFeetY;
-        VanillaSoundMath.orientation(requestedYaw, requestedPitch, orientation);
+    private void applyListener() {
+        final float yaw,pitch;
+        synchronized(this) {
+            listenerX = requestedX;
+            listenerY = requestedY;
+            listenerZ = requestedZ;
+            playerEntityId = requestedEntityId;
+            playerFeetY = requestedFeetY;
+            yaw=requestedYaw;pitch=requestedPitch;
+        }
+        // Listener/voice state is audio-worker-owned. Never hold the render
+        // thread's request lock while the OpenAL backend can wait on its mixer.
+        VanillaSoundMath.orientation(yaw, pitch, orientation);
         AL10.alListener3f(AL10.AL_POSITION, (float) listenerX, (float) listenerY, (float) listenerZ);
         AL10.alListenerfv(AL10.AL_ORIENTATION, orientation);
         AL10.alListenerf(AL10.AL_GAIN, master);

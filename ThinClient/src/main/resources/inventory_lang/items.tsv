@@ -1,0 +1,2568 @@
+# Material, English catalog name and official translation key.
+n	minecraft:acacia_boat	Acacia Boat	item.minecraft.acacia_boat
+n	minecraft:acacia_button	Acacia Button	block.minecraft.acacia_button
+n	minecraft:acacia_chest_boat	Acacia Boat with Chest	item.minecraft.acacia_chest_boat
+n	minecraft:acacia_door	Acacia Door	block.minecraft.acacia_door
+n	minecraft:acacia_fence	Acacia Fence	block.minecraft.acacia_fence
+n	minecraft:acacia_fence_gate	Acacia Fence Gate	block.minecraft.acacia_fence_gate
+n	minecraft:acacia_hanging_sign	Acacia Hanging Sign	block.minecraft.acacia_hanging_sign
+n	minecraft:acacia_leaves	Acacia Leaves	block.minecraft.acacia_leaves
+n	minecraft:acacia_log	Acacia Log	block.minecraft.acacia_log
+n	minecraft:acacia_planks	Acacia Planks	block.minecraft.acacia_planks
+n	minecraft:acacia_pressure_plate	Acacia Pressure Plate	block.minecraft.acacia_pressure_plate
+n	minecraft:acacia_sapling	Acacia Sapling	block.minecraft.acacia_sapling
+n	minecraft:acacia_sign	Acacia Sign	block.minecraft.acacia_sign
+n	minecraft:acacia_slab	Acacia Slab	block.minecraft.acacia_slab
+n	minecraft:acacia_stairs	Acacia Stairs	block.minecraft.acacia_stairs
+n	minecraft:acacia_trapdoor	Acacia Trapdoor	block.minecraft.acacia_trapdoor
+n	minecraft:acacia_wood	Acacia Wood	block.minecraft.acacia_wood
+n	minecraft:activator_rail	Activator Rail	block.minecraft.activator_rail
+n	minecraft:allay_spawn_egg	Allay Spawn Egg	item.minecraft.allay_spawn_egg
+n	minecraft:allium	Allium	block.minecraft.allium
+n	minecraft:amethyst_block	Block of Amethyst	block.minecraft.amethyst_block
+n	minecraft:amethyst_cluster	Amethyst Cluster	block.minecraft.amethyst_cluster
+n	minecraft:amethyst_shard	Amethyst Shard	item.minecraft.amethyst_shard
+n	minecraft:ancient_debris	Ancient Debris	block.minecraft.ancient_debris
+n	minecraft:andesite	Andesite	block.minecraft.andesite
+n	minecraft:andesite_slab	Andesite Slab	block.minecraft.andesite_slab
+n	minecraft:andesite_stairs	Andesite Stairs	block.minecraft.andesite_stairs
+n	minecraft:andesite_wall	Andesite Wall	block.minecraft.andesite_wall
+n	minecraft:angler_pottery_sherd	Angler Pottery Sherd	item.minecraft.angler_pottery_sherd
+n	minecraft:anvil	Anvil	block.minecraft.anvil
+n	minecraft:apple	Apple	item.minecraft.apple
+n	minecraft:archer_pottery_sherd	Archer Pottery Sherd	item.minecraft.archer_pottery_sherd
+n	minecraft:armor_stand	Armor Stand	item.minecraft.armor_stand
+n	minecraft:arms_up_pottery_sherd	Arms Up Pottery Sherd	item.minecraft.arms_up_pottery_sherd
+n	minecraft:arrow	Arrow	item.minecraft.arrow
+n	minecraft:axolotl_bucket	Bucket of Axolotl	item.minecraft.axolotl_bucket
+n	minecraft:axolotl_spawn_egg	Axolotl Spawn Egg	item.minecraft.axolotl_spawn_egg
+n	minecraft:azalea	Azalea	block.minecraft.azalea
+n	minecraft:azalea_leaves	Azalea Leaves	block.minecraft.azalea_leaves
+n	minecraft:azure_bluet	Azure Bluet	block.minecraft.azure_bluet
+n	minecraft:baked_potato	Baked Potato	item.minecraft.baked_potato
+n	minecraft:bamboo	Bamboo	block.minecraft.bamboo
+n	minecraft:bamboo_block	Block of Bamboo	block.minecraft.bamboo_block
+n	minecraft:bamboo_button	Bamboo Button	block.minecraft.bamboo_button
+n	minecraft:bamboo_chest_raft	Bamboo Raft with Chest	item.minecraft.bamboo_chest_raft
+n	minecraft:bamboo_door	Bamboo Door	block.minecraft.bamboo_door
+n	minecraft:bamboo_fence	Bamboo Fence	block.minecraft.bamboo_fence
+n	minecraft:bamboo_fence_gate	Bamboo Fence Gate	block.minecraft.bamboo_fence_gate
+n	minecraft:bamboo_hanging_sign	Bamboo Hanging Sign	block.minecraft.bamboo_hanging_sign
+n	minecraft:bamboo_mosaic	Bamboo Mosaic	block.minecraft.bamboo_mosaic
+n	minecraft:bamboo_mosaic_slab	Bamboo Mosaic Slab	block.minecraft.bamboo_mosaic_slab
+n	minecraft:bamboo_mosaic_stairs	Bamboo Mosaic Stairs	block.minecraft.bamboo_mosaic_stairs
+n	minecraft:bamboo_planks	Bamboo Planks	block.minecraft.bamboo_planks
+n	minecraft:bamboo_pressure_plate	Bamboo Pressure Plate	block.minecraft.bamboo_pressure_plate
+n	minecraft:bamboo_raft	Bamboo Raft	item.minecraft.bamboo_raft
+n	minecraft:bamboo_sign	Bamboo Sign	block.minecraft.bamboo_sign
+n	minecraft:bamboo_slab	Bamboo Slab	block.minecraft.bamboo_slab
+n	minecraft:bamboo_stairs	Bamboo Stairs	block.minecraft.bamboo_stairs
+n	minecraft:bamboo_trapdoor	Bamboo Trapdoor	block.minecraft.bamboo_trapdoor
+n	minecraft:barrel	Barrel	block.minecraft.barrel
+n	minecraft:barrier	Barrier	block.minecraft.barrier
+n	minecraft:basalt	Basalt	block.minecraft.basalt
+n	minecraft:bat_spawn_egg	Bat Spawn Egg	item.minecraft.bat_spawn_egg
+n	minecraft:beacon	Beacon	block.minecraft.beacon
+n	minecraft:bedrock	Bedrock	block.minecraft.bedrock
+n	minecraft:bee_nest	Bee Nest	block.minecraft.bee_nest
+n	minecraft:bee_spawn_egg	Bee Spawn Egg	item.minecraft.bee_spawn_egg
+n	minecraft:beef	Raw Beef	item.minecraft.beef
+n	minecraft:beehive	Beehive	block.minecraft.beehive
+n	minecraft:beetroot	Beetroot	item.minecraft.beetroot
+n	minecraft:beetroot_seeds	Beetroot Seeds	item.minecraft.beetroot_seeds
+n	minecraft:beetroot_soup	Beetroot Soup	item.minecraft.beetroot_soup
+n	minecraft:bell	Bell	block.minecraft.bell
+n	minecraft:big_dripleaf	Big Dripleaf	block.minecraft.big_dripleaf
+n	minecraft:birch_boat	Birch Boat	item.minecraft.birch_boat
+n	minecraft:birch_button	Birch Button	block.minecraft.birch_button
+n	minecraft:birch_chest_boat	Birch Boat with Chest	item.minecraft.birch_chest_boat
+n	minecraft:birch_door	Birch Door	block.minecraft.birch_door
+n	minecraft:birch_fence	Birch Fence	block.minecraft.birch_fence
+n	minecraft:birch_fence_gate	Birch Fence Gate	block.minecraft.birch_fence_gate
+n	minecraft:birch_hanging_sign	Birch Hanging Sign	block.minecraft.birch_hanging_sign
+n	minecraft:birch_leaves	Birch Leaves	block.minecraft.birch_leaves
+n	minecraft:birch_log	Birch Log	block.minecraft.birch_log
+n	minecraft:birch_planks	Birch Planks	block.minecraft.birch_planks
+n	minecraft:birch_pressure_plate	Birch Pressure Plate	block.minecraft.birch_pressure_plate
+n	minecraft:birch_sapling	Birch Sapling	block.minecraft.birch_sapling
+n	minecraft:birch_sign	Birch Sign	block.minecraft.birch_sign
+n	minecraft:birch_slab	Birch Slab	block.minecraft.birch_slab
+n	minecraft:birch_stairs	Birch Stairs	block.minecraft.birch_stairs
+n	minecraft:birch_trapdoor	Birch Trapdoor	block.minecraft.birch_trapdoor
+n	minecraft:birch_wood	Birch Wood	block.minecraft.birch_wood
+n	minecraft:black_banner	Black Banner	block.minecraft.black_banner
+n	minecraft:black_bed	Black Bed	block.minecraft.black_bed
+n	minecraft:black_candle	Black Candle	block.minecraft.black_candle
+n	minecraft:black_carpet	Black Carpet	block.minecraft.black_carpet
+n	minecraft:black_concrete	Black Concrete	block.minecraft.black_concrete
+n	minecraft:black_concrete_powder	Black Concrete Powder	block.minecraft.black_concrete_powder
+n	minecraft:black_dye	Black Dye	item.minecraft.black_dye
+n	minecraft:black_glazed_terracotta	Black Glazed Terracotta	block.minecraft.black_glazed_terracotta
+n	minecraft:black_shulker_box	Black Shulker Box	block.minecraft.black_shulker_box
+n	minecraft:black_stained_glass	Black Stained Glass	block.minecraft.black_stained_glass
+n	minecraft:black_stained_glass_pane	Black Stained Glass Pane	block.minecraft.black_stained_glass_pane
+n	minecraft:black_terracotta	Black Terracotta	block.minecraft.black_terracotta
+n	minecraft:black_wool	Black Wool	block.minecraft.black_wool
+n	minecraft:blackstone	Blackstone	block.minecraft.blackstone
+n	minecraft:blackstone_slab	Blackstone Slab	block.minecraft.blackstone_slab
+n	minecraft:blackstone_stairs	Blackstone Stairs	block.minecraft.blackstone_stairs
+n	minecraft:blackstone_wall	Blackstone Wall	block.minecraft.blackstone_wall
+n	minecraft:blade_pottery_sherd	Blade Pottery Sherd	item.minecraft.blade_pottery_sherd
+n	minecraft:blast_furnace	Blast Furnace	block.minecraft.blast_furnace
+n	minecraft:blaze_powder	Blaze Powder	item.minecraft.blaze_powder
+n	minecraft:blaze_rod	Blaze Rod	item.minecraft.blaze_rod
+n	minecraft:blaze_spawn_egg	Blaze Spawn Egg	item.minecraft.blaze_spawn_egg
+n	minecraft:blue_banner	Blue Banner	block.minecraft.blue_banner
+n	minecraft:blue_bed	Blue Bed	block.minecraft.blue_bed
+n	minecraft:blue_candle	Blue Candle	block.minecraft.blue_candle
+n	minecraft:blue_carpet	Blue Carpet	block.minecraft.blue_carpet
+n	minecraft:blue_concrete	Blue Concrete	block.minecraft.blue_concrete
+n	minecraft:blue_concrete_powder	Blue Concrete Powder	block.minecraft.blue_concrete_powder
+n	minecraft:blue_dye	Blue Dye	item.minecraft.blue_dye
+n	minecraft:blue_glazed_terracotta	Blue Glazed Terracotta	block.minecraft.blue_glazed_terracotta
+n	minecraft:blue_ice	Blue Ice	block.minecraft.blue_ice
+n	minecraft:blue_orchid	Blue Orchid	block.minecraft.blue_orchid
+n	minecraft:blue_shulker_box	Blue Shulker Box	block.minecraft.blue_shulker_box
+n	minecraft:blue_stained_glass	Blue Stained Glass	block.minecraft.blue_stained_glass
+n	minecraft:blue_stained_glass_pane	Blue Stained Glass Pane	block.minecraft.blue_stained_glass_pane
+n	minecraft:blue_terracotta	Blue Terracotta	block.minecraft.blue_terracotta
+n	minecraft:blue_wool	Blue Wool	block.minecraft.blue_wool
+n	minecraft:bone	Bone	item.minecraft.bone
+n	minecraft:bone_block	Bone Block	block.minecraft.bone_block
+n	minecraft:bone_meal	Bone Meal	item.minecraft.bone_meal
+n	minecraft:book	Book	item.minecraft.book
+n	minecraft:bookshelf	Bookshelf	block.minecraft.bookshelf
+n	minecraft:bow	Bow	item.minecraft.bow
+n	minecraft:bowl	Bowl	item.minecraft.bowl
+n	minecraft:brain_coral	Brain Coral	block.minecraft.brain_coral
+n	minecraft:brain_coral_block	Brain Coral Block	block.minecraft.brain_coral_block
+n	minecraft:brain_coral_fan	Brain Coral Fan	block.minecraft.brain_coral_fan
+n	minecraft:bread	Bread	item.minecraft.bread
+n	minecraft:brewer_pottery_sherd	Brewer Pottery Sherd	item.minecraft.brewer_pottery_sherd
+n	minecraft:brewing_stand	Brewing Stand	item.minecraft.brewing_stand
+n	minecraft:brick	Brick	item.minecraft.brick
+n	minecraft:brick_slab	Brick Slab	block.minecraft.brick_slab
+n	minecraft:brick_stairs	Brick Stairs	block.minecraft.brick_stairs
+n	minecraft:brick_wall	Brick Wall	block.minecraft.brick_wall
+n	minecraft:bricks	Bricks	block.minecraft.bricks
+n	minecraft:brown_banner	Brown Banner	block.minecraft.brown_banner
+n	minecraft:brown_bed	Brown Bed	block.minecraft.brown_bed
+n	minecraft:brown_candle	Brown Candle	block.minecraft.brown_candle
+n	minecraft:brown_carpet	Brown Carpet	block.minecraft.brown_carpet
+n	minecraft:brown_concrete	Brown Concrete	block.minecraft.brown_concrete
+n	minecraft:brown_concrete_powder	Brown Concrete Powder	block.minecraft.brown_concrete_powder
+n	minecraft:brown_dye	Brown Dye	item.minecraft.brown_dye
+n	minecraft:brown_glazed_terracotta	Brown Glazed Terracotta	block.minecraft.brown_glazed_terracotta
+n	minecraft:brown_mushroom	Brown Mushroom	block.minecraft.brown_mushroom
+n	minecraft:brown_mushroom_block	Brown Mushroom Block	block.minecraft.brown_mushroom_block
+n	minecraft:brown_shulker_box	Brown Shulker Box	block.minecraft.brown_shulker_box
+n	minecraft:brown_stained_glass	Brown Stained Glass	block.minecraft.brown_stained_glass
+n	minecraft:brown_stained_glass_pane	Brown Stained Glass Pane	block.minecraft.brown_stained_glass_pane
+n	minecraft:brown_terracotta	Brown Terracotta	block.minecraft.brown_terracotta
+n	minecraft:brown_wool	Brown Wool	block.minecraft.brown_wool
+n	minecraft:brush	Brush	item.minecraft.brush
+n	minecraft:bubble_coral	Bubble Coral	block.minecraft.bubble_coral
+n	minecraft:bubble_coral_block	Bubble Coral Block	block.minecraft.bubble_coral_block
+n	minecraft:bubble_coral_fan	Bubble Coral Fan	block.minecraft.bubble_coral_fan
+n	minecraft:bucket	Bucket	item.minecraft.bucket
+n	minecraft:budding_amethyst	Budding Amethyst	block.minecraft.budding_amethyst
+n	minecraft:burn_pottery_sherd	Burn Pottery Sherd	item.minecraft.burn_pottery_sherd
+n	minecraft:cactus	Cactus	block.minecraft.cactus
+n	minecraft:cake	Cake	block.minecraft.cake
+n	minecraft:calcite	Calcite	block.minecraft.calcite
+n	minecraft:calibrated_sculk_sensor	Calibrated Sculk Sensor	block.minecraft.calibrated_sculk_sensor
+n	minecraft:camel_spawn_egg	Camel Spawn Egg	item.minecraft.camel_spawn_egg
+n	minecraft:campfire	Campfire	block.minecraft.campfire
+n	minecraft:candle	Candle	block.minecraft.candle
+n	minecraft:carrot	Carrot	item.minecraft.carrot
+n	minecraft:carrot_on_a_stick	Carrot on a Stick	item.minecraft.carrot_on_a_stick
+n	minecraft:cartography_table	Cartography Table	block.minecraft.cartography_table
+n	minecraft:carved_pumpkin	Carved Pumpkin	block.minecraft.carved_pumpkin
+n	minecraft:cat_spawn_egg	Cat Spawn Egg	item.minecraft.cat_spawn_egg
+n	minecraft:cauldron	Cauldron	item.minecraft.cauldron
+n	minecraft:cave_spider_spawn_egg	Cave Spider Spawn Egg	item.minecraft.cave_spider_spawn_egg
+n	minecraft:chain	Chain	block.minecraft.chain
+n	minecraft:chain_command_block	Chain Command Block	block.minecraft.chain_command_block
+n	minecraft:chainmail_boots	Chainmail Boots	item.minecraft.chainmail_boots
+n	minecraft:chainmail_chestplate	Chainmail Chestplate	item.minecraft.chainmail_chestplate
+n	minecraft:chainmail_helmet	Chainmail Helmet	item.minecraft.chainmail_helmet
+n	minecraft:chainmail_leggings	Chainmail Leggings	item.minecraft.chainmail_leggings
+n	minecraft:charcoal	Charcoal	item.minecraft.charcoal
+n	minecraft:cherry_boat	Cherry Boat	item.minecraft.cherry_boat
+n	minecraft:cherry_button	Cherry Button	block.minecraft.cherry_button
+n	minecraft:cherry_chest_boat	Cherry Boat with Chest	item.minecraft.cherry_chest_boat
+n	minecraft:cherry_door	Cherry Door	block.minecraft.cherry_door
+n	minecraft:cherry_fence	Cherry Fence	block.minecraft.cherry_fence
+n	minecraft:cherry_fence_gate	Cherry Fence Gate	block.minecraft.cherry_fence_gate
+n	minecraft:cherry_hanging_sign	Cherry Hanging Sign	block.minecraft.cherry_hanging_sign
+n	minecraft:cherry_leaves	Cherry Leaves	block.minecraft.cherry_leaves
+n	minecraft:cherry_log	Cherry Log	block.minecraft.cherry_log
+n	minecraft:cherry_planks	Cherry Planks	block.minecraft.cherry_planks
+n	minecraft:cherry_pressure_plate	Cherry Pressure Plate	block.minecraft.cherry_pressure_plate
+n	minecraft:cherry_sapling	Cherry Sapling	block.minecraft.cherry_sapling
+n	minecraft:cherry_sign	Cherry Sign	block.minecraft.cherry_sign
+n	minecraft:cherry_slab	Cherry Slab	block.minecraft.cherry_slab
+n	minecraft:cherry_stairs	Cherry Stairs	block.minecraft.cherry_stairs
+n	minecraft:cherry_trapdoor	Cherry Trapdoor	block.minecraft.cherry_trapdoor
+n	minecraft:cherry_wood	Cherry Wood	block.minecraft.cherry_wood
+n	minecraft:chest	Chest	block.minecraft.chest
+n	minecraft:chest_minecart	Minecart with Chest	item.minecraft.chest_minecart
+n	minecraft:chicken	Raw Chicken	item.minecraft.chicken
+n	minecraft:chicken_spawn_egg	Chicken Spawn Egg	item.minecraft.chicken_spawn_egg
+n	minecraft:chipped_anvil	Chipped Anvil	block.minecraft.chipped_anvil
+n	minecraft:chiseled_bookshelf	Chiseled Bookshelf	block.minecraft.chiseled_bookshelf
+n	minecraft:chiseled_deepslate	Chiseled Deepslate	block.minecraft.chiseled_deepslate
+n	minecraft:chiseled_nether_bricks	Chiseled Nether Bricks	block.minecraft.chiseled_nether_bricks
+n	minecraft:chiseled_polished_blackstone	Chiseled Polished Blackstone	block.minecraft.chiseled_polished_blackstone
+n	minecraft:chiseled_quartz_block	Chiseled Quartz Block	block.minecraft.chiseled_quartz_block
+n	minecraft:chiseled_red_sandstone	Chiseled Red Sandstone	block.minecraft.chiseled_red_sandstone
+n	minecraft:chiseled_sandstone	Chiseled Sandstone	block.minecraft.chiseled_sandstone
+n	minecraft:chiseled_stone_bricks	Chiseled Stone Bricks	block.minecraft.chiseled_stone_bricks
+n	minecraft:chorus_flower	Chorus Flower	block.minecraft.chorus_flower
+n	minecraft:chorus_fruit	Chorus Fruit	item.minecraft.chorus_fruit
+n	minecraft:chorus_plant	Chorus Plant	block.minecraft.chorus_plant
+n	minecraft:clay	Clay	block.minecraft.clay
+n	minecraft:clay_ball	Clay Ball	item.minecraft.clay_ball
+n	minecraft:clock	Clock	item.minecraft.clock
+n	minecraft:coal	Coal	item.minecraft.coal
+n	minecraft:coal_block	Block of Coal	block.minecraft.coal_block
+n	minecraft:coal_ore	Coal Ore	block.minecraft.coal_ore
+n	minecraft:coarse_dirt	Coarse Dirt	block.minecraft.coarse_dirt
+n	minecraft:coast_armor_trim_smithing_template	Smithing Template	item.minecraft.smithing_template
+n	minecraft:cobbled_deepslate	Cobbled Deepslate	block.minecraft.cobbled_deepslate
+n	minecraft:cobbled_deepslate_slab	Cobbled Deepslate Slab	block.minecraft.cobbled_deepslate_slab
+n	minecraft:cobbled_deepslate_stairs	Cobbled Deepslate Stairs	block.minecraft.cobbled_deepslate_stairs
+n	minecraft:cobbled_deepslate_wall	Cobbled Deepslate Wall	block.minecraft.cobbled_deepslate_wall
+n	minecraft:cobblestone	Cobblestone	block.minecraft.cobblestone
+n	minecraft:cobblestone_slab	Cobblestone Slab	block.minecraft.cobblestone_slab
+n	minecraft:cobblestone_stairs	Cobblestone Stairs	block.minecraft.cobblestone_stairs
+n	minecraft:cobblestone_wall	Cobblestone Wall	block.minecraft.cobblestone_wall
+n	minecraft:cobweb	Cobweb	block.minecraft.cobweb
+n	minecraft:cocoa_beans	Cocoa Beans	item.minecraft.cocoa_beans
+n	minecraft:cod	Raw Cod	item.minecraft.cod
+n	minecraft:cod_bucket	Bucket of Cod	item.minecraft.cod_bucket
+n	minecraft:cod_spawn_egg	Cod Spawn Egg	item.minecraft.cod_spawn_egg
+n	minecraft:command_block	Command Block	block.minecraft.command_block
+n	minecraft:command_block_minecart	Minecart with Command Block	item.minecraft.command_block_minecart
+n	minecraft:comparator	Redstone Comparator	block.minecraft.comparator
+n	minecraft:compass	Compass	item.minecraft.compass
+n	minecraft:composter	Composter	block.minecraft.composter
+n	minecraft:conduit	Conduit	block.minecraft.conduit
+n	minecraft:cooked_beef	Steak	item.minecraft.cooked_beef
+n	minecraft:cooked_chicken	Cooked Chicken	item.minecraft.cooked_chicken
+n	minecraft:cooked_cod	Cooked Cod	item.minecraft.cooked_cod
+n	minecraft:cooked_mutton	Cooked Mutton	item.minecraft.cooked_mutton
+n	minecraft:cooked_porkchop	Cooked Porkchop	item.minecraft.cooked_porkchop
+n	minecraft:cooked_rabbit	Cooked Rabbit	item.minecraft.cooked_rabbit
+n	minecraft:cooked_salmon	Cooked Salmon	item.minecraft.cooked_salmon
+n	minecraft:cookie	Cookie	item.minecraft.cookie
+n	minecraft:copper_block	Block of Copper	block.minecraft.copper_block
+n	minecraft:copper_ingot	Copper Ingot	item.minecraft.copper_ingot
+n	minecraft:copper_ore	Copper Ore	block.minecraft.copper_ore
+n	minecraft:cornflower	Cornflower	block.minecraft.cornflower
+n	minecraft:cow_spawn_egg	Cow Spawn Egg	item.minecraft.cow_spawn_egg
+n	minecraft:cracked_deepslate_bricks	Cracked Deepslate Bricks	block.minecraft.cracked_deepslate_bricks
+n	minecraft:cracked_deepslate_tiles	Cracked Deepslate Tiles	block.minecraft.cracked_deepslate_tiles
+n	minecraft:cracked_nether_bricks	Cracked Nether Bricks	block.minecraft.cracked_nether_bricks
+n	minecraft:cracked_polished_blackstone_bricks	Cracked Polished Blackstone Bricks	block.minecraft.cracked_polished_blackstone_bricks
+n	minecraft:cracked_stone_bricks	Cracked Stone Bricks	block.minecraft.cracked_stone_bricks
+n	minecraft:crafting_table	Crafting Table	block.minecraft.crafting_table
+n	minecraft:creeper_banner_pattern	Banner Pattern	item.minecraft.creeper_banner_pattern
+n	minecraft:creeper_head	Creeper Head	block.minecraft.creeper_head
+n	minecraft:creeper_spawn_egg	Creeper Spawn Egg	item.minecraft.creeper_spawn_egg
+n	minecraft:crimson_button	Crimson Button	block.minecraft.crimson_button
+n	minecraft:crimson_door	Crimson Door	block.minecraft.crimson_door
+n	minecraft:crimson_fence	Crimson Fence	block.minecraft.crimson_fence
+n	minecraft:crimson_fence_gate	Crimson Fence Gate	block.minecraft.crimson_fence_gate
+n	minecraft:crimson_fungus	Crimson Fungus	block.minecraft.crimson_fungus
+n	minecraft:crimson_hanging_sign	Crimson Hanging Sign	block.minecraft.crimson_hanging_sign
+n	minecraft:crimson_hyphae	Crimson Hyphae	block.minecraft.crimson_hyphae
+n	minecraft:crimson_nylium	Crimson Nylium	block.minecraft.crimson_nylium
+n	minecraft:crimson_planks	Crimson Planks	block.minecraft.crimson_planks
+n	minecraft:crimson_pressure_plate	Crimson Pressure Plate	block.minecraft.crimson_pressure_plate
+n	minecraft:crimson_roots	Crimson Roots	block.minecraft.crimson_roots
+n	minecraft:crimson_sign	Crimson Sign	block.minecraft.crimson_sign
+n	minecraft:crimson_slab	Crimson Slab	block.minecraft.crimson_slab
+n	minecraft:crimson_stairs	Crimson Stairs	block.minecraft.crimson_stairs
+n	minecraft:crimson_stem	Crimson Stem	block.minecraft.crimson_stem
+n	minecraft:crimson_trapdoor	Crimson Trapdoor	block.minecraft.crimson_trapdoor
+n	minecraft:crossbow	Crossbow	item.minecraft.crossbow
+n	minecraft:crying_obsidian	Crying Obsidian	block.minecraft.crying_obsidian
+n	minecraft:cut_copper	Cut Copper	block.minecraft.cut_copper
+n	minecraft:cut_copper_slab	Cut Copper Slab	block.minecraft.cut_copper_slab
+n	minecraft:cut_copper_stairs	Cut Copper Stairs	block.minecraft.cut_copper_stairs
+n	minecraft:cut_red_sandstone	Cut Red Sandstone	block.minecraft.cut_red_sandstone
+n	minecraft:cut_red_sandstone_slab	Cut Red Sandstone Slab	block.minecraft.cut_red_sandstone_slab
+n	minecraft:cut_sandstone	Cut Sandstone	block.minecraft.cut_sandstone
+n	minecraft:cut_sandstone_slab	Cut Sandstone Slab	block.minecraft.cut_sandstone_slab
+n	minecraft:cyan_banner	Cyan Banner	block.minecraft.cyan_banner
+n	minecraft:cyan_bed	Cyan Bed	block.minecraft.cyan_bed
+n	minecraft:cyan_candle	Cyan Candle	block.minecraft.cyan_candle
+n	minecraft:cyan_carpet	Cyan Carpet	block.minecraft.cyan_carpet
+n	minecraft:cyan_concrete	Cyan Concrete	block.minecraft.cyan_concrete
+n	minecraft:cyan_concrete_powder	Cyan Concrete Powder	block.minecraft.cyan_concrete_powder
+n	minecraft:cyan_dye	Cyan Dye	item.minecraft.cyan_dye
+n	minecraft:cyan_glazed_terracotta	Cyan Glazed Terracotta	block.minecraft.cyan_glazed_terracotta
+n	minecraft:cyan_shulker_box	Cyan Shulker Box	block.minecraft.cyan_shulker_box
+n	minecraft:cyan_stained_glass	Cyan Stained Glass	block.minecraft.cyan_stained_glass
+n	minecraft:cyan_stained_glass_pane	Cyan Stained Glass Pane	block.minecraft.cyan_stained_glass_pane
+n	minecraft:cyan_terracotta	Cyan Terracotta	block.minecraft.cyan_terracotta
+n	minecraft:cyan_wool	Cyan Wool	block.minecraft.cyan_wool
+n	minecraft:damaged_anvil	Damaged Anvil	block.minecraft.damaged_anvil
+n	minecraft:dandelion	Dandelion	block.minecraft.dandelion
+n	minecraft:danger_pottery_sherd	Danger Pottery Sherd	item.minecraft.danger_pottery_sherd
+n	minecraft:dark_oak_boat	Dark Oak Boat	item.minecraft.dark_oak_boat
+n	minecraft:dark_oak_button	Dark Oak Button	block.minecraft.dark_oak_button
+n	minecraft:dark_oak_chest_boat	Dark Oak Boat with Chest	item.minecraft.dark_oak_chest_boat
+n	minecraft:dark_oak_door	Dark Oak Door	block.minecraft.dark_oak_door
+n	minecraft:dark_oak_fence	Dark Oak Fence	block.minecraft.dark_oak_fence
+n	minecraft:dark_oak_fence_gate	Dark Oak Fence Gate	block.minecraft.dark_oak_fence_gate
+n	minecraft:dark_oak_hanging_sign	Dark Oak Hanging Sign	block.minecraft.dark_oak_hanging_sign
+n	minecraft:dark_oak_leaves	Dark Oak Leaves	block.minecraft.dark_oak_leaves
+n	minecraft:dark_oak_log	Dark Oak Log	block.minecraft.dark_oak_log
+n	minecraft:dark_oak_planks	Dark Oak Planks	block.minecraft.dark_oak_planks
+n	minecraft:dark_oak_pressure_plate	Dark Oak Pressure Plate	block.minecraft.dark_oak_pressure_plate
+n	minecraft:dark_oak_sapling	Dark Oak Sapling	block.minecraft.dark_oak_sapling
+n	minecraft:dark_oak_sign	Dark Oak Sign	block.minecraft.dark_oak_sign
+n	minecraft:dark_oak_slab	Dark Oak Slab	block.minecraft.dark_oak_slab
+n	minecraft:dark_oak_stairs	Dark Oak Stairs	block.minecraft.dark_oak_stairs
+n	minecraft:dark_oak_trapdoor	Dark Oak Trapdoor	block.minecraft.dark_oak_trapdoor
+n	minecraft:dark_oak_wood	Dark Oak Wood	block.minecraft.dark_oak_wood
+n	minecraft:dark_prismarine	Dark Prismarine	block.minecraft.dark_prismarine
+n	minecraft:dark_prismarine_slab	Dark Prismarine Slab	block.minecraft.dark_prismarine_slab
+n	minecraft:dark_prismarine_stairs	Dark Prismarine Stairs	block.minecraft.dark_prismarine_stairs
+n	minecraft:daylight_detector	Daylight Detector	block.minecraft.daylight_detector
+n	minecraft:dead_brain_coral	Dead Brain Coral	block.minecraft.dead_brain_coral
+n	minecraft:dead_brain_coral_block	Dead Brain Coral Block	block.minecraft.dead_brain_coral_block
+n	minecraft:dead_brain_coral_fan	Dead Brain Coral Fan	block.minecraft.dead_brain_coral_fan
+n	minecraft:dead_bubble_coral	Dead Bubble Coral	block.minecraft.dead_bubble_coral
+n	minecraft:dead_bubble_coral_block	Dead Bubble Coral Block	block.minecraft.dead_bubble_coral_block
+n	minecraft:dead_bubble_coral_fan	Dead Bubble Coral Fan	block.minecraft.dead_bubble_coral_fan
+n	minecraft:dead_bush	Dead Bush	block.minecraft.dead_bush
+n	minecraft:dead_fire_coral	Dead Fire Coral	block.minecraft.dead_fire_coral
+n	minecraft:dead_fire_coral_block	Dead Fire Coral Block	block.minecraft.dead_fire_coral_block
+n	minecraft:dead_fire_coral_fan	Dead Fire Coral Fan	block.minecraft.dead_fire_coral_fan
+n	minecraft:dead_horn_coral	Dead Horn Coral	block.minecraft.dead_horn_coral
+n	minecraft:dead_horn_coral_block	Dead Horn Coral Block	block.minecraft.dead_horn_coral_block
+n	minecraft:dead_horn_coral_fan	Dead Horn Coral Fan	block.minecraft.dead_horn_coral_fan
+n	minecraft:dead_tube_coral	Dead Tube Coral	block.minecraft.dead_tube_coral
+n	minecraft:dead_tube_coral_block	Dead Tube Coral Block	block.minecraft.dead_tube_coral_block
+n	minecraft:dead_tube_coral_fan	Dead Tube Coral Fan	block.minecraft.dead_tube_coral_fan
+n	minecraft:debug_stick	Debug Stick	item.minecraft.debug_stick
+n	minecraft:decorated_pot	Decorated Pot	block.minecraft.decorated_pot
+n	minecraft:deepslate	Deepslate	block.minecraft.deepslate
+n	minecraft:deepslate_brick_slab	Deepslate Brick Slab	block.minecraft.deepslate_brick_slab
+n	minecraft:deepslate_brick_stairs	Deepslate Brick Stairs	block.minecraft.deepslate_brick_stairs
+n	minecraft:deepslate_brick_wall	Deepslate Brick Wall	block.minecraft.deepslate_brick_wall
+n	minecraft:deepslate_bricks	Deepslate Bricks	block.minecraft.deepslate_bricks
+n	minecraft:deepslate_coal_ore	Deepslate Coal Ore	block.minecraft.deepslate_coal_ore
+n	minecraft:deepslate_copper_ore	Deepslate Copper Ore	block.minecraft.deepslate_copper_ore
+n	minecraft:deepslate_diamond_ore	Deepslate Diamond Ore	block.minecraft.deepslate_diamond_ore
+n	minecraft:deepslate_emerald_ore	Deepslate Emerald Ore	block.minecraft.deepslate_emerald_ore
+n	minecraft:deepslate_gold_ore	Deepslate Gold Ore	block.minecraft.deepslate_gold_ore
+n	minecraft:deepslate_iron_ore	Deepslate Iron Ore	block.minecraft.deepslate_iron_ore
+n	minecraft:deepslate_lapis_ore	Deepslate Lapis Lazuli Ore	block.minecraft.deepslate_lapis_ore
+n	minecraft:deepslate_redstone_ore	Deepslate Redstone Ore	block.minecraft.deepslate_redstone_ore
+n	minecraft:deepslate_tile_slab	Deepslate Tile Slab	block.minecraft.deepslate_tile_slab
+n	minecraft:deepslate_tile_stairs	Deepslate Tile Stairs	block.minecraft.deepslate_tile_stairs
+n	minecraft:deepslate_tile_wall	Deepslate Tile Wall	block.minecraft.deepslate_tile_wall
+n	minecraft:deepslate_tiles	Deepslate Tiles	block.minecraft.deepslate_tiles
+n	minecraft:detector_rail	Detector Rail	block.minecraft.detector_rail
+n	minecraft:diamond	Diamond	item.minecraft.diamond
+n	minecraft:diamond_axe	Diamond Axe	item.minecraft.diamond_axe
+n	minecraft:diamond_block	Block of Diamond	block.minecraft.diamond_block
+n	minecraft:diamond_boots	Diamond Boots	item.minecraft.diamond_boots
+n	minecraft:diamond_chestplate	Diamond Chestplate	item.minecraft.diamond_chestplate
+n	minecraft:diamond_helmet	Diamond Helmet	item.minecraft.diamond_helmet
+n	minecraft:diamond_hoe	Diamond Hoe	item.minecraft.diamond_hoe
+n	minecraft:diamond_horse_armor	Diamond Horse Armor	item.minecraft.diamond_horse_armor
+n	minecraft:diamond_leggings	Diamond Leggings	item.minecraft.diamond_leggings
+n	minecraft:diamond_ore	Diamond Ore	block.minecraft.diamond_ore
+n	minecraft:diamond_pickaxe	Diamond Pickaxe	item.minecraft.diamond_pickaxe
+n	minecraft:diamond_shovel	Diamond Shovel	item.minecraft.diamond_shovel
+n	minecraft:diamond_sword	Diamond Sword	item.minecraft.diamond_sword
+n	minecraft:diorite	Diorite	block.minecraft.diorite
+n	minecraft:diorite_slab	Diorite Slab	block.minecraft.diorite_slab
+n	minecraft:diorite_stairs	Diorite Stairs	block.minecraft.diorite_stairs
+n	minecraft:diorite_wall	Diorite Wall	block.minecraft.diorite_wall
+n	minecraft:dirt	Dirt	block.minecraft.dirt
+n	minecraft:dirt_path	Dirt Path	block.minecraft.dirt_path
+n	minecraft:disc_fragment_5	Disc Fragment	item.minecraft.disc_fragment_5
+n	minecraft:dispenser	Dispenser	block.minecraft.dispenser
+n	minecraft:dolphin_spawn_egg	Dolphin Spawn Egg	item.minecraft.dolphin_spawn_egg
+n	minecraft:donkey_spawn_egg	Donkey Spawn Egg	item.minecraft.donkey_spawn_egg
+n	minecraft:dragon_breath	Dragon's Breath	item.minecraft.dragon_breath
+n	minecraft:dragon_egg	Dragon Egg	block.minecraft.dragon_egg
+n	minecraft:dragon_head	Dragon Head	block.minecraft.dragon_head
+n	minecraft:dried_kelp	Dried Kelp	item.minecraft.dried_kelp
+n	minecraft:dried_kelp_block	Dried Kelp Block	block.minecraft.dried_kelp_block
+n	minecraft:dripstone_block	Dripstone Block	block.minecraft.dripstone_block
+n	minecraft:dropper	Dropper	block.minecraft.dropper
+n	minecraft:drowned_spawn_egg	Drowned Spawn Egg	item.minecraft.drowned_spawn_egg
+n	minecraft:dune_armor_trim_smithing_template	Smithing Template	item.minecraft.smithing_template
+n	minecraft:echo_shard	Echo Shard	item.minecraft.echo_shard
+n	minecraft:egg	Egg	item.minecraft.egg
+n	minecraft:elder_guardian_spawn_egg	Elder Guardian Spawn Egg	item.minecraft.elder_guardian_spawn_egg
+n	minecraft:elytra	Elytra	item.minecraft.elytra
+n	minecraft:emerald	Emerald	item.minecraft.emerald
+n	minecraft:emerald_block	Block of Emerald	block.minecraft.emerald_block
+n	minecraft:emerald_ore	Emerald Ore	block.minecraft.emerald_ore
+n	minecraft:enchanted_book	Enchanted Book	item.minecraft.enchanted_book
+n	minecraft:enchanted_golden_apple	Enchanted Golden Apple	item.minecraft.enchanted_golden_apple
+n	minecraft:enchanting_table	Enchanting Table	block.minecraft.enchanting_table
+n	minecraft:end_crystal	End Crystal	item.minecraft.end_crystal
+n	minecraft:end_portal_frame	End Portal Frame	block.minecraft.end_portal_frame
+n	minecraft:end_rod	End Rod	block.minecraft.end_rod
+n	minecraft:end_stone	End Stone	block.minecraft.end_stone
+n	minecraft:end_stone_brick_slab	End Stone Brick Slab	block.minecraft.end_stone_brick_slab
+n	minecraft:end_stone_brick_stairs	End Stone Brick Stairs	block.minecraft.end_stone_brick_stairs
+n	minecraft:end_stone_brick_wall	End Stone Brick Wall	block.minecraft.end_stone_brick_wall
+n	minecraft:end_stone_bricks	End Stone Bricks	block.minecraft.end_stone_bricks
+n	minecraft:ender_chest	Ender Chest	block.minecraft.ender_chest
+n	minecraft:ender_eye	Eye of Ender	item.minecraft.ender_eye
+n	minecraft:ender_pearl	Ender Pearl	item.minecraft.ender_pearl
+n	minecraft:enderman_spawn_egg	Enderman Spawn Egg	item.minecraft.enderman_spawn_egg
+n	minecraft:endermite_spawn_egg	Endermite Spawn Egg	item.minecraft.endermite_spawn_egg
+n	minecraft:evoker_spawn_egg	Evoker Spawn Egg	item.minecraft.evoker_spawn_egg
+n	minecraft:experience_bottle	Bottle o' Enchanting	item.minecraft.experience_bottle
+n	minecraft:explorer_pottery_sherd	Explorer Pottery Sherd	item.minecraft.explorer_pottery_sherd
+n	minecraft:exposed_copper	Exposed Copper	block.minecraft.exposed_copper
+n	minecraft:exposed_cut_copper	Exposed Cut Copper	block.minecraft.exposed_cut_copper
+n	minecraft:exposed_cut_copper_slab	Exposed Cut Copper Slab	block.minecraft.exposed_cut_copper_slab
+n	minecraft:exposed_cut_copper_stairs	Exposed Cut Copper Stairs	block.minecraft.exposed_cut_copper_stairs
+n	minecraft:eye_armor_trim_smithing_template	Smithing Template	item.minecraft.smithing_template
+n	minecraft:farmland	Farmland	block.minecraft.farmland
+n	minecraft:feather	Feather	item.minecraft.feather
+n	minecraft:fermented_spider_eye	Fermented Spider Eye	item.minecraft.fermented_spider_eye
+n	minecraft:fern	Fern	block.minecraft.fern
+n	minecraft:fire_charge	Fire Charge	item.minecraft.fire_charge
+n	minecraft:fire_coral	Fire Coral	block.minecraft.fire_coral
+n	minecraft:fire_coral_block	Fire Coral Block	block.minecraft.fire_coral_block
+n	minecraft:fire_coral_fan	Fire Coral Fan	block.minecraft.fire_coral_fan
+n	minecraft:firework_rocket	Firework Rocket	item.minecraft.firework_rocket
+n	minecraft:firework_star	Firework Star	item.minecraft.firework_star
+n	minecraft:fishing_rod	Fishing Rod	item.minecraft.fishing_rod
+n	minecraft:fletching_table	Fletching Table	block.minecraft.fletching_table
+n	minecraft:flint	Flint	item.minecraft.flint
+n	minecraft:flint_and_steel	Flint and Steel	item.minecraft.flint_and_steel
+n	minecraft:flower_banner_pattern	Banner Pattern	item.minecraft.flower_banner_pattern
+n	minecraft:flower_pot	Flower Pot	item.minecraft.flower_pot
+n	minecraft:flowering_azalea	Flowering Azalea	block.minecraft.flowering_azalea
+n	minecraft:flowering_azalea_leaves	Flowering Azalea Leaves	block.minecraft.flowering_azalea_leaves
+n	minecraft:fox_spawn_egg	Fox Spawn Egg	item.minecraft.fox_spawn_egg
+n	minecraft:friend_pottery_sherd	Friend Pottery Sherd	item.minecraft.friend_pottery_sherd
+n	minecraft:frog_spawn_egg	Frog Spawn Egg	item.minecraft.frog_spawn_egg
+n	minecraft:frogspawn	Frogspawn	block.minecraft.frogspawn
+n	minecraft:furnace	Furnace	block.minecraft.furnace
+n	minecraft:furnace_minecart	Minecart with Furnace	item.minecraft.furnace_minecart
+n	minecraft:ghast_spawn_egg	Ghast Spawn Egg	item.minecraft.ghast_spawn_egg
+n	minecraft:ghast_tear	Ghast Tear	item.minecraft.ghast_tear
+n	minecraft:gilded_blackstone	Gilded Blackstone	block.minecraft.gilded_blackstone
+n	minecraft:glass	Glass	block.minecraft.glass
+n	minecraft:glass_bottle	Glass Bottle	item.minecraft.glass_bottle
+n	minecraft:glass_pane	Glass Pane	block.minecraft.glass_pane
+n	minecraft:glistering_melon_slice	Glistering Melon Slice	item.minecraft.glistering_melon_slice
+n	minecraft:globe_banner_pattern	Banner Pattern	item.minecraft.globe_banner_pattern
+n	minecraft:glow_berries	Glow Berries	item.minecraft.glow_berries
+n	minecraft:glow_ink_sac	Glow Ink Sac	item.minecraft.glow_ink_sac
+n	minecraft:glow_item_frame	Glow Item Frame	item.minecraft.glow_item_frame
+n	minecraft:glow_lichen	Glow Lichen	block.minecraft.glow_lichen
+n	minecraft:glow_squid_spawn_egg	Glow Squid Spawn Egg	item.minecraft.glow_squid_spawn_egg
+n	minecraft:glowstone	Glowstone	block.minecraft.glowstone
+n	minecraft:glowstone_dust	Glowstone Dust	item.minecraft.glowstone_dust
+n	minecraft:goat_spawn_egg	Goat Spawn Egg	item.minecraft.goat_spawn_egg
+n	minecraft:gold_block	Block of Gold	block.minecraft.gold_block
+n	minecraft:gold_ingot	Gold Ingot	item.minecraft.gold_ingot
+n	minecraft:gold_nugget	Gold Nugget	item.minecraft.gold_nugget
+n	minecraft:gold_ore	Gold Ore	block.minecraft.gold_ore
+n	minecraft:golden_apple	Golden Apple	item.minecraft.golden_apple
+n	minecraft:golden_axe	Golden Axe	item.minecraft.golden_axe
+n	minecraft:golden_boots	Golden Boots	item.minecraft.golden_boots
+n	minecraft:golden_carrot	Golden Carrot	item.minecraft.golden_carrot
+n	minecraft:golden_chestplate	Golden Chestplate	item.minecraft.golden_chestplate
+n	minecraft:golden_helmet	Golden Helmet	item.minecraft.golden_helmet
+n	minecraft:golden_hoe	Golden Hoe	item.minecraft.golden_hoe
+n	minecraft:golden_horse_armor	Golden Horse Armor	item.minecraft.golden_horse_armor
+n	minecraft:golden_leggings	Golden Leggings	item.minecraft.golden_leggings
+n	minecraft:golden_pickaxe	Golden Pickaxe	item.minecraft.golden_pickaxe
+n	minecraft:golden_shovel	Golden Shovel	item.minecraft.golden_shovel
+n	minecraft:golden_sword	Golden Sword	item.minecraft.golden_sword
+n	minecraft:granite	Granite	block.minecraft.granite
+n	minecraft:granite_slab	Granite Slab	block.minecraft.granite_slab
+n	minecraft:granite_stairs	Granite Stairs	block.minecraft.granite_stairs
+n	minecraft:granite_wall	Granite Wall	block.minecraft.granite_wall
+n	minecraft:grass	Grass	block.minecraft.grass
+n	minecraft:grass_block	Grass Block	block.minecraft.grass_block
+n	minecraft:gravel	Gravel	block.minecraft.gravel
+n	minecraft:gray_banner	Gray Banner	block.minecraft.gray_banner
+n	minecraft:gray_bed	Gray Bed	block.minecraft.gray_bed
+n	minecraft:gray_candle	Gray Candle	block.minecraft.gray_candle
+n	minecraft:gray_carpet	Gray Carpet	block.minecraft.gray_carpet
+n	minecraft:gray_concrete	Gray Concrete	block.minecraft.gray_concrete
+n	minecraft:gray_concrete_powder	Gray Concrete Powder	block.minecraft.gray_concrete_powder
+n	minecraft:gray_dye	Gray Dye	item.minecraft.gray_dye
+n	minecraft:gray_glazed_terracotta	Gray Glazed Terracotta	block.minecraft.gray_glazed_terracotta
+n	minecraft:gray_shulker_box	Gray Shulker Box	block.minecraft.gray_shulker_box
+n	minecraft:gray_stained_glass	Gray Stained Glass	block.minecraft.gray_stained_glass
+n	minecraft:gray_stained_glass_pane	Gray Stained Glass Pane	block.minecraft.gray_stained_glass_pane
+n	minecraft:gray_terracotta	Gray Terracotta	block.minecraft.gray_terracotta
+n	minecraft:gray_wool	Gray Wool	block.minecraft.gray_wool
+n	minecraft:green_banner	Green Banner	block.minecraft.green_banner
+n	minecraft:green_bed	Green Bed	block.minecraft.green_bed
+n	minecraft:green_candle	Green Candle	block.minecraft.green_candle
+n	minecraft:green_carpet	Green Carpet	block.minecraft.green_carpet
+n	minecraft:green_concrete	Green Concrete	block.minecraft.green_concrete
+n	minecraft:green_concrete_powder	Green Concrete Powder	block.minecraft.green_concrete_powder
+n	minecraft:green_dye	Green Dye	item.minecraft.green_dye
+n	minecraft:green_glazed_terracotta	Green Glazed Terracotta	block.minecraft.green_glazed_terracotta
+n	minecraft:green_shulker_box	Green Shulker Box	block.minecraft.green_shulker_box
+n	minecraft:green_stained_glass	Green Stained Glass	block.minecraft.green_stained_glass
+n	minecraft:green_stained_glass_pane	Green Stained Glass Pane	block.minecraft.green_stained_glass_pane
+n	minecraft:green_terracotta	Green Terracotta	block.minecraft.green_terracotta
+n	minecraft:green_wool	Green Wool	block.minecraft.green_wool
+n	minecraft:grindstone	Grindstone	block.minecraft.grindstone
+n	minecraft:guardian_spawn_egg	Guardian Spawn Egg	item.minecraft.guardian_spawn_egg
+n	minecraft:gunpowder	Gunpowder	item.minecraft.gunpowder
+n	minecraft:hanging_roots	Hanging Roots	block.minecraft.hanging_roots
+n	minecraft:hay_block	Hay Bale	block.minecraft.hay_block
+n	minecraft:heart_of_the_sea	Heart of the Sea	item.minecraft.heart_of_the_sea
+n	minecraft:heart_pottery_sherd	Heart Pottery Sherd	item.minecraft.heart_pottery_sherd
+n	minecraft:heartbreak_pottery_sherd	Heartbreak Pottery Sherd	item.minecraft.heartbreak_pottery_sherd
+n	minecraft:heavy_weighted_pressure_plate	Heavy Weighted Pressure Plate	block.minecraft.heavy_weighted_pressure_plate
+n	minecraft:hoglin_spawn_egg	Hoglin Spawn Egg	item.minecraft.hoglin_spawn_egg
+n	minecraft:honey_block	Honey Block	block.minecraft.honey_block
+n	minecraft:honey_bottle	Honey Bottle	item.minecraft.honey_bottle
+n	minecraft:honeycomb	Honeycomb	item.minecraft.honeycomb
+n	minecraft:honeycomb_block	Honeycomb Block	block.minecraft.honeycomb_block
+n	minecraft:hopper	Hopper	block.minecraft.hopper
+n	minecraft:hopper_minecart	Minecart with Hopper	item.minecraft.hopper_minecart
+n	minecraft:horn_coral	Horn Coral	block.minecraft.horn_coral
+n	minecraft:horn_coral_block	Horn Coral Block	block.minecraft.horn_coral_block
+n	minecraft:horn_coral_fan	Horn Coral Fan	block.minecraft.horn_coral_fan
+n	minecraft:horse_spawn_egg	Horse Spawn Egg	item.minecraft.horse_spawn_egg
+n	minecraft:host_armor_trim_smithing_template	Smithing Template	item.minecraft.smithing_template
+n	minecraft:howl_pottery_sherd	Howl Pottery Sherd	item.minecraft.howl_pottery_sherd
+n	minecraft:husk_spawn_egg	Husk Spawn Egg	item.minecraft.husk_spawn_egg
+n	minecraft:ice	Ice	block.minecraft.ice
+n	minecraft:infested_chiseled_stone_bricks	Infested Chiseled Stone Bricks	block.minecraft.infested_chiseled_stone_bricks
+n	minecraft:infested_cobblestone	Infested Cobblestone	block.minecraft.infested_cobblestone
+n	minecraft:infested_cracked_stone_bricks	Infested Cracked Stone Bricks	block.minecraft.infested_cracked_stone_bricks
+n	minecraft:infested_deepslate	Infested Deepslate	block.minecraft.infested_deepslate
+n	minecraft:infested_mossy_stone_bricks	Infested Mossy Stone Bricks	block.minecraft.infested_mossy_stone_bricks
+n	minecraft:infested_stone	Infested Stone	block.minecraft.infested_stone
+n	minecraft:infested_stone_bricks	Infested Stone Bricks	block.minecraft.infested_stone_bricks
+n	minecraft:ink_sac	Ink Sac	item.minecraft.ink_sac
+n	minecraft:iron_axe	Iron Axe	item.minecraft.iron_axe
+n	minecraft:iron_bars	Iron Bars	block.minecraft.iron_bars
+n	minecraft:iron_block	Block of Iron	block.minecraft.iron_block
+n	minecraft:iron_boots	Iron Boots	item.minecraft.iron_boots
+n	minecraft:iron_chestplate	Iron Chestplate	item.minecraft.iron_chestplate
+n	minecraft:iron_door	Iron Door	block.minecraft.iron_door
+n	minecraft:iron_golem_spawn_egg	Iron Golem Spawn Egg	item.minecraft.iron_golem_spawn_egg
+n	minecraft:iron_helmet	Iron Helmet	item.minecraft.iron_helmet
+n	minecraft:iron_hoe	Iron Hoe	item.minecraft.iron_hoe
+n	minecraft:iron_horse_armor	Iron Horse Armor	item.minecraft.iron_horse_armor
+n	minecraft:iron_ingot	Iron Ingot	item.minecraft.iron_ingot
+n	minecraft:iron_leggings	Iron Leggings	item.minecraft.iron_leggings
+n	minecraft:iron_nugget	Iron Nugget	item.minecraft.iron_nugget
+n	minecraft:iron_ore	Iron Ore	block.minecraft.iron_ore
+n	minecraft:iron_pickaxe	Iron Pickaxe	item.minecraft.iron_pickaxe
+n	minecraft:iron_shovel	Iron Shovel	item.minecraft.iron_shovel
+n	minecraft:iron_sword	Iron Sword	item.minecraft.iron_sword
+n	minecraft:iron_trapdoor	Iron Trapdoor	block.minecraft.iron_trapdoor
+n	minecraft:item_frame	Item Frame	item.minecraft.item_frame
+n	minecraft:jack_o_lantern	Jack o'Lantern	block.minecraft.jack_o_lantern
+n	minecraft:jigsaw	Jigsaw Block	block.minecraft.jigsaw
+n	minecraft:jukebox	Jukebox	block.minecraft.jukebox
+n	minecraft:jungle_boat	Jungle Boat	item.minecraft.jungle_boat
+n	minecraft:jungle_button	Jungle Button	block.minecraft.jungle_button
+n	minecraft:jungle_chest_boat	Jungle Boat with Chest	item.minecraft.jungle_chest_boat
+n	minecraft:jungle_door	Jungle Door	block.minecraft.jungle_door
+n	minecraft:jungle_fence	Jungle Fence	block.minecraft.jungle_fence
+n	minecraft:jungle_fence_gate	Jungle Fence Gate	block.minecraft.jungle_fence_gate
+n	minecraft:jungle_hanging_sign	Jungle Hanging Sign	block.minecraft.jungle_hanging_sign
+n	minecraft:jungle_leaves	Jungle Leaves	block.minecraft.jungle_leaves
+n	minecraft:jungle_log	Jungle Log	block.minecraft.jungle_log
+n	minecraft:jungle_planks	Jungle Planks	block.minecraft.jungle_planks
+n	minecraft:jungle_pressure_plate	Jungle Pressure Plate	block.minecraft.jungle_pressure_plate
+n	minecraft:jungle_sapling	Jungle Sapling	block.minecraft.jungle_sapling
+n	minecraft:jungle_sign	Jungle Sign	block.minecraft.jungle_sign
+n	minecraft:jungle_slab	Jungle Slab	block.minecraft.jungle_slab
+n	minecraft:jungle_stairs	Jungle Stairs	block.minecraft.jungle_stairs
+n	minecraft:jungle_trapdoor	Jungle Trapdoor	block.minecraft.jungle_trapdoor
+n	minecraft:jungle_wood	Jungle Wood	block.minecraft.jungle_wood
+n	minecraft:kelp	Kelp	block.minecraft.kelp
+n	minecraft:ladder	Ladder	block.minecraft.ladder
+n	minecraft:lantern	Lantern	block.minecraft.lantern
+n	minecraft:lapis_block	Block of Lapis Lazuli	block.minecraft.lapis_block
+n	minecraft:lapis_lazuli	Lapis Lazuli	item.minecraft.lapis_lazuli
+n	minecraft:lapis_ore	Lapis Lazuli Ore	block.minecraft.lapis_ore
+n	minecraft:large_amethyst_bud	Large Amethyst Bud	block.minecraft.large_amethyst_bud
+n	minecraft:large_fern	Large Fern	block.minecraft.large_fern
+n	minecraft:lava_bucket	Lava Bucket	item.minecraft.lava_bucket
+n	minecraft:lead	Lead	item.minecraft.lead
+n	minecraft:leather	Leather	item.minecraft.leather
+n	minecraft:leather_boots	Leather Boots	item.minecraft.leather_boots
+n	minecraft:leather_chestplate	Leather Tunic	item.minecraft.leather_chestplate
+n	minecraft:leather_helmet	Leather Cap	item.minecraft.leather_helmet
+n	minecraft:leather_horse_armor	Leather Horse Armor	item.minecraft.leather_horse_armor
+n	minecraft:leather_leggings	Leather Pants	item.minecraft.leather_leggings
+n	minecraft:lectern	Lectern	block.minecraft.lectern
+n	minecraft:lever	Lever	block.minecraft.lever
+n	minecraft:light	Light	block.minecraft.light
+n	minecraft:light_blue_banner	Light Blue Banner	block.minecraft.light_blue_banner
+n	minecraft:light_blue_bed	Light Blue Bed	block.minecraft.light_blue_bed
+n	minecraft:light_blue_candle	Light Blue Candle	block.minecraft.light_blue_candle
+n	minecraft:light_blue_carpet	Light Blue Carpet	block.minecraft.light_blue_carpet
+n	minecraft:light_blue_concrete	Light Blue Concrete	block.minecraft.light_blue_concrete
+n	minecraft:light_blue_concrete_powder	Light Blue Concrete Powder	block.minecraft.light_blue_concrete_powder
+n	minecraft:light_blue_dye	Light Blue Dye	item.minecraft.light_blue_dye
+n	minecraft:light_blue_glazed_terracotta	Light Blue Glazed Terracotta	block.minecraft.light_blue_glazed_terracotta
+n	minecraft:light_blue_shulker_box	Light Blue Shulker Box	block.minecraft.light_blue_shulker_box
+n	minecraft:light_blue_stained_glass	Light Blue Stained Glass	block.minecraft.light_blue_stained_glass
+n	minecraft:light_blue_stained_glass_pane	Light Blue Stained Glass Pane	block.minecraft.light_blue_stained_glass_pane
+n	minecraft:light_blue_terracotta	Light Blue Terracotta	block.minecraft.light_blue_terracotta
+n	minecraft:light_blue_wool	Light Blue Wool	block.minecraft.light_blue_wool
+n	minecraft:light_gray_banner	Light Gray Banner	block.minecraft.light_gray_banner
+n	minecraft:light_gray_bed	Light Gray Bed	block.minecraft.light_gray_bed
+n	minecraft:light_gray_candle	Light Gray Candle	block.minecraft.light_gray_candle
+n	minecraft:light_gray_carpet	Light Gray Carpet	block.minecraft.light_gray_carpet
+n	minecraft:light_gray_concrete	Light Gray Concrete	block.minecraft.light_gray_concrete
+n	minecraft:light_gray_concrete_powder	Light Gray Concrete Powder	block.minecraft.light_gray_concrete_powder
+n	minecraft:light_gray_dye	Light Gray Dye	item.minecraft.light_gray_dye
+n	minecraft:light_gray_glazed_terracotta	Light Gray Glazed Terracotta	block.minecraft.light_gray_glazed_terracotta
+n	minecraft:light_gray_shulker_box	Light Gray Shulker Box	block.minecraft.light_gray_shulker_box
+n	minecraft:light_gray_stained_glass	Light Gray Stained Glass	block.minecraft.light_gray_stained_glass
+n	minecraft:light_gray_stained_glass_pane	Light Gray Stained Glass Pane	block.minecraft.light_gray_stained_glass_pane
+n	minecraft:light_gray_terracotta	Light Gray Terracotta	block.minecraft.light_gray_terracotta
+n	minecraft:light_gray_wool	Light Gray Wool	block.minecraft.light_gray_wool
+n	minecraft:light_weighted_pressure_plate	Light Weighted Pressure Plate	block.minecraft.light_weighted_pressure_plate
+n	minecraft:lightning_rod	Lightning Rod	block.minecraft.lightning_rod
+n	minecraft:lilac	Lilac	block.minecraft.lilac
+n	minecraft:lily_of_the_valley	Lily of the Valley	block.minecraft.lily_of_the_valley
+n	minecraft:lily_pad	Lily Pad	block.minecraft.lily_pad
+n	minecraft:lime_banner	Lime Banner	block.minecraft.lime_banner
+n	minecraft:lime_bed	Lime Bed	block.minecraft.lime_bed
+n	minecraft:lime_candle	Lime Candle	block.minecraft.lime_candle
+n	minecraft:lime_carpet	Lime Carpet	block.minecraft.lime_carpet
+n	minecraft:lime_concrete	Lime Concrete	block.minecraft.lime_concrete
+n	minecraft:lime_concrete_powder	Lime Concrete Powder	block.minecraft.lime_concrete_powder
+n	minecraft:lime_dye	Lime Dye	item.minecraft.lime_dye
+n	minecraft:lime_glazed_terracotta	Lime Glazed Terracotta	block.minecraft.lime_glazed_terracotta
+n	minecraft:lime_shulker_box	Lime Shulker Box	block.minecraft.lime_shulker_box
+n	minecraft:lime_stained_glass	Lime Stained Glass	block.minecraft.lime_stained_glass
+n	minecraft:lime_stained_glass_pane	Lime Stained Glass Pane	block.minecraft.lime_stained_glass_pane
+n	minecraft:lime_terracotta	Lime Terracotta	block.minecraft.lime_terracotta
+n	minecraft:lime_wool	Lime Wool	block.minecraft.lime_wool
+n	minecraft:lingering_potion	Awkward Lingering Potion	item.minecraft.lingering_potion.effect.awkward
+n	minecraft:lingering_potion	Lingering Potion of Fire Resistance	item.minecraft.lingering_potion.effect.fire_resistance
+n	minecraft:lingering_potion	Lingering Potion of Harming	item.minecraft.lingering_potion.effect.harming
+n	minecraft:lingering_potion	Lingering Potion of Healing	item.minecraft.lingering_potion.effect.healing
+n	minecraft:lingering_potion	Lingering Potion of Invisibility	item.minecraft.lingering_potion.effect.invisibility
+n	minecraft:lingering_potion	Lingering Potion of Leaping	item.minecraft.lingering_potion.effect.leaping
+n	minecraft:lingering_potion	Lingering Potion of Luck	item.minecraft.lingering_potion.effect.luck
+n	minecraft:lingering_potion	Lingering Potion of Night Vision	item.minecraft.lingering_potion.effect.night_vision
+n	minecraft:lingering_potion	Lingering Potion of Poison	item.minecraft.lingering_potion.effect.poison
+n	minecraft:lingering_potion	Lingering Potion of Regeneration	item.minecraft.lingering_potion.effect.regeneration
+n	minecraft:lingering_potion	Lingering Potion of Slow Falling	item.minecraft.lingering_potion.effect.slow_falling
+n	minecraft:lingering_potion	Lingering Potion of Slowness	item.minecraft.lingering_potion.effect.slowness
+n	minecraft:lingering_potion	Lingering Potion of Strength	item.minecraft.lingering_potion.effect.strength
+n	minecraft:lingering_potion	Lingering Potion of Swiftness	item.minecraft.lingering_potion.effect.swiftness
+n	minecraft:lingering_potion	Lingering Potion of Water Breathing	item.minecraft.lingering_potion.effect.water_breathing
+n	minecraft:lingering_potion	Lingering Potion of Weakness	item.minecraft.lingering_potion.effect.weakness
+n	minecraft:lingering_potion	Lingering Potion of the Turtle Master	item.minecraft.lingering_potion.effect.turtle_master
+n	minecraft:lingering_potion	Lingering Water Bottle	item.minecraft.lingering_potion.effect.water
+n	minecraft:lingering_potion	Mundane Lingering Potion	item.minecraft.lingering_potion.effect.mundane
+n	minecraft:lingering_potion	Thick Lingering Potion	item.minecraft.lingering_potion.effect.thick
+n	minecraft:llama_spawn_egg	Llama Spawn Egg	item.minecraft.llama_spawn_egg
+n	minecraft:lodestone	Lodestone	block.minecraft.lodestone
+n	minecraft:loom	Loom	block.minecraft.loom
+n	minecraft:magenta_banner	Magenta Banner	block.minecraft.magenta_banner
+n	minecraft:magenta_bed	Magenta Bed	block.minecraft.magenta_bed
+n	minecraft:magenta_candle	Magenta Candle	block.minecraft.magenta_candle
+n	minecraft:magenta_carpet	Magenta Carpet	block.minecraft.magenta_carpet
+n	minecraft:magenta_concrete	Magenta Concrete	block.minecraft.magenta_concrete
+n	minecraft:magenta_concrete_powder	Magenta Concrete Powder	block.minecraft.magenta_concrete_powder
+n	minecraft:magenta_dye	Magenta Dye	item.minecraft.magenta_dye
+n	minecraft:magenta_glazed_terracotta	Magenta Glazed Terracotta	block.minecraft.magenta_glazed_terracotta
+n	minecraft:magenta_shulker_box	Magenta Shulker Box	block.minecraft.magenta_shulker_box
+n	minecraft:magenta_stained_glass	Magenta Stained Glass	block.minecraft.magenta_stained_glass
+n	minecraft:magenta_stained_glass_pane	Magenta Stained Glass Pane	block.minecraft.magenta_stained_glass_pane
+n	minecraft:magenta_terracotta	Magenta Terracotta	block.minecraft.magenta_terracotta
+n	minecraft:magenta_wool	Magenta Wool	block.minecraft.magenta_wool
+n	minecraft:magma_block	Magma Block	block.minecraft.magma_block
+n	minecraft:magma_cream	Magma Cream	item.minecraft.magma_cream
+n	minecraft:magma_cube_spawn_egg	Magma Cube Spawn Egg	item.minecraft.magma_cube_spawn_egg
+n	minecraft:mangrove_boat	Mangrove Boat	item.minecraft.mangrove_boat
+n	minecraft:mangrove_button	Mangrove Button	block.minecraft.mangrove_button
+n	minecraft:mangrove_chest_boat	Mangrove Boat with Chest	item.minecraft.mangrove_chest_boat
+n	minecraft:mangrove_door	Mangrove Door	block.minecraft.mangrove_door
+n	minecraft:mangrove_fence	Mangrove Fence	block.minecraft.mangrove_fence
+n	minecraft:mangrove_fence_gate	Mangrove Fence Gate	block.minecraft.mangrove_fence_gate
+n	minecraft:mangrove_hanging_sign	Mangrove Hanging Sign	block.minecraft.mangrove_hanging_sign
+n	minecraft:mangrove_leaves	Mangrove Leaves	block.minecraft.mangrove_leaves
+n	minecraft:mangrove_log	Mangrove Log	block.minecraft.mangrove_log
+n	minecraft:mangrove_planks	Mangrove Planks	block.minecraft.mangrove_planks
+n	minecraft:mangrove_pressure_plate	Mangrove Pressure Plate	block.minecraft.mangrove_pressure_plate
+n	minecraft:mangrove_propagule	Mangrove Propagule	block.minecraft.mangrove_propagule
+n	minecraft:mangrove_roots	Mangrove Roots	block.minecraft.mangrove_roots
+n	minecraft:mangrove_sign	Mangrove Sign	block.minecraft.mangrove_sign
+n	minecraft:mangrove_slab	Mangrove Slab	block.minecraft.mangrove_slab
+n	minecraft:mangrove_stairs	Mangrove Stairs	block.minecraft.mangrove_stairs
+n	minecraft:mangrove_trapdoor	Mangrove Trapdoor	block.minecraft.mangrove_trapdoor
+n	minecraft:mangrove_wood	Mangrove Wood	block.minecraft.mangrove_wood
+n	minecraft:map	Empty Map	item.minecraft.map
+n	minecraft:medium_amethyst_bud	Medium Amethyst Bud	block.minecraft.medium_amethyst_bud
+n	minecraft:melon	Melon	block.minecraft.melon
+n	minecraft:melon_seeds	Melon Seeds	item.minecraft.melon_seeds
+n	minecraft:melon_slice	Melon Slice	item.minecraft.melon_slice
+n	minecraft:milk_bucket	Milk Bucket	item.minecraft.milk_bucket
+n	minecraft:minecart	Minecart	item.minecraft.minecart
+n	minecraft:miner_pottery_sherd	Miner Pottery Sherd	item.minecraft.miner_pottery_sherd
+n	minecraft:mojang_banner_pattern	Banner Pattern	item.minecraft.mojang_banner_pattern
+n	minecraft:mooshroom_spawn_egg	Mooshroom Spawn Egg	item.minecraft.mooshroom_spawn_egg
+n	minecraft:moss_block	Moss Block	block.minecraft.moss_block
+n	minecraft:moss_carpet	Moss Carpet	block.minecraft.moss_carpet
+n	minecraft:mossy_cobblestone	Mossy Cobblestone	block.minecraft.mossy_cobblestone
+n	minecraft:mossy_cobblestone_slab	Mossy Cobblestone Slab	block.minecraft.mossy_cobblestone_slab
+n	minecraft:mossy_cobblestone_stairs	Mossy Cobblestone Stairs	block.minecraft.mossy_cobblestone_stairs
+n	minecraft:mossy_cobblestone_wall	Mossy Cobblestone Wall	block.minecraft.mossy_cobblestone_wall
+n	minecraft:mossy_stone_brick_slab	Mossy Stone Brick Slab	block.minecraft.mossy_stone_brick_slab
+n	minecraft:mossy_stone_brick_stairs	Mossy Stone Brick Stairs	block.minecraft.mossy_stone_brick_stairs
+n	minecraft:mossy_stone_brick_wall	Mossy Stone Brick Wall	block.minecraft.mossy_stone_brick_wall
+n	minecraft:mossy_stone_bricks	Mossy Stone Bricks	block.minecraft.mossy_stone_bricks
+n	minecraft:mourner_pottery_sherd	Mourner Pottery Sherd	item.minecraft.mourner_pottery_sherd
+n	minecraft:mud	Mud	block.minecraft.mud
+n	minecraft:mud_brick_slab	Mud Brick Slab	block.minecraft.mud_brick_slab
+n	minecraft:mud_brick_stairs	Mud Brick Stairs	block.minecraft.mud_brick_stairs
+n	minecraft:mud_brick_wall	Mud Brick Wall	block.minecraft.mud_brick_wall
+n	minecraft:mud_bricks	Mud Bricks	block.minecraft.mud_bricks
+n	minecraft:muddy_mangrove_roots	Muddy Mangrove Roots	block.minecraft.muddy_mangrove_roots
+n	minecraft:mule_spawn_egg	Mule Spawn Egg	item.minecraft.mule_spawn_egg
+n	minecraft:mushroom_stem	Mushroom Stem	block.minecraft.mushroom_stem
+n	minecraft:mushroom_stew	Mushroom Stew	item.minecraft.mushroom_stew
+n	minecraft:music_disc_11	Music Disc	item.minecraft.music_disc_11
+n	minecraft:music_disc_13	Music Disc	item.minecraft.music_disc_13
+n	minecraft:music_disc_5	Music Disc	item.minecraft.music_disc_5
+n	minecraft:music_disc_blocks	Music Disc	item.minecraft.music_disc_blocks
+n	minecraft:music_disc_cat	Music Disc	item.minecraft.music_disc_cat
+n	minecraft:music_disc_chirp	Music Disc	item.minecraft.music_disc_chirp
+n	minecraft:music_disc_far	Music Disc	item.minecraft.music_disc_far
+n	minecraft:music_disc_mall	Music Disc	item.minecraft.music_disc_mall
+n	minecraft:music_disc_mellohi	Music Disc	item.minecraft.music_disc_mellohi
+n	minecraft:music_disc_otherside	Music Disc	item.minecraft.music_disc_otherside
+n	minecraft:music_disc_pigstep	Music Disc	item.minecraft.music_disc_pigstep
+n	minecraft:music_disc_relic	Music Disc	item.minecraft.music_disc_relic
+n	minecraft:music_disc_stal	Music Disc	item.minecraft.music_disc_stal
+n	minecraft:music_disc_strad	Music Disc	item.minecraft.music_disc_strad
+n	minecraft:music_disc_wait	Music Disc	item.minecraft.music_disc_wait
+n	minecraft:music_disc_ward	Music Disc	item.minecraft.music_disc_ward
+n	minecraft:mutton	Raw Mutton	item.minecraft.mutton
+n	minecraft:mycelium	Mycelium	block.minecraft.mycelium
+n	minecraft:name_tag	Name Tag	item.minecraft.name_tag
+n	minecraft:nautilus_shell	Nautilus Shell	item.minecraft.nautilus_shell
+n	minecraft:nether_brick	Nether Brick	item.minecraft.nether_brick
+n	minecraft:nether_brick_fence	Nether Brick Fence	block.minecraft.nether_brick_fence
+n	minecraft:nether_brick_slab	Nether Brick Slab	block.minecraft.nether_brick_slab
+n	minecraft:nether_brick_stairs	Nether Brick Stairs	block.minecraft.nether_brick_stairs
+n	minecraft:nether_brick_wall	Nether Brick Wall	block.minecraft.nether_brick_wall
+n	minecraft:nether_bricks	Nether Bricks	block.minecraft.nether_bricks
+n	minecraft:nether_gold_ore	Nether Gold Ore	block.minecraft.nether_gold_ore
+n	minecraft:nether_quartz_ore	Nether Quartz Ore	block.minecraft.nether_quartz_ore
+n	minecraft:nether_sprouts	Nether Sprouts	block.minecraft.nether_sprouts
+n	minecraft:nether_star	Nether Star	item.minecraft.nether_star
+n	minecraft:nether_wart	Nether Wart	item.minecraft.nether_wart
+n	minecraft:nether_wart_block	Nether Wart Block	block.minecraft.nether_wart_block
+n	minecraft:netherite_axe	Netherite Axe	item.minecraft.netherite_axe
+n	minecraft:netherite_block	Block of Netherite	block.minecraft.netherite_block
+n	minecraft:netherite_boots	Netherite Boots	item.minecraft.netherite_boots
+n	minecraft:netherite_chestplate	Netherite Chestplate	item.minecraft.netherite_chestplate
+n	minecraft:netherite_helmet	Netherite Helmet	item.minecraft.netherite_helmet
+n	minecraft:netherite_hoe	Netherite Hoe	item.minecraft.netherite_hoe
+n	minecraft:netherite_ingot	Netherite Ingot	item.minecraft.netherite_ingot
+n	minecraft:netherite_leggings	Netherite Leggings	item.minecraft.netherite_leggings
+n	minecraft:netherite_pickaxe	Netherite Pickaxe	item.minecraft.netherite_pickaxe
+n	minecraft:netherite_scrap	Netherite Scrap	item.minecraft.netherite_scrap
+n	minecraft:netherite_shovel	Netherite Shovel	item.minecraft.netherite_shovel
+n	minecraft:netherite_sword	Netherite Sword	item.minecraft.netherite_sword
+n	minecraft:netherite_upgrade_smithing_template	Smithing Template	item.minecraft.smithing_template
+n	minecraft:netherrack	Netherrack	block.minecraft.netherrack
+n	minecraft:note_block	Note Block	block.minecraft.note_block
+n	minecraft:oak_boat	Oak Boat	item.minecraft.oak_boat
+n	minecraft:oak_button	Oak Button	block.minecraft.oak_button
+n	minecraft:oak_chest_boat	Oak Boat with Chest	item.minecraft.oak_chest_boat
+n	minecraft:oak_door	Oak Door	block.minecraft.oak_door
+n	minecraft:oak_fence	Oak Fence	block.minecraft.oak_fence
+n	minecraft:oak_fence_gate	Oak Fence Gate	block.minecraft.oak_fence_gate
+n	minecraft:oak_hanging_sign	Oak Hanging Sign	block.minecraft.oak_hanging_sign
+n	minecraft:oak_leaves	Oak Leaves	block.minecraft.oak_leaves
+n	minecraft:oak_log	Oak Log	block.minecraft.oak_log
+n	minecraft:oak_planks	Oak Planks	block.minecraft.oak_planks
+n	minecraft:oak_pressure_plate	Oak Pressure Plate	block.minecraft.oak_pressure_plate
+n	minecraft:oak_sapling	Oak Sapling	block.minecraft.oak_sapling
+n	minecraft:oak_sign	Oak Sign	block.minecraft.oak_sign
+n	minecraft:oak_slab	Oak Slab	block.minecraft.oak_slab
+n	minecraft:oak_stairs	Oak Stairs	block.minecraft.oak_stairs
+n	minecraft:oak_trapdoor	Oak Trapdoor	block.minecraft.oak_trapdoor
+n	minecraft:oak_wood	Oak Wood	block.minecraft.oak_wood
+n	minecraft:observer	Observer	block.minecraft.observer
+n	minecraft:obsidian	Obsidian	block.minecraft.obsidian
+n	minecraft:ocelot_spawn_egg	Ocelot Spawn Egg	item.minecraft.ocelot_spawn_egg
+n	minecraft:ochre_froglight	Ochre Froglight	block.minecraft.ochre_froglight
+n	minecraft:orange_banner	Orange Banner	block.minecraft.orange_banner
+n	minecraft:orange_bed	Orange Bed	block.minecraft.orange_bed
+n	minecraft:orange_candle	Orange Candle	block.minecraft.orange_candle
+n	minecraft:orange_carpet	Orange Carpet	block.minecraft.orange_carpet
+n	minecraft:orange_concrete	Orange Concrete	block.minecraft.orange_concrete
+n	minecraft:orange_concrete_powder	Orange Concrete Powder	block.minecraft.orange_concrete_powder
+n	minecraft:orange_dye	Orange Dye	item.minecraft.orange_dye
+n	minecraft:orange_glazed_terracotta	Orange Glazed Terracotta	block.minecraft.orange_glazed_terracotta
+n	minecraft:orange_shulker_box	Orange Shulker Box	block.minecraft.orange_shulker_box
+n	minecraft:orange_stained_glass	Orange Stained Glass	block.minecraft.orange_stained_glass
+n	minecraft:orange_stained_glass_pane	Orange Stained Glass Pane	block.minecraft.orange_stained_glass_pane
+n	minecraft:orange_terracotta	Orange Terracotta	block.minecraft.orange_terracotta
+n	minecraft:orange_tulip	Orange Tulip	block.minecraft.orange_tulip
+n	minecraft:orange_wool	Orange Wool	block.minecraft.orange_wool
+n	minecraft:oxeye_daisy	Oxeye Daisy	block.minecraft.oxeye_daisy
+n	minecraft:oxidized_copper	Oxidized Copper	block.minecraft.oxidized_copper
+n	minecraft:oxidized_cut_copper	Oxidized Cut Copper	block.minecraft.oxidized_cut_copper
+n	minecraft:oxidized_cut_copper_slab	Oxidized Cut Copper Slab	block.minecraft.oxidized_cut_copper_slab
+n	minecraft:oxidized_cut_copper_stairs	Oxidized Cut Copper Stairs	block.minecraft.oxidized_cut_copper_stairs
+n	minecraft:packed_ice	Packed Ice	block.minecraft.packed_ice
+n	minecraft:packed_mud	Packed Mud	block.minecraft.packed_mud
+n	minecraft:painting	Painting	item.minecraft.painting
+n	minecraft:panda_spawn_egg	Panda Spawn Egg	item.minecraft.panda_spawn_egg
+n	minecraft:paper	Paper	item.minecraft.paper
+n	minecraft:parrot_spawn_egg	Parrot Spawn Egg	item.minecraft.parrot_spawn_egg
+n	minecraft:pearlescent_froglight	Pearlescent Froglight	block.minecraft.pearlescent_froglight
+n	minecraft:peony	Peony	block.minecraft.peony
+n	minecraft:phantom_membrane	Phantom Membrane	item.minecraft.phantom_membrane
+n	minecraft:phantom_spawn_egg	Phantom Spawn Egg	item.minecraft.phantom_spawn_egg
+n	minecraft:pig_spawn_egg	Pig Spawn Egg	item.minecraft.pig_spawn_egg
+n	minecraft:piglin_banner_pattern	Banner Pattern	item.minecraft.piglin_banner_pattern
+n	minecraft:piglin_brute_spawn_egg	Piglin Brute Spawn Egg	item.minecraft.piglin_brute_spawn_egg
+n	minecraft:piglin_head	Piglin Head	block.minecraft.piglin_head
+n	minecraft:piglin_spawn_egg	Piglin Spawn Egg	item.minecraft.piglin_spawn_egg
+n	minecraft:pillager_spawn_egg	Pillager Spawn Egg	item.minecraft.pillager_spawn_egg
+n	minecraft:pink_banner	Pink Banner	block.minecraft.pink_banner
+n	minecraft:pink_bed	Pink Bed	block.minecraft.pink_bed
+n	minecraft:pink_candle	Pink Candle	block.minecraft.pink_candle
+n	minecraft:pink_carpet	Pink Carpet	block.minecraft.pink_carpet
+n	minecraft:pink_concrete	Pink Concrete	block.minecraft.pink_concrete
+n	minecraft:pink_concrete_powder	Pink Concrete Powder	block.minecraft.pink_concrete_powder
+n	minecraft:pink_dye	Pink Dye	item.minecraft.pink_dye
+n	minecraft:pink_glazed_terracotta	Pink Glazed Terracotta	block.minecraft.pink_glazed_terracotta
+n	minecraft:pink_petals	Pink Petals	block.minecraft.pink_petals
+n	minecraft:pink_shulker_box	Pink Shulker Box	block.minecraft.pink_shulker_box
+n	minecraft:pink_stained_glass	Pink Stained Glass	block.minecraft.pink_stained_glass
+n	minecraft:pink_stained_glass_pane	Pink Stained Glass Pane	block.minecraft.pink_stained_glass_pane
+n	minecraft:pink_terracotta	Pink Terracotta	block.minecraft.pink_terracotta
+n	minecraft:pink_tulip	Pink Tulip	block.minecraft.pink_tulip
+n	minecraft:pink_wool	Pink Wool	block.minecraft.pink_wool
+n	minecraft:piston	Piston	block.minecraft.piston
+n	minecraft:pitcher_plant	Pitcher Plant	item.minecraft.pitcher_plant
+n	minecraft:pitcher_pod	Pitcher Pod	item.minecraft.pitcher_pod
+n	minecraft:player_head	Player Head	block.minecraft.player_head
+n	minecraft:plenty_pottery_sherd	Plenty Pottery Sherd	item.minecraft.plenty_pottery_sherd
+n	minecraft:podzol	Podzol	block.minecraft.podzol
+n	minecraft:pointed_dripstone	Pointed Dripstone	block.minecraft.pointed_dripstone
+n	minecraft:poisonous_potato	Poisonous Potato	item.minecraft.poisonous_potato
+n	minecraft:polar_bear_spawn_egg	Polar Bear Spawn Egg	item.minecraft.polar_bear_spawn_egg
+n	minecraft:polished_andesite	Polished Andesite	block.minecraft.polished_andesite
+n	minecraft:polished_andesite_slab	Polished Andesite Slab	block.minecraft.polished_andesite_slab
+n	minecraft:polished_andesite_stairs	Polished Andesite Stairs	block.minecraft.polished_andesite_stairs
+n	minecraft:polished_basalt	Polished Basalt	block.minecraft.polished_basalt
+n	minecraft:polished_blackstone	Polished Blackstone	block.minecraft.polished_blackstone
+n	minecraft:polished_blackstone_brick_slab	Polished Blackstone Brick Slab	block.minecraft.polished_blackstone_brick_slab
+n	minecraft:polished_blackstone_brick_stairs	Polished Blackstone Brick Stairs	block.minecraft.polished_blackstone_brick_stairs
+n	minecraft:polished_blackstone_brick_wall	Polished Blackstone Brick Wall	block.minecraft.polished_blackstone_brick_wall
+n	minecraft:polished_blackstone_bricks	Polished Blackstone Bricks	block.minecraft.polished_blackstone_bricks
+n	minecraft:polished_blackstone_button	Polished Blackstone Button	block.minecraft.polished_blackstone_button
+n	minecraft:polished_blackstone_pressure_plate	Polished Blackstone Pressure Plate	block.minecraft.polished_blackstone_pressure_plate
+n	minecraft:polished_blackstone_slab	Polished Blackstone Slab	block.minecraft.polished_blackstone_slab
+n	minecraft:polished_blackstone_stairs	Polished Blackstone Stairs	block.minecraft.polished_blackstone_stairs
+n	minecraft:polished_blackstone_wall	Polished Blackstone Wall	block.minecraft.polished_blackstone_wall
+n	minecraft:polished_deepslate	Polished Deepslate	block.minecraft.polished_deepslate
+n	minecraft:polished_deepslate_slab	Polished Deepslate Slab	block.minecraft.polished_deepslate_slab
+n	minecraft:polished_deepslate_stairs	Polished Deepslate Stairs	block.minecraft.polished_deepslate_stairs
+n	minecraft:polished_deepslate_wall	Polished Deepslate Wall	block.minecraft.polished_deepslate_wall
+n	minecraft:polished_diorite	Polished Diorite	block.minecraft.polished_diorite
+n	minecraft:polished_diorite_slab	Polished Diorite Slab	block.minecraft.polished_diorite_slab
+n	minecraft:polished_diorite_stairs	Polished Diorite Stairs	block.minecraft.polished_diorite_stairs
+n	minecraft:polished_granite	Polished Granite	block.minecraft.polished_granite
+n	minecraft:polished_granite_slab	Polished Granite Slab	block.minecraft.polished_granite_slab
+n	minecraft:polished_granite_stairs	Polished Granite Stairs	block.minecraft.polished_granite_stairs
+n	minecraft:popped_chorus_fruit	Popped Chorus Fruit	item.minecraft.popped_chorus_fruit
+n	minecraft:poppy	Poppy	block.minecraft.poppy
+n	minecraft:porkchop	Raw Porkchop	item.minecraft.porkchop
+n	minecraft:potato	Potato	item.minecraft.potato
+n	minecraft:potion	Awkward Potion	item.minecraft.potion.effect.awkward
+n	minecraft:potion	Mundane Potion	item.minecraft.potion.effect.mundane
+n	minecraft:potion	Potion of Fire Resistance	item.minecraft.potion.effect.fire_resistance
+n	minecraft:potion	Potion of Harming	item.minecraft.potion.effect.harming
+n	minecraft:potion	Potion of Healing	item.minecraft.potion.effect.healing
+n	minecraft:potion	Potion of Invisibility	item.minecraft.potion.effect.invisibility
+n	minecraft:potion	Potion of Leaping	item.minecraft.potion.effect.leaping
+n	minecraft:potion	Potion of Luck	item.minecraft.potion.effect.luck
+n	minecraft:potion	Potion of Night Vision	item.minecraft.potion.effect.night_vision
+n	minecraft:potion	Potion of Poison	item.minecraft.potion.effect.poison
+n	minecraft:potion	Potion of Regeneration	item.minecraft.potion.effect.regeneration
+n	minecraft:potion	Potion of Slow Falling	item.minecraft.potion.effect.slow_falling
+n	minecraft:potion	Potion of Slowness	item.minecraft.potion.effect.slowness
+n	minecraft:potion	Potion of Strength	item.minecraft.potion.effect.strength
+n	minecraft:potion	Potion of Swiftness	item.minecraft.potion.effect.swiftness
+n	minecraft:potion	Potion of Water Breathing	item.minecraft.potion.effect.water_breathing
+n	minecraft:potion	Potion of Weakness	item.minecraft.potion.effect.weakness
+n	minecraft:potion	Potion of the Turtle Master	item.minecraft.potion.effect.turtle_master
+n	minecraft:potion	Thick Potion	item.minecraft.potion.effect.thick
+n	minecraft:potion	Water Bottle	item.minecraft.potion.effect.water
+n	minecraft:powder_snow_bucket	Powder Snow Bucket	item.minecraft.powder_snow_bucket
+n	minecraft:powered_rail	Powered Rail	block.minecraft.powered_rail
+n	minecraft:prismarine	Prismarine	block.minecraft.prismarine
+n	minecraft:prismarine_brick_slab	Prismarine Brick Slab	block.minecraft.prismarine_brick_slab
+n	minecraft:prismarine_brick_stairs	Prismarine Brick Stairs	block.minecraft.prismarine_brick_stairs
+n	minecraft:prismarine_bricks	Prismarine Bricks	block.minecraft.prismarine_bricks
+n	minecraft:prismarine_crystals	Prismarine Crystals	item.minecraft.prismarine_crystals
+n	minecraft:prismarine_shard	Prismarine Shard	item.minecraft.prismarine_shard
+n	minecraft:prismarine_slab	Prismarine Slab	block.minecraft.prismarine_slab
+n	minecraft:prismarine_stairs	Prismarine Stairs	block.minecraft.prismarine_stairs
+n	minecraft:prismarine_wall	Prismarine Wall	block.minecraft.prismarine_wall
+n	minecraft:prize_pottery_sherd	Prize Pottery Sherd	item.minecraft.prize_pottery_sherd
+n	minecraft:pufferfish	Pufferfish	item.minecraft.pufferfish
+n	minecraft:pufferfish_bucket	Bucket of Pufferfish	item.minecraft.pufferfish_bucket
+n	minecraft:pufferfish_spawn_egg	Pufferfish Spawn Egg	item.minecraft.pufferfish_spawn_egg
+n	minecraft:pumpkin	Pumpkin	block.minecraft.pumpkin
+n	minecraft:pumpkin_pie	Pumpkin Pie	item.minecraft.pumpkin_pie
+n	minecraft:pumpkin_seeds	Pumpkin Seeds	item.minecraft.pumpkin_seeds
+n	minecraft:purple_banner	Purple Banner	block.minecraft.purple_banner
+n	minecraft:purple_bed	Purple Bed	block.minecraft.purple_bed
+n	minecraft:purple_candle	Purple Candle	block.minecraft.purple_candle
+n	minecraft:purple_carpet	Purple Carpet	block.minecraft.purple_carpet
+n	minecraft:purple_concrete	Purple Concrete	block.minecraft.purple_concrete
+n	minecraft:purple_concrete_powder	Purple Concrete Powder	block.minecraft.purple_concrete_powder
+n	minecraft:purple_dye	Purple Dye	item.minecraft.purple_dye
+n	minecraft:purple_glazed_terracotta	Purple Glazed Terracotta	block.minecraft.purple_glazed_terracotta
+n	minecraft:purple_shulker_box	Purple Shulker Box	block.minecraft.purple_shulker_box
+n	minecraft:purple_stained_glass	Purple Stained Glass	block.minecraft.purple_stained_glass
+n	minecraft:purple_stained_glass_pane	Purple Stained Glass Pane	block.minecraft.purple_stained_glass_pane
+n	minecraft:purple_terracotta	Purple Terracotta	block.minecraft.purple_terracotta
+n	minecraft:purple_wool	Purple Wool	block.minecraft.purple_wool
+n	minecraft:purpur_block	Purpur Block	block.minecraft.purpur_block
+n	minecraft:purpur_pillar	Purpur Pillar	block.minecraft.purpur_pillar
+n	minecraft:purpur_slab	Purpur Slab	block.minecraft.purpur_slab
+n	minecraft:purpur_stairs	Purpur Stairs	block.minecraft.purpur_stairs
+n	minecraft:quartz	Nether Quartz	item.minecraft.quartz
+n	minecraft:quartz_block	Block of Quartz	block.minecraft.quartz_block
+n	minecraft:quartz_bricks	Quartz Bricks	block.minecraft.quartz_bricks
+n	minecraft:quartz_pillar	Quartz Pillar	block.minecraft.quartz_pillar
+n	minecraft:quartz_slab	Quartz Slab	block.minecraft.quartz_slab
+n	minecraft:quartz_stairs	Quartz Stairs	block.minecraft.quartz_stairs
+n	minecraft:rabbit	Raw Rabbit	item.minecraft.rabbit
+n	minecraft:rabbit_foot	Rabbit's Foot	item.minecraft.rabbit_foot
+n	minecraft:rabbit_hide	Rabbit Hide	item.minecraft.rabbit_hide
+n	minecraft:rabbit_spawn_egg	Rabbit Spawn Egg	item.minecraft.rabbit_spawn_egg
+n	minecraft:rabbit_stew	Rabbit Stew	item.minecraft.rabbit_stew
+n	minecraft:rail	Rail	block.minecraft.rail
+n	minecraft:raiser_armor_trim_smithing_template	Smithing Template	item.minecraft.smithing_template
+n	minecraft:ravager_spawn_egg	Ravager Spawn Egg	item.minecraft.ravager_spawn_egg
+n	minecraft:raw_copper	Raw Copper	item.minecraft.raw_copper
+n	minecraft:raw_copper_block	Block of Raw Copper	block.minecraft.raw_copper_block
+n	minecraft:raw_gold	Raw Gold	item.minecraft.raw_gold
+n	minecraft:raw_gold_block	Block of Raw Gold	block.minecraft.raw_gold_block
+n	minecraft:raw_iron	Raw Iron	item.minecraft.raw_iron
+n	minecraft:raw_iron_block	Block of Raw Iron	block.minecraft.raw_iron_block
+n	minecraft:recovery_compass	Recovery Compass	item.minecraft.recovery_compass
+n	minecraft:red_banner	Red Banner	block.minecraft.red_banner
+n	minecraft:red_bed	Red Bed	block.minecraft.red_bed
+n	minecraft:red_candle	Red Candle	block.minecraft.red_candle
+n	minecraft:red_carpet	Red Carpet	block.minecraft.red_carpet
+n	minecraft:red_concrete	Red Concrete	block.minecraft.red_concrete
+n	minecraft:red_concrete_powder	Red Concrete Powder	block.minecraft.red_concrete_powder
+n	minecraft:red_dye	Red Dye	item.minecraft.red_dye
+n	minecraft:red_glazed_terracotta	Red Glazed Terracotta	block.minecraft.red_glazed_terracotta
+n	minecraft:red_mushroom	Red Mushroom	block.minecraft.red_mushroom
+n	minecraft:red_mushroom_block	Red Mushroom Block	block.minecraft.red_mushroom_block
+n	minecraft:red_nether_brick_slab	Red Nether Brick Slab	block.minecraft.red_nether_brick_slab
+n	minecraft:red_nether_brick_stairs	Red Nether Brick Stairs	block.minecraft.red_nether_brick_stairs
+n	minecraft:red_nether_brick_wall	Red Nether Brick Wall	block.minecraft.red_nether_brick_wall
+n	minecraft:red_nether_bricks	Red Nether Bricks	block.minecraft.red_nether_bricks
+n	minecraft:red_sand	Red Sand	block.minecraft.red_sand
+n	minecraft:red_sandstone	Red Sandstone	block.minecraft.red_sandstone
+n	minecraft:red_sandstone_slab	Red Sandstone Slab	block.minecraft.red_sandstone_slab
+n	minecraft:red_sandstone_stairs	Red Sandstone Stairs	block.minecraft.red_sandstone_stairs
+n	minecraft:red_sandstone_wall	Red Sandstone Wall	block.minecraft.red_sandstone_wall
+n	minecraft:red_shulker_box	Red Shulker Box	block.minecraft.red_shulker_box
+n	minecraft:red_stained_glass	Red Stained Glass	block.minecraft.red_stained_glass
+n	minecraft:red_stained_glass_pane	Red Stained Glass Pane	block.minecraft.red_stained_glass_pane
+n	minecraft:red_terracotta	Red Terracotta	block.minecraft.red_terracotta
+n	minecraft:red_tulip	Red Tulip	block.minecraft.red_tulip
+n	minecraft:red_wool	Red Wool	block.minecraft.red_wool
+n	minecraft:redstone	Redstone Dust	item.minecraft.redstone
+n	minecraft:redstone_block	Block of Redstone	block.minecraft.redstone_block
+n	minecraft:redstone_lamp	Redstone Lamp	block.minecraft.redstone_lamp
+n	minecraft:redstone_ore	Redstone Ore	block.minecraft.redstone_ore
+n	minecraft:redstone_torch	Redstone Torch	block.minecraft.redstone_torch
+n	minecraft:reinforced_deepslate	Reinforced Deepslate	block.minecraft.reinforced_deepslate
+n	minecraft:repeater	Redstone Repeater	block.minecraft.repeater
+n	minecraft:repeating_command_block	Repeating Command Block	block.minecraft.repeating_command_block
+n	minecraft:respawn_anchor	Respawn Anchor	block.minecraft.respawn_anchor
+n	minecraft:rib_armor_trim_smithing_template	Smithing Template	item.minecraft.smithing_template
+n	minecraft:rooted_dirt	Rooted Dirt	block.minecraft.rooted_dirt
+n	minecraft:rose_bush	Rose Bush	block.minecraft.rose_bush
+n	minecraft:rotten_flesh	Rotten Flesh	item.minecraft.rotten_flesh
+n	minecraft:saddle	Saddle	item.minecraft.saddle
+n	minecraft:salmon	Raw Salmon	item.minecraft.salmon
+n	minecraft:salmon_bucket	Bucket of Salmon	item.minecraft.salmon_bucket
+n	minecraft:salmon_spawn_egg	Salmon Spawn Egg	item.minecraft.salmon_spawn_egg
+n	minecraft:sand	Sand	block.minecraft.sand
+n	minecraft:sandstone	Sandstone	block.minecraft.sandstone
+n	minecraft:sandstone_slab	Sandstone Slab	block.minecraft.sandstone_slab
+n	minecraft:sandstone_stairs	Sandstone Stairs	block.minecraft.sandstone_stairs
+n	minecraft:sandstone_wall	Sandstone Wall	block.minecraft.sandstone_wall
+n	minecraft:scaffolding	Scaffolding	block.minecraft.scaffolding
+n	minecraft:sculk	Sculk	block.minecraft.sculk
+n	minecraft:sculk_catalyst	Sculk Catalyst	block.minecraft.sculk_catalyst
+n	minecraft:sculk_sensor	Sculk Sensor	block.minecraft.sculk_sensor
+n	minecraft:sculk_shrieker	Sculk Shrieker	block.minecraft.sculk_shrieker
+n	minecraft:sculk_vein	Sculk Vein	block.minecraft.sculk_vein
+n	minecraft:scute	Scute	item.minecraft.scute
+n	minecraft:sea_lantern	Sea Lantern	block.minecraft.sea_lantern
+n	minecraft:sea_pickle	Sea Pickle	block.minecraft.sea_pickle
+n	minecraft:seagrass	Seagrass	block.minecraft.seagrass
+n	minecraft:sentry_armor_trim_smithing_template	Smithing Template	item.minecraft.smithing_template
+n	minecraft:shaper_armor_trim_smithing_template	Smithing Template	item.minecraft.smithing_template
+n	minecraft:sheaf_pottery_sherd	Sheaf Pottery Sherd	item.minecraft.sheaf_pottery_sherd
+n	minecraft:shears	Shears	item.minecraft.shears
+n	minecraft:sheep_spawn_egg	Sheep Spawn Egg	item.minecraft.sheep_spawn_egg
+n	minecraft:shelter_pottery_sherd	Shelter Pottery Sherd	item.minecraft.shelter_pottery_sherd
+n	minecraft:shield	Shield	item.minecraft.shield
+n	minecraft:shroomlight	Shroomlight	block.minecraft.shroomlight
+n	minecraft:shulker_box	Shulker Box	block.minecraft.shulker_box
+n	minecraft:shulker_shell	Shulker Shell	item.minecraft.shulker_shell
+n	minecraft:shulker_spawn_egg	Shulker Spawn Egg	item.minecraft.shulker_spawn_egg
+n	minecraft:silence_armor_trim_smithing_template	Smithing Template	item.minecraft.smithing_template
+n	minecraft:silverfish_spawn_egg	Silverfish Spawn Egg	item.minecraft.silverfish_spawn_egg
+n	minecraft:skeleton_horse_spawn_egg	Skeleton Horse Spawn Egg	item.minecraft.skeleton_horse_spawn_egg
+n	minecraft:skeleton_skull	Skeleton Skull	block.minecraft.skeleton_skull
+n	minecraft:skeleton_spawn_egg	Skeleton Spawn Egg	item.minecraft.skeleton_spawn_egg
+n	minecraft:skull_banner_pattern	Banner Pattern	item.minecraft.skull_banner_pattern
+n	minecraft:skull_pottery_sherd	Skull Pottery Sherd	item.minecraft.skull_pottery_sherd
+n	minecraft:slime_ball	Slimeball	item.minecraft.slime_ball
+n	minecraft:slime_block	Slime Block	block.minecraft.slime_block
+n	minecraft:slime_spawn_egg	Slime Spawn Egg	item.minecraft.slime_spawn_egg
+n	minecraft:small_amethyst_bud	Small Amethyst Bud	block.minecraft.small_amethyst_bud
+n	minecraft:small_dripleaf	Small Dripleaf	block.minecraft.small_dripleaf
+n	minecraft:smithing_table	Smithing Table	block.minecraft.smithing_table
+n	minecraft:smoker	Smoker	block.minecraft.smoker
+n	minecraft:smooth_basalt	Smooth Basalt	block.minecraft.smooth_basalt
+n	minecraft:smooth_quartz	Smooth Quartz Block	block.minecraft.smooth_quartz
+n	minecraft:smooth_quartz_slab	Smooth Quartz Slab	block.minecraft.smooth_quartz_slab
+n	minecraft:smooth_quartz_stairs	Smooth Quartz Stairs	block.minecraft.smooth_quartz_stairs
+n	minecraft:smooth_red_sandstone	Smooth Red Sandstone	block.minecraft.smooth_red_sandstone
+n	minecraft:smooth_red_sandstone_slab	Smooth Red Sandstone Slab	block.minecraft.smooth_red_sandstone_slab
+n	minecraft:smooth_red_sandstone_stairs	Smooth Red Sandstone Stairs	block.minecraft.smooth_red_sandstone_stairs
+n	minecraft:smooth_sandstone	Smooth Sandstone	block.minecraft.smooth_sandstone
+n	minecraft:smooth_sandstone_slab	Smooth Sandstone Slab	block.minecraft.smooth_sandstone_slab
+n	minecraft:smooth_sandstone_stairs	Smooth Sandstone Stairs	block.minecraft.smooth_sandstone_stairs
+n	minecraft:smooth_stone	Smooth Stone	block.minecraft.smooth_stone
+n	minecraft:smooth_stone_slab	Smooth Stone Slab	block.minecraft.smooth_stone_slab
+n	minecraft:sniffer_egg	Sniffer Egg	block.minecraft.sniffer_egg
+n	minecraft:sniffer_spawn_egg	Sniffer Spawn Egg	item.minecraft.sniffer_spawn_egg
+n	minecraft:snort_pottery_sherd	Snort Pottery Sherd	item.minecraft.snort_pottery_sherd
+n	minecraft:snout_armor_trim_smithing_template	Smithing Template	item.minecraft.smithing_template
+n	minecraft:snow	Snow	block.minecraft.snow
+n	minecraft:snow_block	Snow Block	block.minecraft.snow_block
+n	minecraft:snow_golem_spawn_egg	Snow Golem Spawn Egg	item.minecraft.snow_golem_spawn_egg
+n	minecraft:snowball	Snowball	item.minecraft.snowball
+n	minecraft:soul_campfire	Soul Campfire	block.minecraft.soul_campfire
+n	minecraft:soul_lantern	Soul Lantern	block.minecraft.soul_lantern
+n	minecraft:soul_sand	Soul Sand	block.minecraft.soul_sand
+n	minecraft:soul_soil	Soul Soil	block.minecraft.soul_soil
+n	minecraft:soul_torch	Soul Torch	block.minecraft.soul_torch
+n	minecraft:spawner	Monster Spawner	block.minecraft.spawner
+n	minecraft:spectral_arrow	Spectral Arrow	item.minecraft.spectral_arrow
+n	minecraft:spider_eye	Spider Eye	item.minecraft.spider_eye
+n	minecraft:spider_spawn_egg	Spider Spawn Egg	item.minecraft.spider_spawn_egg
+n	minecraft:spire_armor_trim_smithing_template	Smithing Template	item.minecraft.smithing_template
+n	minecraft:splash_potion	Awkward Splash Potion	item.minecraft.splash_potion.effect.awkward
+n	minecraft:splash_potion	Mundane Splash Potion	item.minecraft.splash_potion.effect.mundane
+n	minecraft:splash_potion	Splash Potion of Fire Resistance	item.minecraft.splash_potion.effect.fire_resistance
+n	minecraft:splash_potion	Splash Potion of Harming	item.minecraft.splash_potion.effect.harming
+n	minecraft:splash_potion	Splash Potion of Healing	item.minecraft.splash_potion.effect.healing
+n	minecraft:splash_potion	Splash Potion of Invisibility	item.minecraft.splash_potion.effect.invisibility
+n	minecraft:splash_potion	Splash Potion of Leaping	item.minecraft.splash_potion.effect.leaping
+n	minecraft:splash_potion	Splash Potion of Luck	item.minecraft.splash_potion.effect.luck
+n	minecraft:splash_potion	Splash Potion of Night Vision	item.minecraft.splash_potion.effect.night_vision
+n	minecraft:splash_potion	Splash Potion of Poison	item.minecraft.splash_potion.effect.poison
+n	minecraft:splash_potion	Splash Potion of Regeneration	item.minecraft.splash_potion.effect.regeneration
+n	minecraft:splash_potion	Splash Potion of Slow Falling	item.minecraft.splash_potion.effect.slow_falling
+n	minecraft:splash_potion	Splash Potion of Slowness	item.minecraft.splash_potion.effect.slowness
+n	minecraft:splash_potion	Splash Potion of Strength	item.minecraft.splash_potion.effect.strength
+n	minecraft:splash_potion	Splash Potion of Swiftness	item.minecraft.splash_potion.effect.swiftness
+n	minecraft:splash_potion	Splash Potion of Water Breathing	item.minecraft.splash_potion.effect.water_breathing
+n	minecraft:splash_potion	Splash Potion of Weakness	item.minecraft.splash_potion.effect.weakness
+n	minecraft:splash_potion	Splash Potion of the Turtle Master	item.minecraft.splash_potion.effect.turtle_master
+n	minecraft:splash_potion	Splash Water Bottle	item.minecraft.splash_potion.effect.water
+n	minecraft:splash_potion	Thick Splash Potion	item.minecraft.splash_potion.effect.thick
+n	minecraft:sponge	Sponge	block.minecraft.sponge
+n	minecraft:spore_blossom	Spore Blossom	block.minecraft.spore_blossom
+n	minecraft:spruce_boat	Spruce Boat	item.minecraft.spruce_boat
+n	minecraft:spruce_button	Spruce Button	block.minecraft.spruce_button
+n	minecraft:spruce_chest_boat	Spruce Boat with Chest	item.minecraft.spruce_chest_boat
+n	minecraft:spruce_door	Spruce Door	block.minecraft.spruce_door
+n	minecraft:spruce_fence	Spruce Fence	block.minecraft.spruce_fence
+n	minecraft:spruce_fence_gate	Spruce Fence Gate	block.minecraft.spruce_fence_gate
+n	minecraft:spruce_hanging_sign	Spruce Hanging Sign	block.minecraft.spruce_hanging_sign
+n	minecraft:spruce_leaves	Spruce Leaves	block.minecraft.spruce_leaves
+n	minecraft:spruce_log	Spruce Log	block.minecraft.spruce_log
+n	minecraft:spruce_planks	Spruce Planks	block.minecraft.spruce_planks
+n	minecraft:spruce_pressure_plate	Spruce Pressure Plate	block.minecraft.spruce_pressure_plate
+n	minecraft:spruce_sapling	Spruce Sapling	block.minecraft.spruce_sapling
+n	minecraft:spruce_sign	Spruce Sign	block.minecraft.spruce_sign
+n	minecraft:spruce_slab	Spruce Slab	block.minecraft.spruce_slab
+n	minecraft:spruce_stairs	Spruce Stairs	block.minecraft.spruce_stairs
+n	minecraft:spruce_trapdoor	Spruce Trapdoor	block.minecraft.spruce_trapdoor
+n	minecraft:spruce_wood	Spruce Wood	block.minecraft.spruce_wood
+n	minecraft:spyglass	Spyglass	item.minecraft.spyglass
+n	minecraft:squid_spawn_egg	Squid Spawn Egg	item.minecraft.squid_spawn_egg
+n	minecraft:stick	Stick	item.minecraft.stick
+n	minecraft:sticky_piston	Sticky Piston	block.minecraft.sticky_piston
+n	minecraft:stone	Stone	block.minecraft.stone
+n	minecraft:stone_axe	Stone Axe	item.minecraft.stone_axe
+n	minecraft:stone_brick_slab	Stone Brick Slab	block.minecraft.stone_brick_slab
+n	minecraft:stone_brick_stairs	Stone Brick Stairs	block.minecraft.stone_brick_stairs
+n	minecraft:stone_brick_wall	Stone Brick Wall	block.minecraft.stone_brick_wall
+n	minecraft:stone_bricks	Stone Bricks	block.minecraft.stone_bricks
+n	minecraft:stone_button	Stone Button	block.minecraft.stone_button
+n	minecraft:stone_hoe	Stone Hoe	item.minecraft.stone_hoe
+n	minecraft:stone_pickaxe	Stone Pickaxe	item.minecraft.stone_pickaxe
+n	minecraft:stone_pressure_plate	Stone Pressure Plate	block.minecraft.stone_pressure_plate
+n	minecraft:stone_shovel	Stone Shovel	item.minecraft.stone_shovel
+n	minecraft:stone_slab	Stone Slab	block.minecraft.stone_slab
+n	minecraft:stone_stairs	Stone Stairs	block.minecraft.stone_stairs
+n	minecraft:stone_sword	Stone Sword	item.minecraft.stone_sword
+n	minecraft:stonecutter	Stonecutter	block.minecraft.stonecutter
+n	minecraft:stray_spawn_egg	Stray Spawn Egg	item.minecraft.stray_spawn_egg
+n	minecraft:strider_spawn_egg	Strider Spawn Egg	item.minecraft.strider_spawn_egg
+n	minecraft:string	String	item.minecraft.string
+n	minecraft:stripped_acacia_log	Stripped Acacia Log	block.minecraft.stripped_acacia_log
+n	minecraft:stripped_acacia_wood	Stripped Acacia Wood	block.minecraft.stripped_acacia_wood
+n	minecraft:stripped_bamboo_block	Block of Stripped Bamboo	block.minecraft.stripped_bamboo_block
+n	minecraft:stripped_birch_log	Stripped Birch Log	block.minecraft.stripped_birch_log
+n	minecraft:stripped_birch_wood	Stripped Birch Wood	block.minecraft.stripped_birch_wood
+n	minecraft:stripped_cherry_log	Stripped Cherry Log	block.minecraft.stripped_cherry_log
+n	minecraft:stripped_cherry_wood	Stripped Cherry Wood	block.minecraft.stripped_cherry_wood
+n	minecraft:stripped_crimson_hyphae	Stripped Crimson Hyphae	block.minecraft.stripped_crimson_hyphae
+n	minecraft:stripped_crimson_stem	Stripped Crimson Stem	block.minecraft.stripped_crimson_stem
+n	minecraft:stripped_dark_oak_log	Stripped Dark Oak Log	block.minecraft.stripped_dark_oak_log
+n	minecraft:stripped_dark_oak_wood	Stripped Dark Oak Wood	block.minecraft.stripped_dark_oak_wood
+n	minecraft:stripped_jungle_log	Stripped Jungle Log	block.minecraft.stripped_jungle_log
+n	minecraft:stripped_jungle_wood	Stripped Jungle Wood	block.minecraft.stripped_jungle_wood
+n	minecraft:stripped_mangrove_log	Stripped Mangrove Log	block.minecraft.stripped_mangrove_log
+n	minecraft:stripped_mangrove_wood	Stripped Mangrove Wood	block.minecraft.stripped_mangrove_wood
+n	minecraft:stripped_oak_log	Stripped Oak Log	block.minecraft.stripped_oak_log
+n	minecraft:stripped_oak_wood	Stripped Oak Wood	block.minecraft.stripped_oak_wood
+n	minecraft:stripped_spruce_log	Stripped Spruce Log	block.minecraft.stripped_spruce_log
+n	minecraft:stripped_spruce_wood	Stripped Spruce Wood	block.minecraft.stripped_spruce_wood
+n	minecraft:stripped_warped_hyphae	Stripped Warped Hyphae	block.minecraft.stripped_warped_hyphae
+n	minecraft:stripped_warped_stem	Stripped Warped Stem	block.minecraft.stripped_warped_stem
+n	minecraft:structure_block	Structure Block	block.minecraft.structure_block
+n	minecraft:structure_void	Structure Void	block.minecraft.structure_void
+n	minecraft:sugar	Sugar	item.minecraft.sugar
+n	minecraft:sugar_cane	Sugar Cane	block.minecraft.sugar_cane
+n	minecraft:sunflower	Sunflower	block.minecraft.sunflower
+n	minecraft:suspicious_gravel	Suspicious Gravel	block.minecraft.suspicious_gravel
+n	minecraft:suspicious_sand	Suspicious Sand	block.minecraft.suspicious_sand
+n	minecraft:suspicious_stew	Suspicious Stew	item.minecraft.suspicious_stew
+n	minecraft:sweet_berries	Sweet Berries	item.minecraft.sweet_berries
+n	minecraft:tadpole_bucket	Bucket of Tadpole	item.minecraft.tadpole_bucket
+n	minecraft:tadpole_spawn_egg	Tadpole Spawn Egg	item.minecraft.tadpole_spawn_egg
+n	minecraft:tall_grass	Tall Grass	block.minecraft.tall_grass
+n	minecraft:target	Target	block.minecraft.target
+n	minecraft:terracotta	Terracotta	block.minecraft.terracotta
+n	minecraft:tide_armor_trim_smithing_template	Smithing Template	item.minecraft.smithing_template
+n	minecraft:tinted_glass	Tinted Glass	block.minecraft.tinted_glass
+n	minecraft:tipped_arrow	Arrow of Fire Resistance	item.minecraft.tipped_arrow.effect.fire_resistance
+n	minecraft:tipped_arrow	Arrow of Harming	item.minecraft.tipped_arrow.effect.harming
+n	minecraft:tipped_arrow	Arrow of Healing	item.minecraft.tipped_arrow.effect.healing
+n	minecraft:tipped_arrow	Arrow of Invisibility	item.minecraft.tipped_arrow.effect.invisibility
+n	minecraft:tipped_arrow	Arrow of Leaping	item.minecraft.tipped_arrow.effect.leaping
+n	minecraft:tipped_arrow	Arrow of Luck	item.minecraft.tipped_arrow.effect.luck
+n	minecraft:tipped_arrow	Arrow of Night Vision	item.minecraft.tipped_arrow.effect.night_vision
+n	minecraft:tipped_arrow	Arrow of Poison	item.minecraft.tipped_arrow.effect.poison
+n	minecraft:tipped_arrow	Arrow of Regeneration	item.minecraft.tipped_arrow.effect.regeneration
+n	minecraft:tipped_arrow	Arrow of Slow Falling	item.minecraft.tipped_arrow.effect.slow_falling
+n	minecraft:tipped_arrow	Arrow of Slowness	item.minecraft.tipped_arrow.effect.slowness
+n	minecraft:tipped_arrow	Arrow of Splashing	item.minecraft.tipped_arrow.effect.water
+n	minecraft:tipped_arrow	Arrow of Strength	item.minecraft.tipped_arrow.effect.strength
+n	minecraft:tipped_arrow	Arrow of Swiftness	item.minecraft.tipped_arrow.effect.swiftness
+n	minecraft:tipped_arrow	Arrow of Water Breathing	item.minecraft.tipped_arrow.effect.water_breathing
+n	minecraft:tipped_arrow	Arrow of Weakness	item.minecraft.tipped_arrow.effect.weakness
+n	minecraft:tipped_arrow	Arrow of the Turtle Master	item.minecraft.tipped_arrow.effect.turtle_master
+n	minecraft:tipped_arrow	Tipped Arrow	item.minecraft.tipped_arrow
+n	minecraft:tnt	TNT	block.minecraft.tnt
+n	minecraft:tnt_minecart	Minecart with TNT	item.minecraft.tnt_minecart
+n	minecraft:torch	Torch	block.minecraft.torch
+n	minecraft:torchflower	Torchflower	block.minecraft.torchflower
+n	minecraft:torchflower_seeds	Torchflower Seeds	item.minecraft.torchflower_seeds
+n	minecraft:totem_of_undying	Totem of Undying	item.minecraft.totem_of_undying
+n	minecraft:trader_llama_spawn_egg	Trader Llama Spawn Egg	item.minecraft.trader_llama_spawn_egg
+n	minecraft:trapped_chest	Trapped Chest	block.minecraft.trapped_chest
+n	minecraft:trident	Trident	item.minecraft.trident
+n	minecraft:tripwire_hook	Tripwire Hook	block.minecraft.tripwire_hook
+n	minecraft:tropical_fish	Tropical Fish	item.minecraft.tropical_fish
+n	minecraft:tropical_fish_bucket	Bucket of Tropical Fish	item.minecraft.tropical_fish_bucket
+n	minecraft:tropical_fish_spawn_egg	Tropical Fish Spawn Egg	item.minecraft.tropical_fish_spawn_egg
+n	minecraft:tube_coral	Tube Coral	block.minecraft.tube_coral
+n	minecraft:tube_coral_block	Tube Coral Block	block.minecraft.tube_coral_block
+n	minecraft:tube_coral_fan	Tube Coral Fan	block.minecraft.tube_coral_fan
+n	minecraft:tuff	Tuff	block.minecraft.tuff
+n	minecraft:turtle_egg	Turtle Egg	block.minecraft.turtle_egg
+n	minecraft:turtle_helmet	Turtle Shell	item.minecraft.turtle_helmet
+n	minecraft:turtle_spawn_egg	Turtle Spawn Egg	item.minecraft.turtle_spawn_egg
+n	minecraft:twisting_vines	Twisting Vines	block.minecraft.twisting_vines
+n	minecraft:verdant_froglight	Verdant Froglight	block.minecraft.verdant_froglight
+n	minecraft:vex_armor_trim_smithing_template	Smithing Template	item.minecraft.smithing_template
+n	minecraft:vex_spawn_egg	Vex Spawn Egg	item.minecraft.vex_spawn_egg
+n	minecraft:villager_spawn_egg	Villager Spawn Egg	item.minecraft.villager_spawn_egg
+n	minecraft:vindicator_spawn_egg	Vindicator Spawn Egg	item.minecraft.vindicator_spawn_egg
+n	minecraft:vine	Vines	block.minecraft.vine
+n	minecraft:wandering_trader_spawn_egg	Wandering Trader Spawn Egg	item.minecraft.wandering_trader_spawn_egg
+n	minecraft:ward_armor_trim_smithing_template	Smithing Template	item.minecraft.smithing_template
+n	minecraft:warden_spawn_egg	Warden Spawn Egg	item.minecraft.warden_spawn_egg
+n	minecraft:warped_button	Warped Button	block.minecraft.warped_button
+n	minecraft:warped_door	Warped Door	block.minecraft.warped_door
+n	minecraft:warped_fence	Warped Fence	block.minecraft.warped_fence
+n	minecraft:warped_fence_gate	Warped Fence Gate	block.minecraft.warped_fence_gate
+n	minecraft:warped_fungus	Warped Fungus	block.minecraft.warped_fungus
+n	minecraft:warped_fungus_on_a_stick	Warped Fungus on a Stick	item.minecraft.warped_fungus_on_a_stick
+n	minecraft:warped_hanging_sign	Warped Hanging Sign	block.minecraft.warped_hanging_sign
+n	minecraft:warped_hyphae	Warped Hyphae	block.minecraft.warped_hyphae
+n	minecraft:warped_nylium	Warped Nylium	block.minecraft.warped_nylium
+n	minecraft:warped_planks	Warped Planks	block.minecraft.warped_planks
+n	minecraft:warped_pressure_plate	Warped Pressure Plate	block.minecraft.warped_pressure_plate
+n	minecraft:warped_roots	Warped Roots	block.minecraft.warped_roots
+n	minecraft:warped_sign	Warped Sign	block.minecraft.warped_sign
+n	minecraft:warped_slab	Warped Slab	block.minecraft.warped_slab
+n	minecraft:warped_stairs	Warped Stairs	block.minecraft.warped_stairs
+n	minecraft:warped_stem	Warped Stem	block.minecraft.warped_stem
+n	minecraft:warped_trapdoor	Warped Trapdoor	block.minecraft.warped_trapdoor
+n	minecraft:warped_wart_block	Warped Wart Block	block.minecraft.warped_wart_block
+n	minecraft:water_bucket	Water Bucket	item.minecraft.water_bucket
+n	minecraft:waxed_copper_block	Waxed Block of Copper	block.minecraft.waxed_copper_block
+n	minecraft:waxed_cut_copper	Waxed Cut Copper	block.minecraft.waxed_cut_copper
+n	minecraft:waxed_cut_copper_slab	Waxed Cut Copper Slab	block.minecraft.waxed_cut_copper_slab
+n	minecraft:waxed_cut_copper_stairs	Waxed Cut Copper Stairs	block.minecraft.waxed_cut_copper_stairs
+n	minecraft:waxed_exposed_copper	Waxed Exposed Copper	block.minecraft.waxed_exposed_copper
+n	minecraft:waxed_exposed_cut_copper	Waxed Exposed Cut Copper	block.minecraft.waxed_exposed_cut_copper
+n	minecraft:waxed_exposed_cut_copper_slab	Waxed Exposed Cut Copper Slab	block.minecraft.waxed_exposed_cut_copper_slab
+n	minecraft:waxed_exposed_cut_copper_stairs	Waxed Exposed Cut Copper Stairs	block.minecraft.waxed_exposed_cut_copper_stairs
+n	minecraft:waxed_oxidized_copper	Waxed Oxidized Copper	block.minecraft.waxed_oxidized_copper
+n	minecraft:waxed_oxidized_cut_copper	Waxed Oxidized Cut Copper	block.minecraft.waxed_oxidized_cut_copper
+n	minecraft:waxed_oxidized_cut_copper_slab	Waxed Oxidized Cut Copper Slab	block.minecraft.waxed_oxidized_cut_copper_slab
+n	minecraft:waxed_oxidized_cut_copper_stairs	Waxed Oxidized Cut Copper Stairs	block.minecraft.waxed_oxidized_cut_copper_stairs
+n	minecraft:waxed_weathered_copper	Waxed Weathered Copper	block.minecraft.waxed_weathered_copper
+n	minecraft:waxed_weathered_cut_copper	Waxed Weathered Cut Copper	block.minecraft.waxed_weathered_cut_copper
+n	minecraft:waxed_weathered_cut_copper_slab	Waxed Weathered Cut Copper Slab	block.minecraft.waxed_weathered_cut_copper_slab
+n	minecraft:waxed_weathered_cut_copper_stairs	Waxed Weathered Cut Copper Stairs	block.minecraft.waxed_weathered_cut_copper_stairs
+n	minecraft:wayfinder_armor_trim_smithing_template	Smithing Template	item.minecraft.smithing_template
+n	minecraft:weathered_copper	Weathered Copper	block.minecraft.weathered_copper
+n	minecraft:weathered_cut_copper	Weathered Cut Copper	block.minecraft.weathered_cut_copper
+n	minecraft:weathered_cut_copper_slab	Weathered Cut Copper Slab	block.minecraft.weathered_cut_copper_slab
+n	minecraft:weathered_cut_copper_stairs	Weathered Cut Copper Stairs	block.minecraft.weathered_cut_copper_stairs
+n	minecraft:weeping_vines	Weeping Vines	block.minecraft.weeping_vines
+n	minecraft:wet_sponge	Wet Sponge	block.minecraft.wet_sponge
+n	minecraft:wheat	Wheat	item.minecraft.wheat
+n	minecraft:wheat_seeds	Wheat Seeds	item.minecraft.wheat_seeds
+n	minecraft:white_banner	Ominous Banner	block.minecraft.ominous_banner
+n	minecraft:white_banner	White Banner	block.minecraft.white_banner
+n	minecraft:white_bed	White Bed	block.minecraft.white_bed
+n	minecraft:white_candle	White Candle	block.minecraft.white_candle
+n	minecraft:white_carpet	White Carpet	block.minecraft.white_carpet
+n	minecraft:white_concrete	White Concrete	block.minecraft.white_concrete
+n	minecraft:white_concrete_powder	White Concrete Powder	block.minecraft.white_concrete_powder
+n	minecraft:white_dye	White Dye	item.minecraft.white_dye
+n	minecraft:white_glazed_terracotta	White Glazed Terracotta	block.minecraft.white_glazed_terracotta
+n	minecraft:white_shulker_box	White Shulker Box	block.minecraft.white_shulker_box
+n	minecraft:white_stained_glass	White Stained Glass	block.minecraft.white_stained_glass
+n	minecraft:white_stained_glass_pane	White Stained Glass Pane	block.minecraft.white_stained_glass_pane
+n	minecraft:white_terracotta	White Terracotta	block.minecraft.white_terracotta
+n	minecraft:white_tulip	White Tulip	block.minecraft.white_tulip
+n	minecraft:white_wool	White Wool	block.minecraft.white_wool
+n	minecraft:wild_armor_trim_smithing_template	Smithing Template	item.minecraft.smithing_template
+n	minecraft:witch_spawn_egg	Witch Spawn Egg	item.minecraft.witch_spawn_egg
+n	minecraft:wither_rose	Wither Rose	block.minecraft.wither_rose
+n	minecraft:wither_skeleton_skull	Wither Skeleton Skull	block.minecraft.wither_skeleton_skull
+n	minecraft:wither_skeleton_spawn_egg	Wither Skeleton Spawn Egg	item.minecraft.wither_skeleton_spawn_egg
+n	minecraft:wolf_spawn_egg	Wolf Spawn Egg	item.minecraft.wolf_spawn_egg
+n	minecraft:wooden_axe	Wooden Axe	item.minecraft.wooden_axe
+n	minecraft:wooden_hoe	Wooden Hoe	item.minecraft.wooden_hoe
+n	minecraft:wooden_pickaxe	Wooden Pickaxe	item.minecraft.wooden_pickaxe
+n	minecraft:wooden_shovel	Wooden Shovel	item.minecraft.wooden_shovel
+n	minecraft:wooden_sword	Wooden Sword	item.minecraft.wooden_sword
+n	minecraft:writable_book	Book and Quill	item.minecraft.writable_book
+n	minecraft:yellow_banner	Yellow Banner	block.minecraft.yellow_banner
+n	minecraft:yellow_bed	Yellow Bed	block.minecraft.yellow_bed
+n	minecraft:yellow_candle	Yellow Candle	block.minecraft.yellow_candle
+n	minecraft:yellow_carpet	Yellow Carpet	block.minecraft.yellow_carpet
+n	minecraft:yellow_concrete	Yellow Concrete	block.minecraft.yellow_concrete
+n	minecraft:yellow_concrete_powder	Yellow Concrete Powder	block.minecraft.yellow_concrete_powder
+n	minecraft:yellow_dye	Yellow Dye	item.minecraft.yellow_dye
+n	minecraft:yellow_glazed_terracotta	Yellow Glazed Terracotta	block.minecraft.yellow_glazed_terracotta
+n	minecraft:yellow_shulker_box	Yellow Shulker Box	block.minecraft.yellow_shulker_box
+n	minecraft:yellow_stained_glass	Yellow Stained Glass	block.minecraft.yellow_stained_glass
+n	minecraft:yellow_stained_glass_pane	Yellow Stained Glass Pane	block.minecraft.yellow_stained_glass_pane
+n	minecraft:yellow_terracotta	Yellow Terracotta	block.minecraft.yellow_terracotta
+n	minecraft:yellow_wool	Yellow Wool	block.minecraft.yellow_wool
+n	minecraft:zoglin_spawn_egg	Zoglin Spawn Egg	item.minecraft.zoglin_spawn_egg
+n	minecraft:zombie_head	Zombie Head	block.minecraft.zombie_head
+n	minecraft:zombie_horse_spawn_egg	Zombie Horse Spawn Egg	item.minecraft.zombie_horse_spawn_egg
+n	minecraft:zombie_spawn_egg	Zombie Spawn Egg	item.minecraft.zombie_spawn_egg
+n	minecraft:zombie_villager_spawn_egg	Zombie Villager Spawn Egg	item.minecraft.zombie_villager_spawn_egg
+n	minecraft:zombified_piglin_spawn_egg	Zombified Piglin Spawn Egg	item.minecraft.zombified_piglin_spawn_egg
+b	minecraft:acacia_boat	item.minecraft.acacia_boat
+b	minecraft:acacia_button	block.minecraft.acacia_button
+b	minecraft:acacia_chest_boat	item.minecraft.acacia_chest_boat
+b	minecraft:acacia_door	block.minecraft.acacia_door
+b	minecraft:acacia_fence	block.minecraft.acacia_fence
+b	minecraft:acacia_fence_gate	block.minecraft.acacia_fence_gate
+b	minecraft:acacia_hanging_sign	block.minecraft.acacia_hanging_sign
+b	minecraft:acacia_leaves	block.minecraft.acacia_leaves
+b	minecraft:acacia_log	block.minecraft.acacia_log
+b	minecraft:acacia_planks	block.minecraft.acacia_planks
+b	minecraft:acacia_pressure_plate	block.minecraft.acacia_pressure_plate
+b	minecraft:acacia_sapling	block.minecraft.acacia_sapling
+b	minecraft:acacia_sign	block.minecraft.acacia_sign
+b	minecraft:acacia_slab	block.minecraft.acacia_slab
+b	minecraft:acacia_stairs	block.minecraft.acacia_stairs
+b	minecraft:acacia_trapdoor	block.minecraft.acacia_trapdoor
+b	minecraft:acacia_wood	block.minecraft.acacia_wood
+b	minecraft:activator_rail	block.minecraft.activator_rail
+b	minecraft:allay_spawn_egg	item.minecraft.allay_spawn_egg
+b	minecraft:allium	block.minecraft.allium
+b	minecraft:amethyst_block	block.minecraft.amethyst_block
+b	minecraft:amethyst_cluster	block.minecraft.amethyst_cluster
+b	minecraft:amethyst_shard	item.minecraft.amethyst_shard
+b	minecraft:ancient_debris	block.minecraft.ancient_debris
+b	minecraft:andesite	block.minecraft.andesite
+b	minecraft:andesite_slab	block.minecraft.andesite_slab
+b	minecraft:andesite_stairs	block.minecraft.andesite_stairs
+b	minecraft:andesite_wall	block.minecraft.andesite_wall
+b	minecraft:angler_pottery_sherd	item.minecraft.angler_pottery_sherd
+b	minecraft:anvil	block.minecraft.anvil
+b	minecraft:apple	item.minecraft.apple
+b	minecraft:archer_pottery_sherd	item.minecraft.archer_pottery_sherd
+b	minecraft:armor_stand	item.minecraft.armor_stand
+b	minecraft:arms_up_pottery_sherd	item.minecraft.arms_up_pottery_sherd
+b	minecraft:arrow	item.minecraft.arrow
+b	minecraft:axolotl_bucket	item.minecraft.axolotl_bucket
+b	minecraft:axolotl_spawn_egg	item.minecraft.axolotl_spawn_egg
+b	minecraft:azalea	block.minecraft.azalea
+b	minecraft:azalea_leaves	block.minecraft.azalea_leaves
+b	minecraft:azure_bluet	block.minecraft.azure_bluet
+b	minecraft:baked_potato	item.minecraft.baked_potato
+b	minecraft:bamboo	block.minecraft.bamboo
+b	minecraft:bamboo_block	block.minecraft.bamboo_block
+b	minecraft:bamboo_button	block.minecraft.bamboo_button
+b	minecraft:bamboo_chest_raft	item.minecraft.bamboo_chest_raft
+b	minecraft:bamboo_door	block.minecraft.bamboo_door
+b	minecraft:bamboo_fence	block.minecraft.bamboo_fence
+b	minecraft:bamboo_fence_gate	block.minecraft.bamboo_fence_gate
+b	minecraft:bamboo_hanging_sign	block.minecraft.bamboo_hanging_sign
+b	minecraft:bamboo_mosaic	block.minecraft.bamboo_mosaic
+b	minecraft:bamboo_mosaic_slab	block.minecraft.bamboo_mosaic_slab
+b	minecraft:bamboo_mosaic_stairs	block.minecraft.bamboo_mosaic_stairs
+b	minecraft:bamboo_planks	block.minecraft.bamboo_planks
+b	minecraft:bamboo_pressure_plate	block.minecraft.bamboo_pressure_plate
+b	minecraft:bamboo_raft	item.minecraft.bamboo_raft
+b	minecraft:bamboo_sign	block.minecraft.bamboo_sign
+b	minecraft:bamboo_slab	block.minecraft.bamboo_slab
+b	minecraft:bamboo_stairs	block.minecraft.bamboo_stairs
+b	minecraft:bamboo_trapdoor	block.minecraft.bamboo_trapdoor
+b	minecraft:barrel	block.minecraft.barrel
+b	minecraft:barrier	block.minecraft.barrier
+b	minecraft:basalt	block.minecraft.basalt
+b	minecraft:bat_spawn_egg	item.minecraft.bat_spawn_egg
+b	minecraft:beacon	block.minecraft.beacon
+b	minecraft:bedrock	block.minecraft.bedrock
+b	minecraft:bee_nest	block.minecraft.bee_nest
+b	minecraft:bee_spawn_egg	item.minecraft.bee_spawn_egg
+b	minecraft:beef	item.minecraft.beef
+b	minecraft:beehive	block.minecraft.beehive
+b	minecraft:beetroot	item.minecraft.beetroot
+b	minecraft:beetroot_seeds	item.minecraft.beetroot_seeds
+b	minecraft:beetroot_soup	item.minecraft.beetroot_soup
+b	minecraft:bell	block.minecraft.bell
+b	minecraft:big_dripleaf	block.minecraft.big_dripleaf
+b	minecraft:birch_boat	item.minecraft.birch_boat
+b	minecraft:birch_button	block.minecraft.birch_button
+b	minecraft:birch_chest_boat	item.minecraft.birch_chest_boat
+b	minecraft:birch_door	block.minecraft.birch_door
+b	minecraft:birch_fence	block.minecraft.birch_fence
+b	minecraft:birch_fence_gate	block.minecraft.birch_fence_gate
+b	minecraft:birch_hanging_sign	block.minecraft.birch_hanging_sign
+b	minecraft:birch_leaves	block.minecraft.birch_leaves
+b	minecraft:birch_log	block.minecraft.birch_log
+b	minecraft:birch_planks	block.minecraft.birch_planks
+b	minecraft:birch_pressure_plate	block.minecraft.birch_pressure_plate
+b	minecraft:birch_sapling	block.minecraft.birch_sapling
+b	minecraft:birch_sign	block.minecraft.birch_sign
+b	minecraft:birch_slab	block.minecraft.birch_slab
+b	minecraft:birch_stairs	block.minecraft.birch_stairs
+b	minecraft:birch_trapdoor	block.minecraft.birch_trapdoor
+b	minecraft:birch_wood	block.minecraft.birch_wood
+b	minecraft:black_banner	block.minecraft.black_banner
+b	minecraft:black_bed	block.minecraft.black_bed
+b	minecraft:black_candle	block.minecraft.black_candle
+b	minecraft:black_carpet	block.minecraft.black_carpet
+b	minecraft:black_concrete	block.minecraft.black_concrete
+b	minecraft:black_concrete_powder	block.minecraft.black_concrete_powder
+b	minecraft:black_dye	item.minecraft.black_dye
+b	minecraft:black_glazed_terracotta	block.minecraft.black_glazed_terracotta
+b	minecraft:black_shulker_box	block.minecraft.black_shulker_box
+b	minecraft:black_stained_glass	block.minecraft.black_stained_glass
+b	minecraft:black_stained_glass_pane	block.minecraft.black_stained_glass_pane
+b	minecraft:black_terracotta	block.minecraft.black_terracotta
+b	minecraft:black_wool	block.minecraft.black_wool
+b	minecraft:blackstone	block.minecraft.blackstone
+b	minecraft:blackstone_slab	block.minecraft.blackstone_slab
+b	minecraft:blackstone_stairs	block.minecraft.blackstone_stairs
+b	minecraft:blackstone_wall	block.minecraft.blackstone_wall
+b	minecraft:blade_pottery_sherd	item.minecraft.blade_pottery_sherd
+b	minecraft:blast_furnace	block.minecraft.blast_furnace
+b	minecraft:blaze_powder	item.minecraft.blaze_powder
+b	minecraft:blaze_rod	item.minecraft.blaze_rod
+b	minecraft:blaze_spawn_egg	item.minecraft.blaze_spawn_egg
+b	minecraft:blue_banner	block.minecraft.blue_banner
+b	minecraft:blue_bed	block.minecraft.blue_bed
+b	minecraft:blue_candle	block.minecraft.blue_candle
+b	minecraft:blue_carpet	block.minecraft.blue_carpet
+b	minecraft:blue_concrete	block.minecraft.blue_concrete
+b	minecraft:blue_concrete_powder	block.minecraft.blue_concrete_powder
+b	minecraft:blue_dye	item.minecraft.blue_dye
+b	minecraft:blue_glazed_terracotta	block.minecraft.blue_glazed_terracotta
+b	minecraft:blue_ice	block.minecraft.blue_ice
+b	minecraft:blue_orchid	block.minecraft.blue_orchid
+b	minecraft:blue_shulker_box	block.minecraft.blue_shulker_box
+b	minecraft:blue_stained_glass	block.minecraft.blue_stained_glass
+b	minecraft:blue_stained_glass_pane	block.minecraft.blue_stained_glass_pane
+b	minecraft:blue_terracotta	block.minecraft.blue_terracotta
+b	minecraft:blue_wool	block.minecraft.blue_wool
+b	minecraft:bone	item.minecraft.bone
+b	minecraft:bone_block	block.minecraft.bone_block
+b	minecraft:bone_meal	item.minecraft.bone_meal
+b	minecraft:book	item.minecraft.book
+b	minecraft:bookshelf	block.minecraft.bookshelf
+b	minecraft:bow	item.minecraft.bow
+b	minecraft:bowl	item.minecraft.bowl
+b	minecraft:brain_coral	block.minecraft.brain_coral
+b	minecraft:brain_coral_block	block.minecraft.brain_coral_block
+b	minecraft:brain_coral_fan	block.minecraft.brain_coral_fan
+b	minecraft:bread	item.minecraft.bread
+b	minecraft:brewer_pottery_sherd	item.minecraft.brewer_pottery_sherd
+b	minecraft:brewing_stand	item.minecraft.brewing_stand
+b	minecraft:brick	item.minecraft.brick
+b	minecraft:brick_slab	block.minecraft.brick_slab
+b	minecraft:brick_stairs	block.minecraft.brick_stairs
+b	minecraft:brick_wall	block.minecraft.brick_wall
+b	minecraft:bricks	block.minecraft.bricks
+b	minecraft:brown_banner	block.minecraft.brown_banner
+b	minecraft:brown_bed	block.minecraft.brown_bed
+b	minecraft:brown_candle	block.minecraft.brown_candle
+b	minecraft:brown_carpet	block.minecraft.brown_carpet
+b	minecraft:brown_concrete	block.minecraft.brown_concrete
+b	minecraft:brown_concrete_powder	block.minecraft.brown_concrete_powder
+b	minecraft:brown_dye	item.minecraft.brown_dye
+b	minecraft:brown_glazed_terracotta	block.minecraft.brown_glazed_terracotta
+b	minecraft:brown_mushroom	block.minecraft.brown_mushroom
+b	minecraft:brown_mushroom_block	block.minecraft.brown_mushroom_block
+b	minecraft:brown_shulker_box	block.minecraft.brown_shulker_box
+b	minecraft:brown_stained_glass	block.minecraft.brown_stained_glass
+b	minecraft:brown_stained_glass_pane	block.minecraft.brown_stained_glass_pane
+b	minecraft:brown_terracotta	block.minecraft.brown_terracotta
+b	minecraft:brown_wool	block.minecraft.brown_wool
+b	minecraft:brush	item.minecraft.brush
+b	minecraft:bubble_coral	block.minecraft.bubble_coral
+b	minecraft:bubble_coral_block	block.minecraft.bubble_coral_block
+b	minecraft:bubble_coral_fan	block.minecraft.bubble_coral_fan
+b	minecraft:bucket	item.minecraft.bucket
+b	minecraft:budding_amethyst	block.minecraft.budding_amethyst
+b	minecraft:burn_pottery_sherd	item.minecraft.burn_pottery_sherd
+b	minecraft:cactus	block.minecraft.cactus
+b	minecraft:cake	block.minecraft.cake
+b	minecraft:calcite	block.minecraft.calcite
+b	minecraft:calibrated_sculk_sensor	block.minecraft.calibrated_sculk_sensor
+b	minecraft:camel_spawn_egg	item.minecraft.camel_spawn_egg
+b	minecraft:campfire	block.minecraft.campfire
+b	minecraft:candle	block.minecraft.candle
+b	minecraft:carrot	item.minecraft.carrot
+b	minecraft:carrot_on_a_stick	item.minecraft.carrot_on_a_stick
+b	minecraft:cartography_table	block.minecraft.cartography_table
+b	minecraft:carved_pumpkin	block.minecraft.carved_pumpkin
+b	minecraft:cat_spawn_egg	item.minecraft.cat_spawn_egg
+b	minecraft:cauldron	item.minecraft.cauldron
+b	minecraft:cave_spider_spawn_egg	item.minecraft.cave_spider_spawn_egg
+b	minecraft:chain	block.minecraft.chain
+b	minecraft:chain_command_block	block.minecraft.chain_command_block
+b	minecraft:chainmail_boots	item.minecraft.chainmail_boots
+b	minecraft:chainmail_chestplate	item.minecraft.chainmail_chestplate
+b	minecraft:chainmail_helmet	item.minecraft.chainmail_helmet
+b	minecraft:chainmail_leggings	item.minecraft.chainmail_leggings
+b	minecraft:charcoal	item.minecraft.charcoal
+b	minecraft:cherry_boat	item.minecraft.cherry_boat
+b	minecraft:cherry_button	block.minecraft.cherry_button
+b	minecraft:cherry_chest_boat	item.minecraft.cherry_chest_boat
+b	minecraft:cherry_door	block.minecraft.cherry_door
+b	minecraft:cherry_fence	block.minecraft.cherry_fence
+b	minecraft:cherry_fence_gate	block.minecraft.cherry_fence_gate
+b	minecraft:cherry_hanging_sign	block.minecraft.cherry_hanging_sign
+b	minecraft:cherry_leaves	block.minecraft.cherry_leaves
+b	minecraft:cherry_log	block.minecraft.cherry_log
+b	minecraft:cherry_planks	block.minecraft.cherry_planks
+b	minecraft:cherry_pressure_plate	block.minecraft.cherry_pressure_plate
+b	minecraft:cherry_sapling	block.minecraft.cherry_sapling
+b	minecraft:cherry_sign	block.minecraft.cherry_sign
+b	minecraft:cherry_slab	block.minecraft.cherry_slab
+b	minecraft:cherry_stairs	block.minecraft.cherry_stairs
+b	minecraft:cherry_trapdoor	block.minecraft.cherry_trapdoor
+b	minecraft:cherry_wood	block.minecraft.cherry_wood
+b	minecraft:chest	block.minecraft.chest
+b	minecraft:chest_minecart	item.minecraft.chest_minecart
+b	minecraft:chicken	item.minecraft.chicken
+b	minecraft:chicken_spawn_egg	item.minecraft.chicken_spawn_egg
+b	minecraft:chipped_anvil	block.minecraft.chipped_anvil
+b	minecraft:chiseled_bookshelf	block.minecraft.chiseled_bookshelf
+b	minecraft:chiseled_deepslate	block.minecraft.chiseled_deepslate
+b	minecraft:chiseled_nether_bricks	block.minecraft.chiseled_nether_bricks
+b	minecraft:chiseled_polished_blackstone	block.minecraft.chiseled_polished_blackstone
+b	minecraft:chiseled_quartz_block	block.minecraft.chiseled_quartz_block
+b	minecraft:chiseled_red_sandstone	block.minecraft.chiseled_red_sandstone
+b	minecraft:chiseled_sandstone	block.minecraft.chiseled_sandstone
+b	minecraft:chiseled_stone_bricks	block.minecraft.chiseled_stone_bricks
+b	minecraft:chorus_flower	block.minecraft.chorus_flower
+b	minecraft:chorus_fruit	item.minecraft.chorus_fruit
+b	minecraft:chorus_plant	block.minecraft.chorus_plant
+b	minecraft:clay	block.minecraft.clay
+b	minecraft:clay_ball	item.minecraft.clay_ball
+b	minecraft:clock	item.minecraft.clock
+b	minecraft:coal	item.minecraft.coal
+b	minecraft:coal_block	block.minecraft.coal_block
+b	minecraft:coal_ore	block.minecraft.coal_ore
+b	minecraft:coarse_dirt	block.minecraft.coarse_dirt
+b	minecraft:coast_armor_trim_smithing_template	item.minecraft.smithing_template
+b	minecraft:cobbled_deepslate	block.minecraft.cobbled_deepslate
+b	minecraft:cobbled_deepslate_slab	block.minecraft.cobbled_deepslate_slab
+b	minecraft:cobbled_deepslate_stairs	block.minecraft.cobbled_deepslate_stairs
+b	minecraft:cobbled_deepslate_wall	block.minecraft.cobbled_deepslate_wall
+b	minecraft:cobblestone	block.minecraft.cobblestone
+b	minecraft:cobblestone_slab	block.minecraft.cobblestone_slab
+b	minecraft:cobblestone_stairs	block.minecraft.cobblestone_stairs
+b	minecraft:cobblestone_wall	block.minecraft.cobblestone_wall
+b	minecraft:cobweb	block.minecraft.cobweb
+b	minecraft:cocoa_beans	item.minecraft.cocoa_beans
+b	minecraft:cod	item.minecraft.cod
+b	minecraft:cod_bucket	item.minecraft.cod_bucket
+b	minecraft:cod_spawn_egg	item.minecraft.cod_spawn_egg
+b	minecraft:command_block	block.minecraft.command_block
+b	minecraft:command_block_minecart	item.minecraft.command_block_minecart
+b	minecraft:comparator	block.minecraft.comparator
+b	minecraft:compass	item.minecraft.compass
+b	minecraft:composter	block.minecraft.composter
+b	minecraft:conduit	block.minecraft.conduit
+b	minecraft:cooked_beef	item.minecraft.cooked_beef
+b	minecraft:cooked_chicken	item.minecraft.cooked_chicken
+b	minecraft:cooked_cod	item.minecraft.cooked_cod
+b	minecraft:cooked_mutton	item.minecraft.cooked_mutton
+b	minecraft:cooked_porkchop	item.minecraft.cooked_porkchop
+b	minecraft:cooked_rabbit	item.minecraft.cooked_rabbit
+b	minecraft:cooked_salmon	item.minecraft.cooked_salmon
+b	minecraft:cookie	item.minecraft.cookie
+b	minecraft:copper_block	block.minecraft.copper_block
+b	minecraft:copper_ingot	item.minecraft.copper_ingot
+b	minecraft:copper_ore	block.minecraft.copper_ore
+b	minecraft:cornflower	block.minecraft.cornflower
+b	minecraft:cow_spawn_egg	item.minecraft.cow_spawn_egg
+b	minecraft:cracked_deepslate_bricks	block.minecraft.cracked_deepslate_bricks
+b	minecraft:cracked_deepslate_tiles	block.minecraft.cracked_deepslate_tiles
+b	minecraft:cracked_nether_bricks	block.minecraft.cracked_nether_bricks
+b	minecraft:cracked_polished_blackstone_bricks	block.minecraft.cracked_polished_blackstone_bricks
+b	minecraft:cracked_stone_bricks	block.minecraft.cracked_stone_bricks
+b	minecraft:crafting_table	block.minecraft.crafting_table
+b	minecraft:creeper_banner_pattern	item.minecraft.creeper_banner_pattern
+b	minecraft:creeper_head	block.minecraft.creeper_head
+b	minecraft:creeper_spawn_egg	item.minecraft.creeper_spawn_egg
+b	minecraft:crimson_button	block.minecraft.crimson_button
+b	minecraft:crimson_door	block.minecraft.crimson_door
+b	minecraft:crimson_fence	block.minecraft.crimson_fence
+b	minecraft:crimson_fence_gate	block.minecraft.crimson_fence_gate
+b	minecraft:crimson_fungus	block.minecraft.crimson_fungus
+b	minecraft:crimson_hanging_sign	block.minecraft.crimson_hanging_sign
+b	minecraft:crimson_hyphae	block.minecraft.crimson_hyphae
+b	minecraft:crimson_nylium	block.minecraft.crimson_nylium
+b	minecraft:crimson_planks	block.minecraft.crimson_planks
+b	minecraft:crimson_pressure_plate	block.minecraft.crimson_pressure_plate
+b	minecraft:crimson_roots	block.minecraft.crimson_roots
+b	minecraft:crimson_sign	block.minecraft.crimson_sign
+b	minecraft:crimson_slab	block.minecraft.crimson_slab
+b	minecraft:crimson_stairs	block.minecraft.crimson_stairs
+b	minecraft:crimson_stem	block.minecraft.crimson_stem
+b	minecraft:crimson_trapdoor	block.minecraft.crimson_trapdoor
+b	minecraft:crossbow	item.minecraft.crossbow
+b	minecraft:crying_obsidian	block.minecraft.crying_obsidian
+b	minecraft:cut_copper	block.minecraft.cut_copper
+b	minecraft:cut_copper_slab	block.minecraft.cut_copper_slab
+b	minecraft:cut_copper_stairs	block.minecraft.cut_copper_stairs
+b	minecraft:cut_red_sandstone	block.minecraft.cut_red_sandstone
+b	minecraft:cut_red_sandstone_slab	block.minecraft.cut_red_sandstone_slab
+b	minecraft:cut_sandstone	block.minecraft.cut_sandstone
+b	minecraft:cut_sandstone_slab	block.minecraft.cut_sandstone_slab
+b	minecraft:cyan_banner	block.minecraft.cyan_banner
+b	minecraft:cyan_bed	block.minecraft.cyan_bed
+b	minecraft:cyan_candle	block.minecraft.cyan_candle
+b	minecraft:cyan_carpet	block.minecraft.cyan_carpet
+b	minecraft:cyan_concrete	block.minecraft.cyan_concrete
+b	minecraft:cyan_concrete_powder	block.minecraft.cyan_concrete_powder
+b	minecraft:cyan_dye	item.minecraft.cyan_dye
+b	minecraft:cyan_glazed_terracotta	block.minecraft.cyan_glazed_terracotta
+b	minecraft:cyan_shulker_box	block.minecraft.cyan_shulker_box
+b	minecraft:cyan_stained_glass	block.minecraft.cyan_stained_glass
+b	minecraft:cyan_stained_glass_pane	block.minecraft.cyan_stained_glass_pane
+b	minecraft:cyan_terracotta	block.minecraft.cyan_terracotta
+b	minecraft:cyan_wool	block.minecraft.cyan_wool
+b	minecraft:damaged_anvil	block.minecraft.damaged_anvil
+b	minecraft:dandelion	block.minecraft.dandelion
+b	minecraft:danger_pottery_sherd	item.minecraft.danger_pottery_sherd
+b	minecraft:dark_oak_boat	item.minecraft.dark_oak_boat
+b	minecraft:dark_oak_button	block.minecraft.dark_oak_button
+b	minecraft:dark_oak_chest_boat	item.minecraft.dark_oak_chest_boat
+b	minecraft:dark_oak_door	block.minecraft.dark_oak_door
+b	minecraft:dark_oak_fence	block.minecraft.dark_oak_fence
+b	minecraft:dark_oak_fence_gate	block.minecraft.dark_oak_fence_gate
+b	minecraft:dark_oak_hanging_sign	block.minecraft.dark_oak_hanging_sign
+b	minecraft:dark_oak_leaves	block.minecraft.dark_oak_leaves
+b	minecraft:dark_oak_log	block.minecraft.dark_oak_log
+b	minecraft:dark_oak_planks	block.minecraft.dark_oak_planks
+b	minecraft:dark_oak_pressure_plate	block.minecraft.dark_oak_pressure_plate
+b	minecraft:dark_oak_sapling	block.minecraft.dark_oak_sapling
+b	minecraft:dark_oak_sign	block.minecraft.dark_oak_sign
+b	minecraft:dark_oak_slab	block.minecraft.dark_oak_slab
+b	minecraft:dark_oak_stairs	block.minecraft.dark_oak_stairs
+b	minecraft:dark_oak_trapdoor	block.minecraft.dark_oak_trapdoor
+b	minecraft:dark_oak_wood	block.minecraft.dark_oak_wood
+b	minecraft:dark_prismarine	block.minecraft.dark_prismarine
+b	minecraft:dark_prismarine_slab	block.minecraft.dark_prismarine_slab
+b	minecraft:dark_prismarine_stairs	block.minecraft.dark_prismarine_stairs
+b	minecraft:daylight_detector	block.minecraft.daylight_detector
+b	minecraft:dead_brain_coral	block.minecraft.dead_brain_coral
+b	minecraft:dead_brain_coral_block	block.minecraft.dead_brain_coral_block
+b	minecraft:dead_brain_coral_fan	block.minecraft.dead_brain_coral_fan
+b	minecraft:dead_bubble_coral	block.minecraft.dead_bubble_coral
+b	minecraft:dead_bubble_coral_block	block.minecraft.dead_bubble_coral_block
+b	minecraft:dead_bubble_coral_fan	block.minecraft.dead_bubble_coral_fan
+b	minecraft:dead_bush	block.minecraft.dead_bush
+b	minecraft:dead_fire_coral	block.minecraft.dead_fire_coral
+b	minecraft:dead_fire_coral_block	block.minecraft.dead_fire_coral_block
+b	minecraft:dead_fire_coral_fan	block.minecraft.dead_fire_coral_fan
+b	minecraft:dead_horn_coral	block.minecraft.dead_horn_coral
+b	minecraft:dead_horn_coral_block	block.minecraft.dead_horn_coral_block
+b	minecraft:dead_horn_coral_fan	block.minecraft.dead_horn_coral_fan
+b	minecraft:dead_tube_coral	block.minecraft.dead_tube_coral
+b	minecraft:dead_tube_coral_block	block.minecraft.dead_tube_coral_block
+b	minecraft:dead_tube_coral_fan	block.minecraft.dead_tube_coral_fan
+b	minecraft:debug_stick	item.minecraft.debug_stick
+b	minecraft:decorated_pot	block.minecraft.decorated_pot
+b	minecraft:deepslate	block.minecraft.deepslate
+b	minecraft:deepslate_brick_slab	block.minecraft.deepslate_brick_slab
+b	minecraft:deepslate_brick_stairs	block.minecraft.deepslate_brick_stairs
+b	minecraft:deepslate_brick_wall	block.minecraft.deepslate_brick_wall
+b	minecraft:deepslate_bricks	block.minecraft.deepslate_bricks
+b	minecraft:deepslate_coal_ore	block.minecraft.deepslate_coal_ore
+b	minecraft:deepslate_copper_ore	block.minecraft.deepslate_copper_ore
+b	minecraft:deepslate_diamond_ore	block.minecraft.deepslate_diamond_ore
+b	minecraft:deepslate_emerald_ore	block.minecraft.deepslate_emerald_ore
+b	minecraft:deepslate_gold_ore	block.minecraft.deepslate_gold_ore
+b	minecraft:deepslate_iron_ore	block.minecraft.deepslate_iron_ore
+b	minecraft:deepslate_lapis_ore	block.minecraft.deepslate_lapis_ore
+b	minecraft:deepslate_redstone_ore	block.minecraft.deepslate_redstone_ore
+b	minecraft:deepslate_tile_slab	block.minecraft.deepslate_tile_slab
+b	minecraft:deepslate_tile_stairs	block.minecraft.deepslate_tile_stairs
+b	minecraft:deepslate_tile_wall	block.minecraft.deepslate_tile_wall
+b	minecraft:deepslate_tiles	block.minecraft.deepslate_tiles
+b	minecraft:detector_rail	block.minecraft.detector_rail
+b	minecraft:diamond	item.minecraft.diamond
+b	minecraft:diamond_axe	item.minecraft.diamond_axe
+b	minecraft:diamond_block	block.minecraft.diamond_block
+b	minecraft:diamond_boots	item.minecraft.diamond_boots
+b	minecraft:diamond_chestplate	item.minecraft.diamond_chestplate
+b	minecraft:diamond_helmet	item.minecraft.diamond_helmet
+b	minecraft:diamond_hoe	item.minecraft.diamond_hoe
+b	minecraft:diamond_horse_armor	item.minecraft.diamond_horse_armor
+b	minecraft:diamond_leggings	item.minecraft.diamond_leggings
+b	minecraft:diamond_ore	block.minecraft.diamond_ore
+b	minecraft:diamond_pickaxe	item.minecraft.diamond_pickaxe
+b	minecraft:diamond_shovel	item.minecraft.diamond_shovel
+b	minecraft:diamond_sword	item.minecraft.diamond_sword
+b	minecraft:diorite	block.minecraft.diorite
+b	minecraft:diorite_slab	block.minecraft.diorite_slab
+b	minecraft:diorite_stairs	block.minecraft.diorite_stairs
+b	minecraft:diorite_wall	block.minecraft.diorite_wall
+b	minecraft:dirt	block.minecraft.dirt
+b	minecraft:dirt_path	block.minecraft.dirt_path
+b	minecraft:disc_fragment_5	item.minecraft.disc_fragment_5
+b	minecraft:dispenser	block.minecraft.dispenser
+b	minecraft:dolphin_spawn_egg	item.minecraft.dolphin_spawn_egg
+b	minecraft:donkey_spawn_egg	item.minecraft.donkey_spawn_egg
+b	minecraft:dragon_breath	item.minecraft.dragon_breath
+b	minecraft:dragon_egg	block.minecraft.dragon_egg
+b	minecraft:dragon_head	block.minecraft.dragon_head
+b	minecraft:dried_kelp	item.minecraft.dried_kelp
+b	minecraft:dried_kelp_block	block.minecraft.dried_kelp_block
+b	minecraft:dripstone_block	block.minecraft.dripstone_block
+b	minecraft:dropper	block.minecraft.dropper
+b	minecraft:drowned_spawn_egg	item.minecraft.drowned_spawn_egg
+b	minecraft:dune_armor_trim_smithing_template	item.minecraft.smithing_template
+b	minecraft:echo_shard	item.minecraft.echo_shard
+b	minecraft:egg	item.minecraft.egg
+b	minecraft:elder_guardian_spawn_egg	item.minecraft.elder_guardian_spawn_egg
+b	minecraft:elytra	item.minecraft.elytra
+b	minecraft:emerald	item.minecraft.emerald
+b	minecraft:emerald_block	block.minecraft.emerald_block
+b	minecraft:emerald_ore	block.minecraft.emerald_ore
+b	minecraft:enchanted_book	item.minecraft.enchanted_book
+b	minecraft:enchanted_golden_apple	item.minecraft.enchanted_golden_apple
+b	minecraft:enchanting_table	block.minecraft.enchanting_table
+b	minecraft:end_crystal	item.minecraft.end_crystal
+b	minecraft:end_portal_frame	block.minecraft.end_portal_frame
+b	minecraft:end_rod	block.minecraft.end_rod
+b	minecraft:end_stone	block.minecraft.end_stone
+b	minecraft:end_stone_brick_slab	block.minecraft.end_stone_brick_slab
+b	minecraft:end_stone_brick_stairs	block.minecraft.end_stone_brick_stairs
+b	minecraft:end_stone_brick_wall	block.minecraft.end_stone_brick_wall
+b	minecraft:end_stone_bricks	block.minecraft.end_stone_bricks
+b	minecraft:ender_chest	block.minecraft.ender_chest
+b	minecraft:ender_eye	item.minecraft.ender_eye
+b	minecraft:ender_pearl	item.minecraft.ender_pearl
+b	minecraft:enderman_spawn_egg	item.minecraft.enderman_spawn_egg
+b	minecraft:endermite_spawn_egg	item.minecraft.endermite_spawn_egg
+b	minecraft:evoker_spawn_egg	item.minecraft.evoker_spawn_egg
+b	minecraft:experience_bottle	item.minecraft.experience_bottle
+b	minecraft:explorer_pottery_sherd	item.minecraft.explorer_pottery_sherd
+b	minecraft:exposed_copper	block.minecraft.exposed_copper
+b	minecraft:exposed_cut_copper	block.minecraft.exposed_cut_copper
+b	minecraft:exposed_cut_copper_slab	block.minecraft.exposed_cut_copper_slab
+b	minecraft:exposed_cut_copper_stairs	block.minecraft.exposed_cut_copper_stairs
+b	minecraft:eye_armor_trim_smithing_template	item.minecraft.smithing_template
+b	minecraft:farmland	block.minecraft.farmland
+b	minecraft:feather	item.minecraft.feather
+b	minecraft:fermented_spider_eye	item.minecraft.fermented_spider_eye
+b	minecraft:fern	block.minecraft.fern
+b	minecraft:fire_charge	item.minecraft.fire_charge
+b	minecraft:fire_coral	block.minecraft.fire_coral
+b	minecraft:fire_coral_block	block.minecraft.fire_coral_block
+b	minecraft:fire_coral_fan	block.minecraft.fire_coral_fan
+b	minecraft:firework_rocket	item.minecraft.firework_rocket
+b	minecraft:firework_star	item.minecraft.firework_star
+b	minecraft:fishing_rod	item.minecraft.fishing_rod
+b	minecraft:fletching_table	block.minecraft.fletching_table
+b	minecraft:flint	item.minecraft.flint
+b	minecraft:flint_and_steel	item.minecraft.flint_and_steel
+b	minecraft:flower_banner_pattern	item.minecraft.flower_banner_pattern
+b	minecraft:flower_pot	item.minecraft.flower_pot
+b	minecraft:flowering_azalea	block.minecraft.flowering_azalea
+b	minecraft:flowering_azalea_leaves	block.minecraft.flowering_azalea_leaves
+b	minecraft:fox_spawn_egg	item.minecraft.fox_spawn_egg
+b	minecraft:friend_pottery_sherd	item.minecraft.friend_pottery_sherd
+b	minecraft:frog_spawn_egg	item.minecraft.frog_spawn_egg
+b	minecraft:frogspawn	block.minecraft.frogspawn
+b	minecraft:furnace	block.minecraft.furnace
+b	minecraft:furnace_minecart	item.minecraft.furnace_minecart
+b	minecraft:ghast_spawn_egg	item.minecraft.ghast_spawn_egg
+b	minecraft:ghast_tear	item.minecraft.ghast_tear
+b	minecraft:gilded_blackstone	block.minecraft.gilded_blackstone
+b	minecraft:glass	block.minecraft.glass
+b	minecraft:glass_bottle	item.minecraft.glass_bottle
+b	minecraft:glass_pane	block.minecraft.glass_pane
+b	minecraft:glistering_melon_slice	item.minecraft.glistering_melon_slice
+b	minecraft:globe_banner_pattern	item.minecraft.globe_banner_pattern
+b	minecraft:glow_berries	item.minecraft.glow_berries
+b	minecraft:glow_ink_sac	item.minecraft.glow_ink_sac
+b	minecraft:glow_item_frame	item.minecraft.glow_item_frame
+b	minecraft:glow_lichen	block.minecraft.glow_lichen
+b	minecraft:glow_squid_spawn_egg	item.minecraft.glow_squid_spawn_egg
+b	minecraft:glowstone	block.minecraft.glowstone
+b	minecraft:glowstone_dust	item.minecraft.glowstone_dust
+b	minecraft:goat_spawn_egg	item.minecraft.goat_spawn_egg
+b	minecraft:gold_block	block.minecraft.gold_block
+b	minecraft:gold_ingot	item.minecraft.gold_ingot
+b	minecraft:gold_nugget	item.minecraft.gold_nugget
+b	minecraft:gold_ore	block.minecraft.gold_ore
+b	minecraft:golden_apple	item.minecraft.golden_apple
+b	minecraft:golden_axe	item.minecraft.golden_axe
+b	minecraft:golden_boots	item.minecraft.golden_boots
+b	minecraft:golden_carrot	item.minecraft.golden_carrot
+b	minecraft:golden_chestplate	item.minecraft.golden_chestplate
+b	minecraft:golden_helmet	item.minecraft.golden_helmet
+b	minecraft:golden_hoe	item.minecraft.golden_hoe
+b	minecraft:golden_horse_armor	item.minecraft.golden_horse_armor
+b	minecraft:golden_leggings	item.minecraft.golden_leggings
+b	minecraft:golden_pickaxe	item.minecraft.golden_pickaxe
+b	minecraft:golden_shovel	item.minecraft.golden_shovel
+b	minecraft:golden_sword	item.minecraft.golden_sword
+b	minecraft:granite	block.minecraft.granite
+b	minecraft:granite_slab	block.minecraft.granite_slab
+b	minecraft:granite_stairs	block.minecraft.granite_stairs
+b	minecraft:granite_wall	block.minecraft.granite_wall
+b	minecraft:grass	block.minecraft.grass
+b	minecraft:grass_block	block.minecraft.grass_block
+b	minecraft:gravel	block.minecraft.gravel
+b	minecraft:gray_banner	block.minecraft.gray_banner
+b	minecraft:gray_bed	block.minecraft.gray_bed
+b	minecraft:gray_candle	block.minecraft.gray_candle
+b	minecraft:gray_carpet	block.minecraft.gray_carpet
+b	minecraft:gray_concrete	block.minecraft.gray_concrete
+b	minecraft:gray_concrete_powder	block.minecraft.gray_concrete_powder
+b	minecraft:gray_dye	item.minecraft.gray_dye
+b	minecraft:gray_glazed_terracotta	block.minecraft.gray_glazed_terracotta
+b	minecraft:gray_shulker_box	block.minecraft.gray_shulker_box
+b	minecraft:gray_stained_glass	block.minecraft.gray_stained_glass
+b	minecraft:gray_stained_glass_pane	block.minecraft.gray_stained_glass_pane
+b	minecraft:gray_terracotta	block.minecraft.gray_terracotta
+b	minecraft:gray_wool	block.minecraft.gray_wool
+b	minecraft:green_banner	block.minecraft.green_banner
+b	minecraft:green_bed	block.minecraft.green_bed
+b	minecraft:green_candle	block.minecraft.green_candle
+b	minecraft:green_carpet	block.minecraft.green_carpet
+b	minecraft:green_concrete	block.minecraft.green_concrete
+b	minecraft:green_concrete_powder	block.minecraft.green_concrete_powder
+b	minecraft:green_dye	item.minecraft.green_dye
+b	minecraft:green_glazed_terracotta	block.minecraft.green_glazed_terracotta
+b	minecraft:green_shulker_box	block.minecraft.green_shulker_box
+b	minecraft:green_stained_glass	block.minecraft.green_stained_glass
+b	minecraft:green_stained_glass_pane	block.minecraft.green_stained_glass_pane
+b	minecraft:green_terracotta	block.minecraft.green_terracotta
+b	minecraft:green_wool	block.minecraft.green_wool
+b	minecraft:grindstone	block.minecraft.grindstone
+b	minecraft:guardian_spawn_egg	item.minecraft.guardian_spawn_egg
+b	minecraft:gunpowder	item.minecraft.gunpowder
+b	minecraft:hanging_roots	block.minecraft.hanging_roots
+b	minecraft:hay_block	block.minecraft.hay_block
+b	minecraft:heart_of_the_sea	item.minecraft.heart_of_the_sea
+b	minecraft:heart_pottery_sherd	item.minecraft.heart_pottery_sherd
+b	minecraft:heartbreak_pottery_sherd	item.minecraft.heartbreak_pottery_sherd
+b	minecraft:heavy_weighted_pressure_plate	block.minecraft.heavy_weighted_pressure_plate
+b	minecraft:hoglin_spawn_egg	item.minecraft.hoglin_spawn_egg
+b	minecraft:honey_block	block.minecraft.honey_block
+b	minecraft:honey_bottle	item.minecraft.honey_bottle
+b	minecraft:honeycomb	item.minecraft.honeycomb
+b	minecraft:honeycomb_block	block.minecraft.honeycomb_block
+b	minecraft:hopper	block.minecraft.hopper
+b	minecraft:hopper_minecart	item.minecraft.hopper_minecart
+b	minecraft:horn_coral	block.minecraft.horn_coral
+b	minecraft:horn_coral_block	block.minecraft.horn_coral_block
+b	minecraft:horn_coral_fan	block.minecraft.horn_coral_fan
+b	minecraft:horse_spawn_egg	item.minecraft.horse_spawn_egg
+b	minecraft:host_armor_trim_smithing_template	item.minecraft.smithing_template
+b	minecraft:howl_pottery_sherd	item.minecraft.howl_pottery_sherd
+b	minecraft:husk_spawn_egg	item.minecraft.husk_spawn_egg
+b	minecraft:ice	block.minecraft.ice
+b	minecraft:infested_chiseled_stone_bricks	block.minecraft.infested_chiseled_stone_bricks
+b	minecraft:infested_cobblestone	block.minecraft.infested_cobblestone
+b	minecraft:infested_cracked_stone_bricks	block.minecraft.infested_cracked_stone_bricks
+b	minecraft:infested_deepslate	block.minecraft.infested_deepslate
+b	minecraft:infested_mossy_stone_bricks	block.minecraft.infested_mossy_stone_bricks
+b	minecraft:infested_stone	block.minecraft.infested_stone
+b	minecraft:infested_stone_bricks	block.minecraft.infested_stone_bricks
+b	minecraft:ink_sac	item.minecraft.ink_sac
+b	minecraft:iron_axe	item.minecraft.iron_axe
+b	minecraft:iron_bars	block.minecraft.iron_bars
+b	minecraft:iron_block	block.minecraft.iron_block
+b	minecraft:iron_boots	item.minecraft.iron_boots
+b	minecraft:iron_chestplate	item.minecraft.iron_chestplate
+b	minecraft:iron_door	block.minecraft.iron_door
+b	minecraft:iron_golem_spawn_egg	item.minecraft.iron_golem_spawn_egg
+b	minecraft:iron_helmet	item.minecraft.iron_helmet
+b	minecraft:iron_hoe	item.minecraft.iron_hoe
+b	minecraft:iron_horse_armor	item.minecraft.iron_horse_armor
+b	minecraft:iron_ingot	item.minecraft.iron_ingot
+b	minecraft:iron_leggings	item.minecraft.iron_leggings
+b	minecraft:iron_nugget	item.minecraft.iron_nugget
+b	minecraft:iron_ore	block.minecraft.iron_ore
+b	minecraft:iron_pickaxe	item.minecraft.iron_pickaxe
+b	minecraft:iron_shovel	item.minecraft.iron_shovel
+b	minecraft:iron_sword	item.minecraft.iron_sword
+b	minecraft:iron_trapdoor	block.minecraft.iron_trapdoor
+b	minecraft:item_frame	item.minecraft.item_frame
+b	minecraft:jack_o_lantern	block.minecraft.jack_o_lantern
+b	minecraft:jigsaw	block.minecraft.jigsaw
+b	minecraft:jukebox	block.minecraft.jukebox
+b	minecraft:jungle_boat	item.minecraft.jungle_boat
+b	minecraft:jungle_button	block.minecraft.jungle_button
+b	minecraft:jungle_chest_boat	item.minecraft.jungle_chest_boat
+b	minecraft:jungle_door	block.minecraft.jungle_door
+b	minecraft:jungle_fence	block.minecraft.jungle_fence
+b	minecraft:jungle_fence_gate	block.minecraft.jungle_fence_gate
+b	minecraft:jungle_hanging_sign	block.minecraft.jungle_hanging_sign
+b	minecraft:jungle_leaves	block.minecraft.jungle_leaves
+b	minecraft:jungle_log	block.minecraft.jungle_log
+b	minecraft:jungle_planks	block.minecraft.jungle_planks
+b	minecraft:jungle_pressure_plate	block.minecraft.jungle_pressure_plate
+b	minecraft:jungle_sapling	block.minecraft.jungle_sapling
+b	minecraft:jungle_sign	block.minecraft.jungle_sign
+b	minecraft:jungle_slab	block.minecraft.jungle_slab
+b	minecraft:jungle_stairs	block.minecraft.jungle_stairs
+b	minecraft:jungle_trapdoor	block.minecraft.jungle_trapdoor
+b	minecraft:jungle_wood	block.minecraft.jungle_wood
+b	minecraft:kelp	block.minecraft.kelp
+b	minecraft:ladder	block.minecraft.ladder
+b	minecraft:lantern	block.minecraft.lantern
+b	minecraft:lapis_block	block.minecraft.lapis_block
+b	minecraft:lapis_lazuli	item.minecraft.lapis_lazuli
+b	minecraft:lapis_ore	block.minecraft.lapis_ore
+b	minecraft:large_amethyst_bud	block.minecraft.large_amethyst_bud
+b	minecraft:large_fern	block.minecraft.large_fern
+b	minecraft:lava_bucket	item.minecraft.lava_bucket
+b	minecraft:lead	item.minecraft.lead
+b	minecraft:leather	item.minecraft.leather
+b	minecraft:leather_boots	item.minecraft.leather_boots
+b	minecraft:leather_chestplate	item.minecraft.leather_chestplate
+b	minecraft:leather_helmet	item.minecraft.leather_helmet
+b	minecraft:leather_horse_armor	item.minecraft.leather_horse_armor
+b	minecraft:leather_leggings	item.minecraft.leather_leggings
+b	minecraft:lectern	block.minecraft.lectern
+b	minecraft:lever	block.minecraft.lever
+b	minecraft:light	block.minecraft.light
+b	minecraft:light_blue_banner	block.minecraft.light_blue_banner
+b	minecraft:light_blue_bed	block.minecraft.light_blue_bed
+b	minecraft:light_blue_candle	block.minecraft.light_blue_candle
+b	minecraft:light_blue_carpet	block.minecraft.light_blue_carpet
+b	minecraft:light_blue_concrete	block.minecraft.light_blue_concrete
+b	minecraft:light_blue_concrete_powder	block.minecraft.light_blue_concrete_powder
+b	minecraft:light_blue_dye	item.minecraft.light_blue_dye
+b	minecraft:light_blue_glazed_terracotta	block.minecraft.light_blue_glazed_terracotta
+b	minecraft:light_blue_shulker_box	block.minecraft.light_blue_shulker_box
+b	minecraft:light_blue_stained_glass	block.minecraft.light_blue_stained_glass
+b	minecraft:light_blue_stained_glass_pane	block.minecraft.light_blue_stained_glass_pane
+b	minecraft:light_blue_terracotta	block.minecraft.light_blue_terracotta
+b	minecraft:light_blue_wool	block.minecraft.light_blue_wool
+b	minecraft:light_gray_banner	block.minecraft.light_gray_banner
+b	minecraft:light_gray_bed	block.minecraft.light_gray_bed
+b	minecraft:light_gray_candle	block.minecraft.light_gray_candle
+b	minecraft:light_gray_carpet	block.minecraft.light_gray_carpet
+b	minecraft:light_gray_concrete	block.minecraft.light_gray_concrete
+b	minecraft:light_gray_concrete_powder	block.minecraft.light_gray_concrete_powder
+b	minecraft:light_gray_dye	item.minecraft.light_gray_dye
+b	minecraft:light_gray_glazed_terracotta	block.minecraft.light_gray_glazed_terracotta
+b	minecraft:light_gray_shulker_box	block.minecraft.light_gray_shulker_box
+b	minecraft:light_gray_stained_glass	block.minecraft.light_gray_stained_glass
+b	minecraft:light_gray_stained_glass_pane	block.minecraft.light_gray_stained_glass_pane
+b	minecraft:light_gray_terracotta	block.minecraft.light_gray_terracotta
+b	minecraft:light_gray_wool	block.minecraft.light_gray_wool
+b	minecraft:light_weighted_pressure_plate	block.minecraft.light_weighted_pressure_plate
+b	minecraft:lightning_rod	block.minecraft.lightning_rod
+b	minecraft:lilac	block.minecraft.lilac
+b	minecraft:lily_of_the_valley	block.minecraft.lily_of_the_valley
+b	minecraft:lily_pad	block.minecraft.lily_pad
+b	minecraft:lime_banner	block.minecraft.lime_banner
+b	minecraft:lime_bed	block.minecraft.lime_bed
+b	minecraft:lime_candle	block.minecraft.lime_candle
+b	minecraft:lime_carpet	block.minecraft.lime_carpet
+b	minecraft:lime_concrete	block.minecraft.lime_concrete
+b	minecraft:lime_concrete_powder	block.minecraft.lime_concrete_powder
+b	minecraft:lime_dye	item.minecraft.lime_dye
+b	minecraft:lime_glazed_terracotta	block.minecraft.lime_glazed_terracotta
+b	minecraft:lime_shulker_box	block.minecraft.lime_shulker_box
+b	minecraft:lime_stained_glass	block.minecraft.lime_stained_glass
+b	minecraft:lime_stained_glass_pane	block.minecraft.lime_stained_glass_pane
+b	minecraft:lime_terracotta	block.minecraft.lime_terracotta
+b	minecraft:lime_wool	block.minecraft.lime_wool
+b	minecraft:lingering_potion	item.minecraft.lingering_potion.effect.water
+b	minecraft:llama_spawn_egg	item.minecraft.llama_spawn_egg
+b	minecraft:lodestone	block.minecraft.lodestone
+b	minecraft:loom	block.minecraft.loom
+b	minecraft:magenta_banner	block.minecraft.magenta_banner
+b	minecraft:magenta_bed	block.minecraft.magenta_bed
+b	minecraft:magenta_candle	block.minecraft.magenta_candle
+b	minecraft:magenta_carpet	block.minecraft.magenta_carpet
+b	minecraft:magenta_concrete	block.minecraft.magenta_concrete
+b	minecraft:magenta_concrete_powder	block.minecraft.magenta_concrete_powder
+b	minecraft:magenta_dye	item.minecraft.magenta_dye
+b	minecraft:magenta_glazed_terracotta	block.minecraft.magenta_glazed_terracotta
+b	minecraft:magenta_shulker_box	block.minecraft.magenta_shulker_box
+b	minecraft:magenta_stained_glass	block.minecraft.magenta_stained_glass
+b	minecraft:magenta_stained_glass_pane	block.minecraft.magenta_stained_glass_pane
+b	minecraft:magenta_terracotta	block.minecraft.magenta_terracotta
+b	minecraft:magenta_wool	block.minecraft.magenta_wool
+b	minecraft:magma_block	block.minecraft.magma_block
+b	minecraft:magma_cream	item.minecraft.magma_cream
+b	minecraft:magma_cube_spawn_egg	item.minecraft.magma_cube_spawn_egg
+b	minecraft:mangrove_boat	item.minecraft.mangrove_boat
+b	minecraft:mangrove_button	block.minecraft.mangrove_button
+b	minecraft:mangrove_chest_boat	item.minecraft.mangrove_chest_boat
+b	minecraft:mangrove_door	block.minecraft.mangrove_door
+b	minecraft:mangrove_fence	block.minecraft.mangrove_fence
+b	minecraft:mangrove_fence_gate	block.minecraft.mangrove_fence_gate
+b	minecraft:mangrove_hanging_sign	block.minecraft.mangrove_hanging_sign
+b	minecraft:mangrove_leaves	block.minecraft.mangrove_leaves
+b	minecraft:mangrove_log	block.minecraft.mangrove_log
+b	minecraft:mangrove_planks	block.minecraft.mangrove_planks
+b	minecraft:mangrove_pressure_plate	block.minecraft.mangrove_pressure_plate
+b	minecraft:mangrove_propagule	block.minecraft.mangrove_propagule
+b	minecraft:mangrove_roots	block.minecraft.mangrove_roots
+b	minecraft:mangrove_sign	block.minecraft.mangrove_sign
+b	minecraft:mangrove_slab	block.minecraft.mangrove_slab
+b	minecraft:mangrove_stairs	block.minecraft.mangrove_stairs
+b	minecraft:mangrove_trapdoor	block.minecraft.mangrove_trapdoor
+b	minecraft:mangrove_wood	block.minecraft.mangrove_wood
+b	minecraft:map	item.minecraft.map
+b	minecraft:medium_amethyst_bud	block.minecraft.medium_amethyst_bud
+b	minecraft:melon	block.minecraft.melon
+b	minecraft:melon_seeds	item.minecraft.melon_seeds
+b	minecraft:melon_slice	item.minecraft.melon_slice
+b	minecraft:milk_bucket	item.minecraft.milk_bucket
+b	minecraft:minecart	item.minecraft.minecart
+b	minecraft:miner_pottery_sherd	item.minecraft.miner_pottery_sherd
+b	minecraft:mojang_banner_pattern	item.minecraft.mojang_banner_pattern
+b	minecraft:mooshroom_spawn_egg	item.minecraft.mooshroom_spawn_egg
+b	minecraft:moss_block	block.minecraft.moss_block
+b	minecraft:moss_carpet	block.minecraft.moss_carpet
+b	minecraft:mossy_cobblestone	block.minecraft.mossy_cobblestone
+b	minecraft:mossy_cobblestone_slab	block.minecraft.mossy_cobblestone_slab
+b	minecraft:mossy_cobblestone_stairs	block.minecraft.mossy_cobblestone_stairs
+b	minecraft:mossy_cobblestone_wall	block.minecraft.mossy_cobblestone_wall
+b	minecraft:mossy_stone_brick_slab	block.minecraft.mossy_stone_brick_slab
+b	minecraft:mossy_stone_brick_stairs	block.minecraft.mossy_stone_brick_stairs
+b	minecraft:mossy_stone_brick_wall	block.minecraft.mossy_stone_brick_wall
+b	minecraft:mossy_stone_bricks	block.minecraft.mossy_stone_bricks
+b	minecraft:mourner_pottery_sherd	item.minecraft.mourner_pottery_sherd
+b	minecraft:mud	block.minecraft.mud
+b	minecraft:mud_brick_slab	block.minecraft.mud_brick_slab
+b	minecraft:mud_brick_stairs	block.minecraft.mud_brick_stairs
+b	minecraft:mud_brick_wall	block.minecraft.mud_brick_wall
+b	minecraft:mud_bricks	block.minecraft.mud_bricks
+b	minecraft:muddy_mangrove_roots	block.minecraft.muddy_mangrove_roots
+b	minecraft:mule_spawn_egg	item.minecraft.mule_spawn_egg
+b	minecraft:mushroom_stem	block.minecraft.mushroom_stem
+b	minecraft:mushroom_stew	item.minecraft.mushroom_stew
+b	minecraft:music_disc_11	item.minecraft.music_disc_11
+b	minecraft:music_disc_13	item.minecraft.music_disc_13
+b	minecraft:music_disc_5	item.minecraft.music_disc_5
+b	minecraft:music_disc_blocks	item.minecraft.music_disc_blocks
+b	minecraft:music_disc_cat	item.minecraft.music_disc_cat
+b	minecraft:music_disc_chirp	item.minecraft.music_disc_chirp
+b	minecraft:music_disc_far	item.minecraft.music_disc_far
+b	minecraft:music_disc_mall	item.minecraft.music_disc_mall
+b	minecraft:music_disc_mellohi	item.minecraft.music_disc_mellohi
+b	minecraft:music_disc_otherside	item.minecraft.music_disc_otherside
+b	minecraft:music_disc_pigstep	item.minecraft.music_disc_pigstep
+b	minecraft:music_disc_relic	item.minecraft.music_disc_relic
+b	minecraft:music_disc_stal	item.minecraft.music_disc_stal
+b	minecraft:music_disc_strad	item.minecraft.music_disc_strad
+b	minecraft:music_disc_wait	item.minecraft.music_disc_wait
+b	minecraft:music_disc_ward	item.minecraft.music_disc_ward
+b	minecraft:mutton	item.minecraft.mutton
+b	minecraft:mycelium	block.minecraft.mycelium
+b	minecraft:name_tag	item.minecraft.name_tag
+b	minecraft:nautilus_shell	item.minecraft.nautilus_shell
+b	minecraft:nether_brick	item.minecraft.nether_brick
+b	minecraft:nether_brick_fence	block.minecraft.nether_brick_fence
+b	minecraft:nether_brick_slab	block.minecraft.nether_brick_slab
+b	minecraft:nether_brick_stairs	block.minecraft.nether_brick_stairs
+b	minecraft:nether_brick_wall	block.minecraft.nether_brick_wall
+b	minecraft:nether_bricks	block.minecraft.nether_bricks
+b	minecraft:nether_gold_ore	block.minecraft.nether_gold_ore
+b	minecraft:nether_quartz_ore	block.minecraft.nether_quartz_ore
+b	minecraft:nether_sprouts	block.minecraft.nether_sprouts
+b	minecraft:nether_star	item.minecraft.nether_star
+b	minecraft:nether_wart	item.minecraft.nether_wart
+b	minecraft:nether_wart_block	block.minecraft.nether_wart_block
+b	minecraft:netherite_axe	item.minecraft.netherite_axe
+b	minecraft:netherite_block	block.minecraft.netherite_block
+b	minecraft:netherite_boots	item.minecraft.netherite_boots
+b	minecraft:netherite_chestplate	item.minecraft.netherite_chestplate
+b	minecraft:netherite_helmet	item.minecraft.netherite_helmet
+b	minecraft:netherite_hoe	item.minecraft.netherite_hoe
+b	minecraft:netherite_ingot	item.minecraft.netherite_ingot
+b	minecraft:netherite_leggings	item.minecraft.netherite_leggings
+b	minecraft:netherite_pickaxe	item.minecraft.netherite_pickaxe
+b	minecraft:netherite_scrap	item.minecraft.netherite_scrap
+b	minecraft:netherite_shovel	item.minecraft.netherite_shovel
+b	minecraft:netherite_sword	item.minecraft.netherite_sword
+b	minecraft:netherite_upgrade_smithing_template	item.minecraft.smithing_template
+b	minecraft:netherrack	block.minecraft.netherrack
+b	minecraft:note_block	block.minecraft.note_block
+b	minecraft:oak_boat	item.minecraft.oak_boat
+b	minecraft:oak_button	block.minecraft.oak_button
+b	minecraft:oak_chest_boat	item.minecraft.oak_chest_boat
+b	minecraft:oak_door	block.minecraft.oak_door
+b	minecraft:oak_fence	block.minecraft.oak_fence
+b	minecraft:oak_fence_gate	block.minecraft.oak_fence_gate
+b	minecraft:oak_hanging_sign	block.minecraft.oak_hanging_sign
+b	minecraft:oak_leaves	block.minecraft.oak_leaves
+b	minecraft:oak_log	block.minecraft.oak_log
+b	minecraft:oak_planks	block.minecraft.oak_planks
+b	minecraft:oak_pressure_plate	block.minecraft.oak_pressure_plate
+b	minecraft:oak_sapling	block.minecraft.oak_sapling
+b	minecraft:oak_sign	block.minecraft.oak_sign
+b	minecraft:oak_slab	block.minecraft.oak_slab
+b	minecraft:oak_stairs	block.minecraft.oak_stairs
+b	minecraft:oak_trapdoor	block.minecraft.oak_trapdoor
+b	minecraft:oak_wood	block.minecraft.oak_wood
+b	minecraft:observer	block.minecraft.observer
+b	minecraft:obsidian	block.minecraft.obsidian
+b	minecraft:ocelot_spawn_egg	item.minecraft.ocelot_spawn_egg
+b	minecraft:ochre_froglight	block.minecraft.ochre_froglight
+b	minecraft:orange_banner	block.minecraft.orange_banner
+b	minecraft:orange_bed	block.minecraft.orange_bed
+b	minecraft:orange_candle	block.minecraft.orange_candle
+b	minecraft:orange_carpet	block.minecraft.orange_carpet
+b	minecraft:orange_concrete	block.minecraft.orange_concrete
+b	minecraft:orange_concrete_powder	block.minecraft.orange_concrete_powder
+b	minecraft:orange_dye	item.minecraft.orange_dye
+b	minecraft:orange_glazed_terracotta	block.minecraft.orange_glazed_terracotta
+b	minecraft:orange_shulker_box	block.minecraft.orange_shulker_box
+b	minecraft:orange_stained_glass	block.minecraft.orange_stained_glass
+b	minecraft:orange_stained_glass_pane	block.minecraft.orange_stained_glass_pane
+b	minecraft:orange_terracotta	block.minecraft.orange_terracotta
+b	minecraft:orange_tulip	block.minecraft.orange_tulip
+b	minecraft:orange_wool	block.minecraft.orange_wool
+b	minecraft:oxeye_daisy	block.minecraft.oxeye_daisy
+b	minecraft:oxidized_copper	block.minecraft.oxidized_copper
+b	minecraft:oxidized_cut_copper	block.minecraft.oxidized_cut_copper
+b	minecraft:oxidized_cut_copper_slab	block.minecraft.oxidized_cut_copper_slab
+b	minecraft:oxidized_cut_copper_stairs	block.minecraft.oxidized_cut_copper_stairs
+b	minecraft:packed_ice	block.minecraft.packed_ice
+b	minecraft:packed_mud	block.minecraft.packed_mud
+b	minecraft:painting	item.minecraft.painting
+b	minecraft:panda_spawn_egg	item.minecraft.panda_spawn_egg
+b	minecraft:paper	item.minecraft.paper
+b	minecraft:parrot_spawn_egg	item.minecraft.parrot_spawn_egg
+b	minecraft:pearlescent_froglight	block.minecraft.pearlescent_froglight
+b	minecraft:peony	block.minecraft.peony
+b	minecraft:phantom_membrane	item.minecraft.phantom_membrane
+b	minecraft:phantom_spawn_egg	item.minecraft.phantom_spawn_egg
+b	minecraft:pig_spawn_egg	item.minecraft.pig_spawn_egg
+b	minecraft:piglin_banner_pattern	item.minecraft.piglin_banner_pattern
+b	minecraft:piglin_brute_spawn_egg	item.minecraft.piglin_brute_spawn_egg
+b	minecraft:piglin_head	block.minecraft.piglin_head
+b	minecraft:piglin_spawn_egg	item.minecraft.piglin_spawn_egg
+b	minecraft:pillager_spawn_egg	item.minecraft.pillager_spawn_egg
+b	minecraft:pink_banner	block.minecraft.pink_banner
+b	minecraft:pink_bed	block.minecraft.pink_bed
+b	minecraft:pink_candle	block.minecraft.pink_candle
+b	minecraft:pink_carpet	block.minecraft.pink_carpet
+b	minecraft:pink_concrete	block.minecraft.pink_concrete
+b	minecraft:pink_concrete_powder	block.minecraft.pink_concrete_powder
+b	minecraft:pink_dye	item.minecraft.pink_dye
+b	minecraft:pink_glazed_terracotta	block.minecraft.pink_glazed_terracotta
+b	minecraft:pink_petals	block.minecraft.pink_petals
+b	minecraft:pink_shulker_box	block.minecraft.pink_shulker_box
+b	minecraft:pink_stained_glass	block.minecraft.pink_stained_glass
+b	minecraft:pink_stained_glass_pane	block.minecraft.pink_stained_glass_pane
+b	minecraft:pink_terracotta	block.minecraft.pink_terracotta
+b	minecraft:pink_tulip	block.minecraft.pink_tulip
+b	minecraft:pink_wool	block.minecraft.pink_wool
+b	minecraft:piston	block.minecraft.piston
+b	minecraft:pitcher_plant	item.minecraft.pitcher_plant
+b	minecraft:pitcher_pod	item.minecraft.pitcher_pod
+b	minecraft:player_head	block.minecraft.player_head
+b	minecraft:plenty_pottery_sherd	item.minecraft.plenty_pottery_sherd
+b	minecraft:podzol	block.minecraft.podzol
+b	minecraft:pointed_dripstone	block.minecraft.pointed_dripstone
+b	minecraft:poisonous_potato	item.minecraft.poisonous_potato
+b	minecraft:polar_bear_spawn_egg	item.minecraft.polar_bear_spawn_egg
+b	minecraft:polished_andesite	block.minecraft.polished_andesite
+b	minecraft:polished_andesite_slab	block.minecraft.polished_andesite_slab
+b	minecraft:polished_andesite_stairs	block.minecraft.polished_andesite_stairs
+b	minecraft:polished_basalt	block.minecraft.polished_basalt
+b	minecraft:polished_blackstone	block.minecraft.polished_blackstone
+b	minecraft:polished_blackstone_brick_slab	block.minecraft.polished_blackstone_brick_slab
+b	minecraft:polished_blackstone_brick_stairs	block.minecraft.polished_blackstone_brick_stairs
+b	minecraft:polished_blackstone_brick_wall	block.minecraft.polished_blackstone_brick_wall
+b	minecraft:polished_blackstone_bricks	block.minecraft.polished_blackstone_bricks
+b	minecraft:polished_blackstone_button	block.minecraft.polished_blackstone_button
+b	minecraft:polished_blackstone_pressure_plate	block.minecraft.polished_blackstone_pressure_plate
+b	minecraft:polished_blackstone_slab	block.minecraft.polished_blackstone_slab
+b	minecraft:polished_blackstone_stairs	block.minecraft.polished_blackstone_stairs
+b	minecraft:polished_blackstone_wall	block.minecraft.polished_blackstone_wall
+b	minecraft:polished_deepslate	block.minecraft.polished_deepslate
+b	minecraft:polished_deepslate_slab	block.minecraft.polished_deepslate_slab
+b	minecraft:polished_deepslate_stairs	block.minecraft.polished_deepslate_stairs
+b	minecraft:polished_deepslate_wall	block.minecraft.polished_deepslate_wall
+b	minecraft:polished_diorite	block.minecraft.polished_diorite
+b	minecraft:polished_diorite_slab	block.minecraft.polished_diorite_slab
+b	minecraft:polished_diorite_stairs	block.minecraft.polished_diorite_stairs
+b	minecraft:polished_granite	block.minecraft.polished_granite
+b	minecraft:polished_granite_slab	block.minecraft.polished_granite_slab
+b	minecraft:polished_granite_stairs	block.minecraft.polished_granite_stairs
+b	minecraft:popped_chorus_fruit	item.minecraft.popped_chorus_fruit
+b	minecraft:poppy	block.minecraft.poppy
+b	minecraft:porkchop	item.minecraft.porkchop
+b	minecraft:potato	item.minecraft.potato
+b	minecraft:potion	item.minecraft.potion.effect.water
+b	minecraft:powder_snow_bucket	item.minecraft.powder_snow_bucket
+b	minecraft:powered_rail	block.minecraft.powered_rail
+b	minecraft:prismarine	block.minecraft.prismarine
+b	minecraft:prismarine_brick_slab	block.minecraft.prismarine_brick_slab
+b	minecraft:prismarine_brick_stairs	block.minecraft.prismarine_brick_stairs
+b	minecraft:prismarine_bricks	block.minecraft.prismarine_bricks
+b	minecraft:prismarine_crystals	item.minecraft.prismarine_crystals
+b	minecraft:prismarine_shard	item.minecraft.prismarine_shard
+b	minecraft:prismarine_slab	block.minecraft.prismarine_slab
+b	minecraft:prismarine_stairs	block.minecraft.prismarine_stairs
+b	minecraft:prismarine_wall	block.minecraft.prismarine_wall
+b	minecraft:prize_pottery_sherd	item.minecraft.prize_pottery_sherd
+b	minecraft:pufferfish	item.minecraft.pufferfish
+b	minecraft:pufferfish_bucket	item.minecraft.pufferfish_bucket
+b	minecraft:pufferfish_spawn_egg	item.minecraft.pufferfish_spawn_egg
+b	minecraft:pumpkin	block.minecraft.pumpkin
+b	minecraft:pumpkin_pie	item.minecraft.pumpkin_pie
+b	minecraft:pumpkin_seeds	item.minecraft.pumpkin_seeds
+b	minecraft:purple_banner	block.minecraft.purple_banner
+b	minecraft:purple_bed	block.minecraft.purple_bed
+b	minecraft:purple_candle	block.minecraft.purple_candle
+b	minecraft:purple_carpet	block.minecraft.purple_carpet
+b	minecraft:purple_concrete	block.minecraft.purple_concrete
+b	minecraft:purple_concrete_powder	block.minecraft.purple_concrete_powder
+b	minecraft:purple_dye	item.minecraft.purple_dye
+b	minecraft:purple_glazed_terracotta	block.minecraft.purple_glazed_terracotta
+b	minecraft:purple_shulker_box	block.minecraft.purple_shulker_box
+b	minecraft:purple_stained_glass	block.minecraft.purple_stained_glass
+b	minecraft:purple_stained_glass_pane	block.minecraft.purple_stained_glass_pane
+b	minecraft:purple_terracotta	block.minecraft.purple_terracotta
+b	minecraft:purple_wool	block.minecraft.purple_wool
+b	minecraft:purpur_block	block.minecraft.purpur_block
+b	minecraft:purpur_pillar	block.minecraft.purpur_pillar
+b	minecraft:purpur_slab	block.minecraft.purpur_slab
+b	minecraft:purpur_stairs	block.minecraft.purpur_stairs
+b	minecraft:quartz	item.minecraft.quartz
+b	minecraft:quartz_block	block.minecraft.quartz_block
+b	minecraft:quartz_bricks	block.minecraft.quartz_bricks
+b	minecraft:quartz_pillar	block.minecraft.quartz_pillar
+b	minecraft:quartz_slab	block.minecraft.quartz_slab
+b	minecraft:quartz_stairs	block.minecraft.quartz_stairs
+b	minecraft:rabbit	item.minecraft.rabbit
+b	minecraft:rabbit_foot	item.minecraft.rabbit_foot
+b	minecraft:rabbit_hide	item.minecraft.rabbit_hide
+b	minecraft:rabbit_spawn_egg	item.minecraft.rabbit_spawn_egg
+b	minecraft:rabbit_stew	item.minecraft.rabbit_stew
+b	minecraft:rail	block.minecraft.rail
+b	minecraft:raiser_armor_trim_smithing_template	item.minecraft.smithing_template
+b	minecraft:ravager_spawn_egg	item.minecraft.ravager_spawn_egg
+b	minecraft:raw_copper	item.minecraft.raw_copper
+b	minecraft:raw_copper_block	block.minecraft.raw_copper_block
+b	minecraft:raw_gold	item.minecraft.raw_gold
+b	minecraft:raw_gold_block	block.minecraft.raw_gold_block
+b	minecraft:raw_iron	item.minecraft.raw_iron
+b	minecraft:raw_iron_block	block.minecraft.raw_iron_block
+b	minecraft:recovery_compass	item.minecraft.recovery_compass
+b	minecraft:red_banner	block.minecraft.red_banner
+b	minecraft:red_bed	block.minecraft.red_bed
+b	minecraft:red_candle	block.minecraft.red_candle
+b	minecraft:red_carpet	block.minecraft.red_carpet
+b	minecraft:red_concrete	block.minecraft.red_concrete
+b	minecraft:red_concrete_powder	block.minecraft.red_concrete_powder
+b	minecraft:red_dye	item.minecraft.red_dye
+b	minecraft:red_glazed_terracotta	block.minecraft.red_glazed_terracotta
+b	minecraft:red_mushroom	block.minecraft.red_mushroom
+b	minecraft:red_mushroom_block	block.minecraft.red_mushroom_block
+b	minecraft:red_nether_brick_slab	block.minecraft.red_nether_brick_slab
+b	minecraft:red_nether_brick_stairs	block.minecraft.red_nether_brick_stairs
+b	minecraft:red_nether_brick_wall	block.minecraft.red_nether_brick_wall
+b	minecraft:red_nether_bricks	block.minecraft.red_nether_bricks
+b	minecraft:red_sand	block.minecraft.red_sand
+b	minecraft:red_sandstone	block.minecraft.red_sandstone
+b	minecraft:red_sandstone_slab	block.minecraft.red_sandstone_slab
+b	minecraft:red_sandstone_stairs	block.minecraft.red_sandstone_stairs
+b	minecraft:red_sandstone_wall	block.minecraft.red_sandstone_wall
+b	minecraft:red_shulker_box	block.minecraft.red_shulker_box
+b	minecraft:red_stained_glass	block.minecraft.red_stained_glass
+b	minecraft:red_stained_glass_pane	block.minecraft.red_stained_glass_pane
+b	minecraft:red_terracotta	block.minecraft.red_terracotta
+b	minecraft:red_tulip	block.minecraft.red_tulip
+b	minecraft:red_wool	block.minecraft.red_wool
+b	minecraft:redstone	item.minecraft.redstone
+b	minecraft:redstone_block	block.minecraft.redstone_block
+b	minecraft:redstone_lamp	block.minecraft.redstone_lamp
+b	minecraft:redstone_ore	block.minecraft.redstone_ore
+b	minecraft:redstone_torch	block.minecraft.redstone_torch
+b	minecraft:reinforced_deepslate	block.minecraft.reinforced_deepslate
+b	minecraft:repeater	block.minecraft.repeater
+b	minecraft:repeating_command_block	block.minecraft.repeating_command_block
+b	minecraft:respawn_anchor	block.minecraft.respawn_anchor
+b	minecraft:rib_armor_trim_smithing_template	item.minecraft.smithing_template
+b	minecraft:rooted_dirt	block.minecraft.rooted_dirt
+b	minecraft:rose_bush	block.minecraft.rose_bush
+b	minecraft:rotten_flesh	item.minecraft.rotten_flesh
+b	minecraft:saddle	item.minecraft.saddle
+b	minecraft:salmon	item.minecraft.salmon
+b	minecraft:salmon_bucket	item.minecraft.salmon_bucket
+b	minecraft:salmon_spawn_egg	item.minecraft.salmon_spawn_egg
+b	minecraft:sand	block.minecraft.sand
+b	minecraft:sandstone	block.minecraft.sandstone
+b	minecraft:sandstone_slab	block.minecraft.sandstone_slab
+b	minecraft:sandstone_stairs	block.minecraft.sandstone_stairs
+b	minecraft:sandstone_wall	block.minecraft.sandstone_wall
+b	minecraft:scaffolding	block.minecraft.scaffolding
+b	minecraft:sculk	block.minecraft.sculk
+b	minecraft:sculk_catalyst	block.minecraft.sculk_catalyst
+b	minecraft:sculk_sensor	block.minecraft.sculk_sensor
+b	minecraft:sculk_shrieker	block.minecraft.sculk_shrieker
+b	minecraft:sculk_vein	block.minecraft.sculk_vein
+b	minecraft:scute	item.minecraft.scute
+b	minecraft:sea_lantern	block.minecraft.sea_lantern
+b	minecraft:sea_pickle	block.minecraft.sea_pickle
+b	minecraft:seagrass	block.minecraft.seagrass
+b	minecraft:sentry_armor_trim_smithing_template	item.minecraft.smithing_template
+b	minecraft:shaper_armor_trim_smithing_template	item.minecraft.smithing_template
+b	minecraft:sheaf_pottery_sherd	item.minecraft.sheaf_pottery_sherd
+b	minecraft:shears	item.minecraft.shears
+b	minecraft:sheep_spawn_egg	item.minecraft.sheep_spawn_egg
+b	minecraft:shelter_pottery_sherd	item.minecraft.shelter_pottery_sherd
+b	minecraft:shield	item.minecraft.shield
+b	minecraft:shroomlight	block.minecraft.shroomlight
+b	minecraft:shulker_box	block.minecraft.shulker_box
+b	minecraft:shulker_shell	item.minecraft.shulker_shell
+b	minecraft:shulker_spawn_egg	item.minecraft.shulker_spawn_egg
+b	minecraft:silence_armor_trim_smithing_template	item.minecraft.smithing_template
+b	minecraft:silverfish_spawn_egg	item.minecraft.silverfish_spawn_egg
+b	minecraft:skeleton_horse_spawn_egg	item.minecraft.skeleton_horse_spawn_egg
+b	minecraft:skeleton_skull	block.minecraft.skeleton_skull
+b	minecraft:skeleton_spawn_egg	item.minecraft.skeleton_spawn_egg
+b	minecraft:skull_banner_pattern	item.minecraft.skull_banner_pattern
+b	minecraft:skull_pottery_sherd	item.minecraft.skull_pottery_sherd
+b	minecraft:slime_ball	item.minecraft.slime_ball
+b	minecraft:slime_block	block.minecraft.slime_block
+b	minecraft:slime_spawn_egg	item.minecraft.slime_spawn_egg
+b	minecraft:small_amethyst_bud	block.minecraft.small_amethyst_bud
+b	minecraft:small_dripleaf	block.minecraft.small_dripleaf
+b	minecraft:smithing_table	block.minecraft.smithing_table
+b	minecraft:smoker	block.minecraft.smoker
+b	minecraft:smooth_basalt	block.minecraft.smooth_basalt
+b	minecraft:smooth_quartz	block.minecraft.smooth_quartz
+b	minecraft:smooth_quartz_slab	block.minecraft.smooth_quartz_slab
+b	minecraft:smooth_quartz_stairs	block.minecraft.smooth_quartz_stairs
+b	minecraft:smooth_red_sandstone	block.minecraft.smooth_red_sandstone
+b	minecraft:smooth_red_sandstone_slab	block.minecraft.smooth_red_sandstone_slab
+b	minecraft:smooth_red_sandstone_stairs	block.minecraft.smooth_red_sandstone_stairs
+b	minecraft:smooth_sandstone	block.minecraft.smooth_sandstone
+b	minecraft:smooth_sandstone_slab	block.minecraft.smooth_sandstone_slab
+b	minecraft:smooth_sandstone_stairs	block.minecraft.smooth_sandstone_stairs
+b	minecraft:smooth_stone	block.minecraft.smooth_stone
+b	minecraft:smooth_stone_slab	block.minecraft.smooth_stone_slab
+b	minecraft:sniffer_egg	block.minecraft.sniffer_egg
+b	minecraft:sniffer_spawn_egg	item.minecraft.sniffer_spawn_egg
+b	minecraft:snort_pottery_sherd	item.minecraft.snort_pottery_sherd
+b	minecraft:snout_armor_trim_smithing_template	item.minecraft.smithing_template
+b	minecraft:snow	block.minecraft.snow
+b	minecraft:snow_block	block.minecraft.snow_block
+b	minecraft:snow_golem_spawn_egg	item.minecraft.snow_golem_spawn_egg
+b	minecraft:snowball	item.minecraft.snowball
+b	minecraft:soul_campfire	block.minecraft.soul_campfire
+b	minecraft:soul_lantern	block.minecraft.soul_lantern
+b	minecraft:soul_sand	block.minecraft.soul_sand
+b	minecraft:soul_soil	block.minecraft.soul_soil
+b	minecraft:soul_torch	block.minecraft.soul_torch
+b	minecraft:spawner	block.minecraft.spawner
+b	minecraft:spectral_arrow	item.minecraft.spectral_arrow
+b	minecraft:spider_eye	item.minecraft.spider_eye
+b	minecraft:spider_spawn_egg	item.minecraft.spider_spawn_egg
+b	minecraft:spire_armor_trim_smithing_template	item.minecraft.smithing_template
+b	minecraft:splash_potion	item.minecraft.splash_potion.effect.water
+b	minecraft:sponge	block.minecraft.sponge
+b	minecraft:spore_blossom	block.minecraft.spore_blossom
+b	minecraft:spruce_boat	item.minecraft.spruce_boat
+b	minecraft:spruce_button	block.minecraft.spruce_button
+b	minecraft:spruce_chest_boat	item.minecraft.spruce_chest_boat
+b	minecraft:spruce_door	block.minecraft.spruce_door
+b	minecraft:spruce_fence	block.minecraft.spruce_fence
+b	minecraft:spruce_fence_gate	block.minecraft.spruce_fence_gate
+b	minecraft:spruce_hanging_sign	block.minecraft.spruce_hanging_sign
+b	minecraft:spruce_leaves	block.minecraft.spruce_leaves
+b	minecraft:spruce_log	block.minecraft.spruce_log
+b	minecraft:spruce_planks	block.minecraft.spruce_planks
+b	minecraft:spruce_pressure_plate	block.minecraft.spruce_pressure_plate
+b	minecraft:spruce_sapling	block.minecraft.spruce_sapling
+b	minecraft:spruce_sign	block.minecraft.spruce_sign
+b	minecraft:spruce_slab	block.minecraft.spruce_slab
+b	minecraft:spruce_stairs	block.minecraft.spruce_stairs
+b	minecraft:spruce_trapdoor	block.minecraft.spruce_trapdoor
+b	minecraft:spruce_wood	block.minecraft.spruce_wood
+b	minecraft:spyglass	item.minecraft.spyglass
+b	minecraft:squid_spawn_egg	item.minecraft.squid_spawn_egg
+b	minecraft:stick	item.minecraft.stick
+b	minecraft:sticky_piston	block.minecraft.sticky_piston
+b	minecraft:stone	block.minecraft.stone
+b	minecraft:stone_axe	item.minecraft.stone_axe
+b	minecraft:stone_brick_slab	block.minecraft.stone_brick_slab
+b	minecraft:stone_brick_stairs	block.minecraft.stone_brick_stairs
+b	minecraft:stone_brick_wall	block.minecraft.stone_brick_wall
+b	minecraft:stone_bricks	block.minecraft.stone_bricks
+b	minecraft:stone_button	block.minecraft.stone_button
+b	minecraft:stone_hoe	item.minecraft.stone_hoe
+b	minecraft:stone_pickaxe	item.minecraft.stone_pickaxe
+b	minecraft:stone_pressure_plate	block.minecraft.stone_pressure_plate
+b	minecraft:stone_shovel	item.minecraft.stone_shovel
+b	minecraft:stone_slab	block.minecraft.stone_slab
+b	minecraft:stone_stairs	block.minecraft.stone_stairs
+b	minecraft:stone_sword	item.minecraft.stone_sword
+b	minecraft:stonecutter	block.minecraft.stonecutter
+b	minecraft:stray_spawn_egg	item.minecraft.stray_spawn_egg
+b	minecraft:strider_spawn_egg	item.minecraft.strider_spawn_egg
+b	minecraft:string	item.minecraft.string
+b	minecraft:stripped_acacia_log	block.minecraft.stripped_acacia_log
+b	minecraft:stripped_acacia_wood	block.minecraft.stripped_acacia_wood
+b	minecraft:stripped_bamboo_block	block.minecraft.stripped_bamboo_block
+b	minecraft:stripped_birch_log	block.minecraft.stripped_birch_log
+b	minecraft:stripped_birch_wood	block.minecraft.stripped_birch_wood
+b	minecraft:stripped_cherry_log	block.minecraft.stripped_cherry_log
+b	minecraft:stripped_cherry_wood	block.minecraft.stripped_cherry_wood
+b	minecraft:stripped_crimson_hyphae	block.minecraft.stripped_crimson_hyphae
+b	minecraft:stripped_crimson_stem	block.minecraft.stripped_crimson_stem
+b	minecraft:stripped_dark_oak_log	block.minecraft.stripped_dark_oak_log
+b	minecraft:stripped_dark_oak_wood	block.minecraft.stripped_dark_oak_wood
+b	minecraft:stripped_jungle_log	block.minecraft.stripped_jungle_log
+b	minecraft:stripped_jungle_wood	block.minecraft.stripped_jungle_wood
+b	minecraft:stripped_mangrove_log	block.minecraft.stripped_mangrove_log
+b	minecraft:stripped_mangrove_wood	block.minecraft.stripped_mangrove_wood
+b	minecraft:stripped_oak_log	block.minecraft.stripped_oak_log
+b	minecraft:stripped_oak_wood	block.minecraft.stripped_oak_wood
+b	minecraft:stripped_spruce_log	block.minecraft.stripped_spruce_log
+b	minecraft:stripped_spruce_wood	block.minecraft.stripped_spruce_wood
+b	minecraft:stripped_warped_hyphae	block.minecraft.stripped_warped_hyphae
+b	minecraft:stripped_warped_stem	block.minecraft.stripped_warped_stem
+b	minecraft:structure_block	block.minecraft.structure_block
+b	minecraft:structure_void	block.minecraft.structure_void
+b	minecraft:sugar	item.minecraft.sugar
+b	minecraft:sugar_cane	block.minecraft.sugar_cane
+b	minecraft:sunflower	block.minecraft.sunflower
+b	minecraft:suspicious_gravel	block.minecraft.suspicious_gravel
+b	minecraft:suspicious_sand	block.minecraft.suspicious_sand
+b	minecraft:suspicious_stew	item.minecraft.suspicious_stew
+b	minecraft:sweet_berries	item.minecraft.sweet_berries
+b	minecraft:tadpole_bucket	item.minecraft.tadpole_bucket
+b	minecraft:tadpole_spawn_egg	item.minecraft.tadpole_spawn_egg
+b	minecraft:tall_grass	block.minecraft.tall_grass
+b	minecraft:target	block.minecraft.target
+b	minecraft:terracotta	block.minecraft.terracotta
+b	minecraft:tide_armor_trim_smithing_template	item.minecraft.smithing_template
+b	minecraft:tinted_glass	block.minecraft.tinted_glass
+b	minecraft:tipped_arrow	item.minecraft.tipped_arrow.effect.water
+b	minecraft:tnt	block.minecraft.tnt
+b	minecraft:tnt_minecart	item.minecraft.tnt_minecart
+b	minecraft:torch	block.minecraft.torch
+b	minecraft:torchflower	block.minecraft.torchflower
+b	minecraft:torchflower_seeds	item.minecraft.torchflower_seeds
+b	minecraft:totem_of_undying	item.minecraft.totem_of_undying
+b	minecraft:trader_llama_spawn_egg	item.minecraft.trader_llama_spawn_egg
+b	minecraft:trapped_chest	block.minecraft.trapped_chest
+b	minecraft:trident	item.minecraft.trident
+b	minecraft:tripwire_hook	block.minecraft.tripwire_hook
+b	minecraft:tropical_fish	item.minecraft.tropical_fish
+b	minecraft:tropical_fish_bucket	item.minecraft.tropical_fish_bucket
+b	minecraft:tropical_fish_spawn_egg	item.minecraft.tropical_fish_spawn_egg
+b	minecraft:tube_coral	block.minecraft.tube_coral
+b	minecraft:tube_coral_block	block.minecraft.tube_coral_block
+b	minecraft:tube_coral_fan	block.minecraft.tube_coral_fan
+b	minecraft:tuff	block.minecraft.tuff
+b	minecraft:turtle_egg	block.minecraft.turtle_egg
+b	minecraft:turtle_helmet	item.minecraft.turtle_helmet
+b	minecraft:turtle_spawn_egg	item.minecraft.turtle_spawn_egg
+b	minecraft:twisting_vines	block.minecraft.twisting_vines
+b	minecraft:verdant_froglight	block.minecraft.verdant_froglight
+b	minecraft:vex_armor_trim_smithing_template	item.minecraft.smithing_template
+b	minecraft:vex_spawn_egg	item.minecraft.vex_spawn_egg
+b	minecraft:villager_spawn_egg	item.minecraft.villager_spawn_egg
+b	minecraft:vindicator_spawn_egg	item.minecraft.vindicator_spawn_egg
+b	minecraft:vine	block.minecraft.vine
+b	minecraft:wandering_trader_spawn_egg	item.minecraft.wandering_trader_spawn_egg
+b	minecraft:ward_armor_trim_smithing_template	item.minecraft.smithing_template
+b	minecraft:warden_spawn_egg	item.minecraft.warden_spawn_egg
+b	minecraft:warped_button	block.minecraft.warped_button
+b	minecraft:warped_door	block.minecraft.warped_door
+b	minecraft:warped_fence	block.minecraft.warped_fence
+b	minecraft:warped_fence_gate	block.minecraft.warped_fence_gate
+b	minecraft:warped_fungus	block.minecraft.warped_fungus
+b	minecraft:warped_fungus_on_a_stick	item.minecraft.warped_fungus_on_a_stick
+b	minecraft:warped_hanging_sign	block.minecraft.warped_hanging_sign
+b	minecraft:warped_hyphae	block.minecraft.warped_hyphae
+b	minecraft:warped_nylium	block.minecraft.warped_nylium
+b	minecraft:warped_planks	block.minecraft.warped_planks
+b	minecraft:warped_pressure_plate	block.minecraft.warped_pressure_plate
+b	minecraft:warped_roots	block.minecraft.warped_roots
+b	minecraft:warped_sign	block.minecraft.warped_sign
+b	minecraft:warped_slab	block.minecraft.warped_slab
+b	minecraft:warped_stairs	block.minecraft.warped_stairs
+b	minecraft:warped_stem	block.minecraft.warped_stem
+b	minecraft:warped_trapdoor	block.minecraft.warped_trapdoor
+b	minecraft:warped_wart_block	block.minecraft.warped_wart_block
+b	minecraft:water_bucket	item.minecraft.water_bucket
+b	minecraft:waxed_copper_block	block.minecraft.waxed_copper_block
+b	minecraft:waxed_cut_copper	block.minecraft.waxed_cut_copper
+b	minecraft:waxed_cut_copper_slab	block.minecraft.waxed_cut_copper_slab
+b	minecraft:waxed_cut_copper_stairs	block.minecraft.waxed_cut_copper_stairs
+b	minecraft:waxed_exposed_copper	block.minecraft.waxed_exposed_copper
+b	minecraft:waxed_exposed_cut_copper	block.minecraft.waxed_exposed_cut_copper
+b	minecraft:waxed_exposed_cut_copper_slab	block.minecraft.waxed_exposed_cut_copper_slab
+b	minecraft:waxed_exposed_cut_copper_stairs	block.minecraft.waxed_exposed_cut_copper_stairs
+b	minecraft:waxed_oxidized_copper	block.minecraft.waxed_oxidized_copper
+b	minecraft:waxed_oxidized_cut_copper	block.minecraft.waxed_oxidized_cut_copper
+b	minecraft:waxed_oxidized_cut_copper_slab	block.minecraft.waxed_oxidized_cut_copper_slab
+b	minecraft:waxed_oxidized_cut_copper_stairs	block.minecraft.waxed_oxidized_cut_copper_stairs
+b	minecraft:waxed_weathered_copper	block.minecraft.waxed_weathered_copper
+b	minecraft:waxed_weathered_cut_copper	block.minecraft.waxed_weathered_cut_copper
+b	minecraft:waxed_weathered_cut_copper_slab	block.minecraft.waxed_weathered_cut_copper_slab
+b	minecraft:waxed_weathered_cut_copper_stairs	block.minecraft.waxed_weathered_cut_copper_stairs
+b	minecraft:wayfinder_armor_trim_smithing_template	item.minecraft.smithing_template
+b	minecraft:weathered_copper	block.minecraft.weathered_copper
+b	minecraft:weathered_cut_copper	block.minecraft.weathered_cut_copper
+b	minecraft:weathered_cut_copper_slab	block.minecraft.weathered_cut_copper_slab
+b	minecraft:weathered_cut_copper_stairs	block.minecraft.weathered_cut_copper_stairs
+b	minecraft:weeping_vines	block.minecraft.weeping_vines
+b	minecraft:wet_sponge	block.minecraft.wet_sponge
+b	minecraft:wheat	item.minecraft.wheat
+b	minecraft:wheat_seeds	item.minecraft.wheat_seeds
+b	minecraft:white_banner	block.minecraft.white_banner
+b	minecraft:white_bed	block.minecraft.white_bed
+b	minecraft:white_candle	block.minecraft.white_candle
+b	minecraft:white_carpet	block.minecraft.white_carpet
+b	minecraft:white_concrete	block.minecraft.white_concrete
+b	minecraft:white_concrete_powder	block.minecraft.white_concrete_powder
+b	minecraft:white_dye	item.minecraft.white_dye
+b	minecraft:white_glazed_terracotta	block.minecraft.white_glazed_terracotta
+b	minecraft:white_shulker_box	block.minecraft.white_shulker_box
+b	minecraft:white_stained_glass	block.minecraft.white_stained_glass
+b	minecraft:white_stained_glass_pane	block.minecraft.white_stained_glass_pane
+b	minecraft:white_terracotta	block.minecraft.white_terracotta
+b	minecraft:white_tulip	block.minecraft.white_tulip
+b	minecraft:white_wool	block.minecraft.white_wool
+b	minecraft:wild_armor_trim_smithing_template	item.minecraft.smithing_template
+b	minecraft:witch_spawn_egg	item.minecraft.witch_spawn_egg
+b	minecraft:wither_rose	block.minecraft.wither_rose
+b	minecraft:wither_skeleton_skull	block.minecraft.wither_skeleton_skull
+b	minecraft:wither_skeleton_spawn_egg	item.minecraft.wither_skeleton_spawn_egg
+b	minecraft:wolf_spawn_egg	item.minecraft.wolf_spawn_egg
+b	minecraft:wooden_axe	item.minecraft.wooden_axe
+b	minecraft:wooden_hoe	item.minecraft.wooden_hoe
+b	minecraft:wooden_pickaxe	item.minecraft.wooden_pickaxe
+b	minecraft:wooden_shovel	item.minecraft.wooden_shovel
+b	minecraft:wooden_sword	item.minecraft.wooden_sword
+b	minecraft:writable_book	item.minecraft.writable_book
+b	minecraft:yellow_banner	block.minecraft.yellow_banner
+b	minecraft:yellow_bed	block.minecraft.yellow_bed
+b	minecraft:yellow_candle	block.minecraft.yellow_candle
+b	minecraft:yellow_carpet	block.minecraft.yellow_carpet
+b	minecraft:yellow_concrete	block.minecraft.yellow_concrete
+b	minecraft:yellow_concrete_powder	block.minecraft.yellow_concrete_powder
+b	minecraft:yellow_dye	item.minecraft.yellow_dye
+b	minecraft:yellow_glazed_terracotta	block.minecraft.yellow_glazed_terracotta
+b	minecraft:yellow_shulker_box	block.minecraft.yellow_shulker_box
+b	minecraft:yellow_stained_glass	block.minecraft.yellow_stained_glass
+b	minecraft:yellow_stained_glass_pane	block.minecraft.yellow_stained_glass_pane
+b	minecraft:yellow_terracotta	block.minecraft.yellow_terracotta
+b	minecraft:yellow_wool	block.minecraft.yellow_wool
+b	minecraft:zoglin_spawn_egg	item.minecraft.zoglin_spawn_egg
+b	minecraft:zombie_head	block.minecraft.zombie_head
+b	minecraft:zombie_horse_spawn_egg	item.minecraft.zombie_horse_spawn_egg
+b	minecraft:zombie_spawn_egg	item.minecraft.zombie_spawn_egg
+b	minecraft:zombie_villager_spawn_egg	item.minecraft.zombie_villager_spawn_egg
+b	minecraft:zombified_piglin_spawn_egg	item.minecraft.zombified_piglin_spawn_egg

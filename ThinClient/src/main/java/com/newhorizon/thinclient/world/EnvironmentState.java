@@ -9,6 +9,7 @@ import java.nio.ByteBuffer;
 public final class EnvironmentState {
     private static final long DAY_TICKS = 24_000L;
     private static final long NANOS_PER_TICK = 50_000_000L;
+    private Long fixedTime;
     private long gameTime;
     private long dayTime = 6_000L;
     private long receivedNanos = System.nanoTime();
@@ -17,6 +18,10 @@ public final class EnvironmentState {
     private volatile float thunderLevel;
     private int weatherLogCount;
     private int timeLogCount;
+
+    public synchronized void changeDimension(Long time) {
+        fixedTime = time; rainLevel = thunderLevel = 0;
+    }
 
     public synchronized void readTime(ByteBuffer packet) throws ProtocolException {
         BinaryCodec.require(packet, 16);
@@ -75,6 +80,7 @@ public final class EnvironmentState {
             sampledDayTime += elapsedTicks;
             sampledGameTime += elapsedTicks;
         }
+        if (fixedTime != null) sampledDayTime = fixedTime;
         output.dayTime = Math.floorMod(sampledDayTime, DAY_TICKS);
         output.day=sampledDayTime/DAY_TICKS;
         output.moonPhase = (int)Math.floorMod(sampledDayTime / DAY_TICKS, 8L);

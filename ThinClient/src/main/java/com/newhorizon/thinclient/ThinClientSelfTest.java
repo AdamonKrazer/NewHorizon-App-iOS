@@ -35,6 +35,12 @@ public final class ThinClientSelfTest {
 
     public static void main(String[] args) throws Exception {
         com.newhorizon.thinclient.audio.AudioSelfTest.run();
+        com.newhorizon.thinclient.audio.InteractionSoundSelfTest.run();
+        com.newhorizon.thinclient.inventory.ItemInteractionSelfTest.run();
+        com.newhorizon.thinclient.world.BlockStateOutlineSelfTest.run();
+        com.newhorizon.thinclient.world.WorldBlockRaycastSelfTest.run();
+        com.newhorizon.thinclient.render.VanillaBlockModelsSelfTest.run();
+        com.newhorizon.thinclient.inventory.WorkbenchSelfTest.run();
         testBudgetAndPool();
         testDisplayProtocolAndLifecycle();
         testWebDisplaysPacketDecoder();
@@ -43,13 +49,19 @@ public final class ThinClientSelfTest {
         com.newhorizon.thinclient.protocol.ChatProtocolSelfTest.run();
         com.newhorizon.thinclient.display.MinePadSelfTest.run();
         com.newhorizon.thinclient.display.MinePadResourcesSelfTest.run();
+        net.kdt.pojavlaunch.gecko.IOSMinePadPolicy.selfTest();
+        net.kdt.pojavlaunch.gecko.IOSInventoryPresentation.selfTest();
         com.newhorizon.thinclient.world.HudCameraSelfTest.run();
+        com.newhorizon.thinclient.world.LocalPlayerVisualSelfTest.run();
+        com.newhorizon.thinclient.world.SprintInputSelfTest.run();
         com.newhorizon.thinclient.render.DebugOverlaySelfTest.run();
+        com.newhorizon.thinclient.render.EntityLabelsSelfTest.run();
         testEntityTracker();
         com.newhorizon.thinclient.world.ProjectileSelfTest.run();
         com.newhorizon.thinclient.world.EffectsSelfTest.run();
         com.newhorizon.thinclient.world.CombatSelfTest.run();
         com.newhorizon.thinclient.inventory.ConsumableUseSelfTest.run();
+        com.newhorizon.thinclient.inventory.HardwareInputSelfTest.run();
         com.newhorizon.thinclient.world.RidingSelfTest.run();
         com.newhorizon.thinclient.world.RailsFireworksSelfTest.run();
         com.newhorizon.thinclient.world.FishingLeadsSelfTest.run();
@@ -66,10 +78,19 @@ public final class ThinClientSelfTest {
         com.newhorizon.thinclient.render.ChickenPoseSelfTest.run();
         com.newhorizon.thinclient.world.ChickenBodyRotationSelfTest.run();
         com.newhorizon.thinclient.world.EntityAnimationSelfTest.run();
+        com.newhorizon.thinclient.world.EntityInterpolationSelfTest.run();
         com.newhorizon.thinclient.world.SwimmingSelfTest.run();
         com.newhorizon.thinclient.render.EntityModelAnimationSelfTest.run();
+        com.newhorizon.thinclient.render.PlayerAttackSelfTest.run();
         com.newhorizon.thinclient.world.WorldParticlesSelfTest.run();
         com.newhorizon.thinclient.world.AtmosphereSelfTest.run();
+        com.newhorizon.thinclient.world.VanillaLightSelfTest.run();
+        com.newhorizon.thinclient.world.BlockStateLightingSelfTest.run();
+        com.newhorizon.thinclient.world.BlockLightEngineSelfTest.run();
+        com.newhorizon.thinclient.world.WorldBlockLightSelfTest.run();
+        com.newhorizon.thinclient.world.DimensionSelfTest.run();
+        com.newhorizon.thinclient.world.PortalSelfTest.run();
+        com.newhorizon.thinclient.world.PrecipitationSelfTest.run();
         testEnvironmentState();
         testMinecraftCompression();
         testBoundedWorldStream();
@@ -506,15 +527,21 @@ public final class ThinClientSelfTest {
         require(!store.isSolidBlock(3, 16, 5), "water is not solid");
         require(!store.isTargetableBlock(3, 16, 5),
                 "ordinary vanilla targeting ignores fluids");
+        // This store has two resident slots, indexed by exactly four int entries.
+        final long residentIndexBytes=4L*Integer.BYTES;
         require(budget.used(MemoryCategory.WORLD) == 2L
                         * (4 * SurfaceChunk.RECORD_BYTES + SurfaceChunk.FULL_BLOCK_BYTES
                         + SurfaceChunk.BIOME_BYTES + SurfaceChunk.LIGHT_BYTES
-                        + SurfaceChunk.BLOCK_ENTITY_BYTES),
-                "world allocation ceiling");
+                        + SurfaceChunk.BLOCK_ENTITY_BYTES) + 72L * 1024 + residentIndexBytes,
+                "world allocation ceiling including fixed light queue, journal flags and resident index");
         store.applyServerTeleport(2, 65, 2, 10, 5, 0);
         require(store.teleportRevision() == 1,
                 "Minecraft teleport revision");
+        long beforeWorldClose=budget.used(MemoryCategory.WORLD);
         store.close();
+        // Native chunk buffers deliberately remain reserved until process exit.
+        require(budget.used(MemoryCategory.WORLD)==beforeWorldClose-72L*1024-residentIndexBytes,
+                "fixed light queue and resident index reservation released");
 
         MemoryBudget coldBudget = MemoryBudget.lowRamDefaults();
         WorldChunkStore coldStore = new WorldChunkStore(coldBudget, 1, 4, 0);

@@ -9,13 +9,13 @@ import java.nio.FloatBuffer;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 
-/** 64 dropped stacks, original sprites and shared block atlas. 64KiB item atlas. */
+/** 64 dropped stacks, original sprites and shared block atlas. 80KiB item atlas. */
 final class DroppedItemRenderer implements AutoCloseable {
     private static final int MAX=64,STRIDE=10;
     private static final String[] NAMES=names();
     private final FloatBuffer vertices=BufferUtils.createFloatBuffer((MAX+256)*36*STRIDE);
     private final EquipmentPose equipmentPose=new EquipmentPose();
-    private final FloatBuffer block=BufferUtils.createFloatBuffer(36*9);
+    private final FloatBuffer block=BufferUtils.createFloatBuffer(HeldBlockMesh.maxVertices()*9);
     private final ByteBuffer upload=BufferUtils.createByteBuffer(16*16*4);
     private final String[] keys=new String[MAX];
     private final long[] ages=new long[MAX];
@@ -29,7 +29,10 @@ final class DroppedItemRenderer implements AutoCloseable {
         GL33.glTexParameteri(GL33.GL_TEXTURE_2D,GL33.GL_TEXTURE_MAG_FILTER,GL33.GL_NEAREST);
         GL33.glTexParameteri(GL33.GL_TEXTURE_2D,GL33.GL_TEXTURE_WRAP_S,GL33.GL_CLAMP_TO_EDGE);
         GL33.glTexParameteri(GL33.GL_TEXTURE_2D,GL33.GL_TEXTURE_WRAP_T,GL33.GL_CLAMP_TO_EDGE);
-        GL33.glTexImage2D(GL33.GL_TEXTURE_2D,0,GL33.GL_RGBA8,128,128,0,GL33.GL_RGBA,GL33.GL_UNSIGNED_BYTE,0L);
+        GL33.glTexImage2D(GL33.GL_TEXTURE_2D,0,GL33.GL_RGBA8,128,160,0,GL33.GL_RGBA,GL33.GL_UNSIGNED_BYTE,0L);
+        ByteBuffer trident=BufferUtils.createByteBuffer(32*32*4);
+        for(int y=0;y<32;y++)for(int x=0;x<32;x++){int p=TridentModel.pixel(x,y);trident.put((byte)(p>>16)).put((byte)(p>>8)).put((byte)p).put((byte)(p>>>24));}
+        trident.flip();GL33.glTexSubImage2D(GL33.GL_TEXTURE_2D,0,0,128,32,32,GL33.GL_RGBA,GL33.GL_UNSIGNED_BYTE,trident);
         int vs=shader(GL33.GL_VERTEX_SHADER,VERTEX),fs=shader(GL33.GL_FRAGMENT_SHADER,FRAGMENT);
         program=GL33.glCreateProgram();GL33.glAttachShader(program,vs);GL33.glAttachShader(program,fs);
         GL33.glBindAttribLocation(program,0,"aPosition");GL33.glBindAttribLocation(program,1,"aColor");
@@ -57,9 +60,20 @@ final class DroppedItemRenderer implements AutoCloseable {
             // Generated model aliases (flowers, doors, signs) retain their original flat geometry.
             boolean generated=!fullBlock&&VanillaItemSprites.transform(material)!=null;
             if(state>=0&&!generated) {
+                if(vertices.remaining()<HeldBlockMesh.vertexCount(state)*STRIDE)continue;
                 float size=fullBlock?1:.25f,c=fullBlock?1:(float)Math.cos(angle)*size,s=fullBlock?0:(float)Math.sin(angle)*size;
                 java.util.Arrays.fill(matrix,0);matrix[0]=c;matrix[2]=-s;matrix[5]=size;matrix[8]=s;matrix[10]=c;matrix[15]=1;
                 matrix[12]=(float)entity.x-(c+s)*.5f;matrix[13]=fullBlock?(float)entity.y:height;matrix[14]=(float)entity.z-(c-s)*.5f;
+                float[] ground=fullBlock?null:HeldBlockMesh.groundTransform(state);
+                if(ground!=null) {
+                    java.util.Arrays.fill(matrix,0);matrix[0]=matrix[5]=matrix[10]=matrix[15]=1;
+                    matrix[12]=(float)entity.x;matrix[13]=(float)entity.y+.1f+(float)Math.sin(time*2+phase)*.1f+.25f*ground[7];matrix[14]=(float)entity.z;
+                    rotateGround(1,(float)Math.toDegrees(angle));
+                    translateGround(ground[3]/16,ground[4]/16,ground[5]/16);
+                    rotateGround(0,ground[0]);rotateGround(1,ground[1]);rotateGround(2,ground[2]);
+                    for(int col=0;col<3;col++)for(int row=0;row<3;row++)matrix[col*4+row]*=ground[6+col];
+                    translateGround(-.5f,-.5f,-.5f);
+                }
                 block.clear();HeldBlockMesh.append(block,state,matrix);block.flip();
                 while(block.hasRemaining()){for(int n=0;n<9;n++)vertices.put(block.get());vertices.put(1);}
             }else {
@@ -67,7 +81,7 @@ final class DroppedItemRenderer implements AutoCloseable {
                 float halfWidth=material.equals("shield")?(.25f*12/22):.25f;
                 float sideX=(float)Math.cos(angle)*halfWidth,sideZ=(float)Math.sin(angle)*halfWidth;
                 float u0=(slot%8*16+.01f)/128,u1=(slot%8*16+15.99f)/128;
-                float v0=(slot/8*16+.01f)/128,v1=(slot/8*16+15.99f)/128;
+                float v0=(slot/8*16+.01f)/160,v1=(slot/8*16+15.99f)/160;
                 float ex=(float)entity.x,ez=(float)entity.z;
                 spriteVertex(ex-sideX,height,ez-sideZ,u0,v1);spriteVertex(ex+sideX,height,ez+sideZ,u1,v1);spriteVertex(ex+sideX,height+.5f,ez+sideZ,u1,v0);
                 spriteVertex(ex-sideX,height,ez-sideZ,u0,v1);spriteVertex(ex+sideX,height+.5f,ez+sideZ,u1,v0);spriteVertex(ex-sideX,height+.5f,ez-sideZ,u0,v0);
@@ -75,13 +89,19 @@ final class DroppedItemRenderer implements AutoCloseable {
             for(int p=start;p<vertices.position();p+=STRIDE)for(int channel=0;channel<3;channel++)vertices.put(p+3+channel,vertices.get(p+3+channel)*itemLight[channel]);
             added++;
         }
-        for(int i=0;i<count;i++)if(!entities[i].invisible&&!entities[i].sleeping)for(int hand=0;hand<2;hand++)held(entities[i],hand);
+        // Invisibility hides the body, not equipped items (including invisible armor stands).
+        for(int i=0;i<count;i++)if(!entities[i].sleeping)for(int hand=0;hand<2;hand++)held(entities[i],hand);
         int n=vertices.position()/STRIDE;if(n==0)return;vertices.flip();ScreenEffects.bind(program);
         GL33.glUniform1i(GL33.glGetUniformLocation(program,"uItems"),0);GL33.glUniform1i(GL33.glGetUniformLocation(program,"uBlocks"),1);
         GL33.glUniform3f(GL33.glGetUniformLocation(program,"uCamera"),x,y,z);GL33.glUniform2f(GL33.glGetUniformLocation(program,"uRotation"),yaw,pitch);
         GL33.glUniform1f(GL33.glGetUniformLocation(program,"uAspect"),aspect);GL33.glUniform1f(GL33.glGetUniformLocation(program,"uProjection"),projection);GL33.glUniform1f(GL33.glGetUniformLocation(program,"uMedium"),medium);
         GL33.glBindVertexArray(vao);GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER,vbo);GL33.glBufferSubData(GL33.GL_ARRAY_BUFFER,0,vertices);
         boolean cull=GL33.glIsEnabled(GL33.GL_CULL_FACE);GL33.glDisable(GL33.GL_CULL_FACE);GL33.glDrawArrays(GL33.GL_TRIANGLES,0,n);if(cull)GL33.glEnable(GL33.GL_CULL_FACE);
+    }
+    private void translateGround(float x,float y,float z){for(int r=0;r<3;r++)matrix[12+r]+=matrix[r]*x+matrix[4+r]*y+matrix[8+r]*z;}
+    private void rotateGround(int axis,float degrees){
+        int a=(axis+1)%3*4,b=(axis+2)%3*4;float c=(float)Math.cos(Math.toRadians(degrees)),s=(float)Math.sin(Math.toRadians(degrees));
+        for(int r=0;r<3;r++){float x=matrix[a+r],y=matrix[b+r];matrix[a+r]=c*x+s*y;matrix[b+r]=-s*x+c*y;}
     }
     private void spriteVertex(float x,float y,float z,float u,float v){vertices.put(x).put(y).put(z).put(1).put(1).put(1).put(1).put(u).put(v).put(0);}
     private static final int[] HELD_CORNERS={0,1,2,0,2,3};
@@ -90,7 +110,15 @@ final class DroppedItemRenderer implements AutoCloseable {
         if(!equipmentPose.prepare(e,hand,material))return;
         SceneAtmosphere.light(e.x,e.y+1,e.z,itemLight);int start=vertices.position();
         int state=VanillaBlockTextures.defaultState(material);
-        if(state>=0&&VanillaItemSprites.transform(material)==null){
+        if(material.equals("trident")) {
+            if(vertices.remaining()<TridentModel.FACES*6*STRIDE)return;
+            float[] m=equipmentPose.matrix,f=TridentModel.MESH;
+            for(int face=0;face<TridentModel.FACES;face++)for(int corner:HELD_CORNERS) {
+                int o=face*20+corner*5;float px=f[o]-.5f,py=-f[o+1]-.5f,pz=-f[o+2]-.5f;
+                spriteVertex(m[0]*px+m[4]*py+m[8]*pz+m[12],m[1]*px+m[5]*py+m[9]*pz+m[13],m[2]*px+m[6]*py+m[10]*pz+m[14],f[o+3]/128,(128+f[o+4])/160);
+            }
+        }else if(state>=0&&VanillaItemSprites.transform(material)==null){
+            if(vertices.remaining()<HeldBlockMesh.vertexCount(state)*STRIDE)return;
             System.arraycopy(equipmentPose.matrix,0,matrix,0,16);
             for(int r=0;r<3;r++)matrix[12+r]-=(matrix[r]+matrix[4+r]+matrix[8+r])*.5f;
             block.clear();HeldBlockMesh.append(block,state,matrix);block.flip();while(block.hasRemaining()){for(int k=0;k<9;k++)vertices.put(block.get());vertices.put(1);}
@@ -99,7 +127,7 @@ final class DroppedItemRenderer implements AutoCloseable {
             int at=slot(sprite,e.equipmentTags[hand]);if(at<0)return;float[] m=equipmentPose.matrix;
             for(int side=0;side<2;side++)for(int corner:HELD_CORNERS){
                 float x=corner==1||corner==2?.5f:-.5f,y=corner>=2?.5f:-.5f,z=side==0?-.03125f:.03125f;
-                float u=(at%8*16+(x+.5f)*15.98f+.01f)/128,v=(at/8*16+(.5f-y)*15.98f+.01f)/128;
+                float u=(at%8*16+(x+.5f)*15.98f+.01f)/128,v=(at/8*16+(.5f-y)*15.98f+.01f)/160;
                 spriteVertex(m[0]*x+m[4]*y+m[8]*z+m[12],m[1]*x+m[5]*y+m[9]*z+m[13],m[2]*x+m[6]*y+m[10]*z+m[14],u,v);
             }
         }

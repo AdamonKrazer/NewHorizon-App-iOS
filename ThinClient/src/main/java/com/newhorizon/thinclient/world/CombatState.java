@@ -19,10 +19,12 @@ public final class CombatState {
     public synchronized void readHealth(ByteBuffer in) throws ProtocolException {
         BinaryCodec.require(in,4); float hp=in.getFloat(); int hunger=VarInts.read(in);
         BinaryCodec.require(in,4); float sat=in.getFloat();
-        if(!Float.isFinite(hp)||hp<0||hunger<0||hunger>20||!Float.isFinite(sat)||sat<0||in.hasRemaining())
-            throw new ProtocolException("Invalid player health");
+        if(!Float.isFinite(hp)||hp<0||hunger<0||!Float.isFinite(sat)||sat<0||in.hasRemaining())
+            throw new ProtocolException("Invalid player health: hp="+hp+", food="+hunger+", saturation="+sat+", trailing="+in.remaining());
         if(hp<health) hurtUntil=System.nanoTime()+500_000_000L;
-        health=hp;food=hunger;saturation=sat;
+        // Some Bukkit minigames send food above 20 to prevent starvation.
+        // Keep the HUD bounded without rejecting the server-authoritative update.
+        health=hp;food=Math.min(20,hunger);saturation=sat;
         if(hp<=0) markDead("");
     }
     public synchronized void readExperience(ByteBuffer in) throws ProtocolException {

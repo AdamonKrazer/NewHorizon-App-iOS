@@ -44,6 +44,16 @@ public final class CombatSelfTest {
         check(c.drainMotion(velocity)==1,"later velocity supersedes pending explosion");near(velocity[0],.25,"server correction wins");
         try{c.readMotion(ByteBuffer.wrap(new byte[]{42,0}),42);throw new AssertionError("truncated velocity accepted");}
         catch(ProtocolException expected){}
+        for(int serverFood:new int[]{20,21,19996,20000,Integer.MAX_VALUE}) {
+            c.readHealth(health(20,serverFood,0));
+            check(c.food()==20&&c.canSprint(),"minigame hunger accepted and HUD bounded: "+serverFood);
+        }
+        try{c.readHealth(health(20,-1,0));throw new AssertionError("negative hunger accepted");}
+        catch(ProtocolException expected){}
+        try{c.readHealth(health(Float.NaN,20,0));throw new AssertionError("NaN health accepted");}
+        catch(ProtocolException expected){}
+        try{c.readHealth(ByteBuffer.wrap(new byte[]{0,0,0}));throw new AssertionError("truncated health accepted");}
+        catch(ProtocolException expected){}
         c.readHealth(health(7,6,0));check(!c.canSprint(),"low hunger prevents sprint");
         ByteBuffer xp=ByteBuffer.allocate(16);xp.putFloat(.5f);VarInts.write(xp,12);VarInts.write(xp,123);xp.flip();c.readExperience(xp);
         ByteBuffer meta=ByteBuffer.allocate(64);VarInts.write(meta,42);

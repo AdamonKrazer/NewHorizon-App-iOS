@@ -13,6 +13,7 @@ final class EntityModelAnimation {
         for(int joint=0;joint<rig.paths.length;joint++) {
             System.arraycopy(rig.poses,joint*6,pose,0,6);
             if(e!=null)animate(rig.paths[joint],rig.names[joint],e,pose);
+            if(e!=null&&(e.player||e.type==122))PlayerAttackPose.apply(rig.names[joint],e,pose);
             if(e!=null&&(e.player||e.type==122)&&e.swimAmount>0)swimPart(rig.names[joint],e,pose);
             matrix(pose,local);
             int parent=rig.parents[joint],to=joint*12;
@@ -36,6 +37,16 @@ final class EntityModelAnimation {
         for(int j=0;j<rig.paths.length;j++)if(rig.paths[j].equals(path)) {
             for(int row=0;row<3;row++){for(int col=0;col<3;col++)out[col*4+row]=matrices[j*12+row*4+col]*(col==2?1:-1);out[12+row]=matrices[j*12+row*4+3]/16;}
             out[3]=out[7]=out[11]=0;out[15]=1;return true;
+        }return false;
+    }
+    /** Attach another model's local cuboid to this model's animated joint. */
+    boolean attachedBox(String path,float x,float y,float z,float[] center,float[] basis){
+        for(int joint=0;joint<rig.paths.length;joint++)if(rig.paths[joint].equals(path)){
+            for(int row=0;row<3;row++){
+                int p=joint*12+row*4;
+                center[row]=matrices[p]*x+matrices[p+1]*y+matrices[p+2]*z+matrices[p+3];
+                for(int col=0;col<3;col++)basis[row*3+col]=matrices[p+col];
+            }return true;
         }return false;
     }
     private static void matrix(float[] p,float[] m) {
@@ -62,7 +73,7 @@ final class EntityModelAnimation {
             else if(part.endsWith("pants"))part=part.replace("pants","leg");
             else if(part.equals("jacket"))part="body";
             if(e.sneaking){
-                if(part.equals("body"))p[3]=.5f;
+                if(part.equals("body")){p[1]=3.2f;p[3]=.5f;}
                 if(part.endsWith("arm")){p[1]=5.2f;p[3]+=.4f;}
                 if(part.endsWith("leg")){p[1]=12.2f;p[2]=4;}
                 if(part.equals("head")||part.equals("hat"))p[1]=4.2f;
@@ -73,7 +84,12 @@ final class EntityModelAnimation {
         float head=wrap(e.headYaw-body)*DEG,pitch=e.pitch*DEG;
         boolean right=part.startsWith("right"),left=part.startsWith("left");
         if(e.type==44||e.type==96) {if(part.startsWith("part"))p[3]=e.squidTentacle;return;}
-        if(e.type==2)return; // Armor-stand poses are metadata, not a walking creature.
+        if(e.type==2){
+            int at=com.newhorizon.thinclient.world.ArmorStandState.part(part);
+            if(at>=0)for(int axis=0;axis<3;axis++)p[3+axis]=e.armorStandPose[at+axis]*DEG;
+            if(part.equals("base_plate"))p[4]=-e.yaw*DEG;
+            return;
+        }
         boolean fish=e.type==16||e.type==20||e.type==78||e.type==81||e.type==99||e.type==105;
         boolean horse=e.type==49||e.type==21||e.type==66||e.type==87||e.type==119;
         boolean headPart=part.equals("head")||path.equals("/hat")||horse&&part.equals("head_parts");
@@ -173,7 +189,7 @@ final class EntityModelAnimation {
                 }
                 p[5]+=(right?1:-1)*(cos(age*.09f)*.05f+.05f);
                 p[3]+=(right?1:-1)*sin(age*.067f)*.05f;
-                if(e.type!=23&&e.type!=50&&e.type!=118&&e.type!=120&&e.swingProgress>0&&e.swingProgress<1&&right!=e.offhandSwing)p[3]-=sin((1-(float)Math.pow(1-e.swingProgress,4))*PI)*1.2f;
+                if(!e.player&&e.type!=122&&e.type!=23&&e.type!=50&&e.type!=118&&e.type!=120&&e.swingProgress>0&&e.swingProgress<1&&right!=e.offhandSwing)p[3]-=sin((1-(float)Math.pow(1-e.swingProgress,4))*PI)*1.2f;
             }
         }
         if(e.type==15&&part.endsWith("wing"))p[5]=e.onGround?0:(right?1:-1)*(1+sin(age*2));
@@ -203,7 +219,7 @@ final class EntityModelAnimation {
             p[3]+=(.3f*cos(e.walkPosition/3+(left?PI:0))-p[3])*blend;return;
         }
         if(!part.endsWith("arm")&&!part.endsWith("sleeve"))return;
-        if(e.blocking || e.swingProgress>0&&e.swingProgress<1&&right!=e.offhandSwing)return;
+        if(e.blocking || e.swingProgress>0&&e.swingProgress<1&&right==PlayerAttackPose.rightArm(e))return;
         float phase=e.walkPosition%26,x,z;
         if(phase<14){x=0;float curve=(-65*phase+phase*phase)/(-65*14f+14*14f);z=PI+(left?1:-1)*1.8707964f*curve;}
         else if(phase<22){float t=(phase-14)/8;x=PI/2*t;z=left?5.012389f-1.8707964f*t:1.2707963f+1.8707964f*t;}

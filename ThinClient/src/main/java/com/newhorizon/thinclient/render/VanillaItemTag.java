@@ -7,6 +7,8 @@ import java.nio.charset.StandardCharsets;
 /** Bounded visual projection of a stack tag, preserving the original server tag. */
 final class VanillaItemTag {
     int potionColor=0x385dc6,leatherColor=0xa06540,mapColor=0xffffff,fireworkColor=0x8a8a8a,damage;
+    int mapId;boolean hasMap;
+    java.util.UUID skullId;String skullTexture="";
     boolean charged,firework;String trim;private int customPotion=-1;
     static VanillaItemTag read(String hex) {
         VanillaItemTag result=new VanillaItemTag();if(hex==null||hex.length()>8192||(hex.length()&1)!=0)return result;
@@ -15,6 +17,7 @@ final class VanillaItemTag {
             ByteBuffer in=ByteBuffer.wrap(bytes);if(!in.hasRemaining()||in.get()!=10)return result;
             string(in);compound(in,result,"",0);
             if(result.customPotion>=0)result.potionColor=result.customPotion;
+            if(result.skullId==null&&!result.skullTexture.isEmpty())result.skullId=java.util.UUID.nameUUIDFromBytes(result.skullTexture.getBytes(StandardCharsets.UTF_8));
         }catch(RuntimeException|ProtocolException ignored){return new VanillaItemTag();}
         return result;
     }
@@ -24,7 +27,8 @@ final class VanillaItemTag {
             int type=in.get()&255;if(type==0)return;String key=string(in);
             if(type==10){compound(in,tag,context+"/"+key,depth+1);continue;}
             if(type==3){int value=in.getInt();
-                if(key.equals("CustomPotionColor")&&context.isEmpty())tag.customPotion=value&0xffffff;
+                if(key.equals("map")&&context.isEmpty()){tag.mapId=value;tag.hasMap=true;}
+                else if(key.equals("CustomPotionColor")&&context.isEmpty())tag.customPotion=value&0xffffff;
                 else if(key.equals("color")&&context.equals("/display"))tag.leatherColor=value&0xffffff;
                 else if(key.equals("MapColor")&&context.equals("/display"))tag.mapColor=value&0xffffff;
                 else if(key.equals("Damage")&&context.isEmpty())tag.damage=value;
@@ -32,7 +36,15 @@ final class VanillaItemTag {
                 if(key.equals("Potion")&&context.isEmpty())tag.potionColor=potion(value);
                 else if(key.equals("material")&&context.equals("/Trim"))tag.trim=value.replace("minecraft:","");
                 else if(key.equals("id")&&context.equals("/ChargedProjectiles")&&value.equals("minecraft:firework_rocket"))tag.firework=true;
+                else if(key.equals("Value")&&context.equals("/SkullOwner/Properties/textures"))tag.skullTexture=value;
+                else if(key.equals("Id")&&context.equals("/SkullOwner")){try{tag.skullId=java.util.UUID.fromString(value);}catch(IllegalArgumentException ignored){}}
             }else if(type==1){boolean value=in.get()!=0;if(key.equals("Charged")&&context.isEmpty())tag.charged=value;
+            }else if(type==9&&key.equals("textures")&&context.equals("/SkullOwner/Properties")) {
+                int child=in.get()&255,count=in.getInt();if(count<0||count>16)throw new ProtocolException("Too many skull textures");
+                for(int i=0;i<count;i++)if(child==10)compound(in,tag,context+"/textures",depth+1);else NbtSkipper.skipUnnamed(in,child);
+            }else if(type==11&&key.equals("Id")&&context.equals("/SkullOwner")) {
+                int count=in.getInt();if(count!=4)throw new ProtocolException("Invalid skull UUID");
+                tag.skullId=new java.util.UUID(((long)in.getInt()<<32)|(in.getInt()&0xffffffffL),((long)in.getInt()<<32)|(in.getInt()&0xffffffffL));
             }else if(type==9&&key.equals("ChargedProjectiles")&&context.isEmpty()) {
                 int child=in.get()&255,count=in.getInt();if(count<0||count>16)throw new ProtocolException("Too many charged projectiles");
                 for(int i=0;i<count;i++)if(child==10)compound(in,tag,"/ChargedProjectiles",depth+1);else NbtSkipper.skipUnnamed(in,child);

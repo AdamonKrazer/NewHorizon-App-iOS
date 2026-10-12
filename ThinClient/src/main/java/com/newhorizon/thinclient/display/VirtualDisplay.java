@@ -17,11 +17,17 @@ public final class VirtualDisplay {
     public final int pixelWidth;
     public final int pixelHeight;
     public final String url;
+    public final int rotation;
 
     public VirtualDisplay(UUID id, String dimension, double x, double y, double z,
                           float yaw, float widthBlocks, float heightBlocks,
                           DisplaySide side, int lifetimeTicks, int pixelWidth,
                           int pixelHeight, String url) {
+        this(id,dimension,x,y,z,yaw,widthBlocks,heightBlocks,side,lifetimeTicks,pixelWidth,pixelHeight,url,0);
+    }
+    public VirtualDisplay(UUID id,String dimension,double x,double y,double z,float yaw,float widthBlocks,float heightBlocks,
+            DisplaySide side,int lifetimeTicks,int pixelWidth,int pixelHeight,String url,int rotation){
+        this.rotation=Math.floorMod(rotation,4);
         if (id == null || dimension == null || side == null || url == null) {
             throw new NullPointerException();
         }

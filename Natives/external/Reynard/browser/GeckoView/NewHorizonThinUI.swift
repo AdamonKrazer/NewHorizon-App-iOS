@@ -59,6 +59,7 @@ final class NHThinInterface: NSObject, UITextFieldDelegate, UICollectionViewData
     private var creativeCatalog = false
     private var rightClick = false
     private var shiftClick = false
+    private var inspectSlot = false
     private struct CreativeItem {
         let variant: Int
         let id: Int
@@ -79,6 +80,21 @@ final class NHThinInterface: NSObject, UITextFieldDelegate, UICollectionViewData
     private var hudHidden = false
     private var keyboardHeight: CGFloat = 0
     private var lastInventory = ""
+    private var menuKind = ""
+    private var menuTitle = ""
+    private var slotLore: [Int:String] = [:]
+    private var lastDragSlot: Int?
+    private var searchAliases: [String: String] = [:]
+    private let pausePanel = UIScrollView()
+    private let pauseColumn = UIStackView()
+    private let sensitivity = UISlider()
+    private let volume = UISlider()
+    private let invertY = UISwitch()
+    private let doubleSprint = UISwitch()
+    private let sensitivityLabel = UILabel()
+    private let volumeLabel = UILabel()
+    private let settings = UserDefaults.standard
+    private let inventoryLanguage = UISegmentedControl(items:["Português","English","Español"])
     private let padPanel = UIView()
     let padViewport = UIView()
     private let padAddress = UITextField()
@@ -126,6 +142,7 @@ final class NHThinInterface: NSObject, UITextFieldDelegate, UICollectionViewData
         for (label, code) in [("Inventário",69),("Chat",84),("Câmera",294),("Jogadores",258),("Debug",292)] {
             toolbar.addArrangedSubview(NHActionButton(label) { [weak self] in self?.key(Int32(code)) })
         }
+        toolbar.addArrangedSubview(NHActionButton("Menu") { [weak self] in self?.emit(-1,"nh-menu-toggle","") })
         overlay.addSubview(toolbar)
         respawn = NHActionButton("Renascer") { [weak self] in self?.emit(-1,"nh-combat-respawn","") }
         leaveRide = NHActionButton("Desmontar / acordar") { [weak self] in self?.emit(-1,"nh-riding-exit","") }
@@ -167,7 +184,8 @@ final class NHThinInterface: NSObject, UITextFieldDelegate, UICollectionViewData
             ("Direito", { [weak self] in self?.rightClick.toggle(); self?.updateInventoryTitle() }),
             ("Shift", { [weak self] in self?.shiftClick.toggle(); self?.updateInventoryTitle() }),
             ("Soltar", { [weak self] in self?.clickSlot(255) }),
-            ("Criativo", { [weak self] in guard let self, self.creative else { return }; self.creativeCatalog.toggle(); self.filterItems(); self.layout() })
+            ("Criativo", { [weak self] in guard let self, self.creative else { return }; self.creativeCatalog.toggle(); self.filterItems(); self.layout() }),
+            ("Detalhes", { [weak self] in self?.inspectSlot.toggle(); self?.updateInventoryTitle() })
         ]
         for (label, action) in actions { let button = NHActionButton(label, action: action); inventory.addSubview(button); inventoryControls.append(button) }
         let gesture = UILongPressGestureRecognizer(target: self, action: #selector(longPressSlot(_:)))
@@ -175,6 +193,7 @@ final class NHThinInterface: NSObject, UITextFieldDelegate, UICollectionViewData
         padPanel.backgroundColor = UIColor(white: 0.1, alpha: 1)
         overlay.addSubview(padPanel)
         padPanel.isHidden = true
+        configurePauseMenu()
         padPanel.addSubview(padViewport)
         configureField(padAddress, placeholder: "Endereço")
         padAddress.keyboardType = .URL
@@ -203,6 +222,64 @@ final class NHThinInterface: NSObject, UITextFieldDelegate, UICollectionViewData
         field.autocorrectionType = .no
         field.autocapitalizationType = .none
         field.returnKeyType = .send
+    }
+    private func configurePauseMenu() {
+        pausePanel.backgroundColor = UIColor(white:0.08,alpha:0.98)
+        pausePanel.isHidden = true
+        overlay.addSubview(pausePanel)
+        pauseColumn.axis = .vertical; pauseColumn.spacing = 10
+        pausePanel.addSubview(pauseColumn)
+        let heading = UILabel(); heading.text = "Menu do jogo"; heading.textColor = .white
+        heading.textAlignment = .center; pauseColumn.addArrangedSubview(heading)
+        inventoryLanguage.selectedSegmentIndex = min(2,max(0,settings.integer(forKey:"nh.thin.language")))
+        inventoryLanguage.addTarget(self,action:#selector(languageChanged),for:.valueChanged)
+        pauseColumn.addArrangedSubview(inventoryLanguage)
+        pauseColumn.addArrangedSubview(NHActionButton("Retornar ao jogo") { [weak self] in self?.emit(-1,"nh-menu-action","resume") })
+        sensitivity.minimumValue = 25; sensitivity.maximumValue = 200
+        sensitivity.value = min(200,max(25,(settings.object(forKey:"nh.thin.sensitivity") as? NSNumber)?.floatValue ?? 100))
+        volume.minimumValue = 0; volume.maximumValue = 100
+        volume.value = min(100,max(0,(settings.object(forKey:"nh.thin.volume") as? NSNumber)?.floatValue ?? 100))
+        invertY.isOn = settings.bool(forKey:"nh.thin.invertY")
+        doubleSprint.isOn = (settings.object(forKey:"nh.thin.doubleSprint") as? Bool) ?? true
+        for label in [sensitivityLabel,volumeLabel] { label.textColor = .white }
+        pauseColumn.addArrangedSubview(sensitivityLabel); pauseColumn.addArrangedSubview(sensitivity)
+        pauseColumn.addArrangedSubview(volumeLabel); pauseColumn.addArrangedSubview(volume)
+        for (name,toggle) in [("Inverter eixo Y",invertY),("Dois toques para correr",doubleSprint)] {
+            let row = UIStackView(); row.axis = .horizontal
+            let label = UILabel(); label.text = name; label.textColor = .white
+            row.addArrangedSubview(label); row.addArrangedSubview(toggle); pauseColumn.addArrangedSubview(row)
+            toggle.addTarget(self,action:#selector(optionsChanged),for:.valueChanged)
+        }
+        for slider in [sensitivity,volume] { slider.addTarget(self,action:#selector(optionsChanged),for:.valueChanged) }
+        let quit = NHActionButton("Desconectar") { [weak self] in self?.confirmDisconnect() }
+        pauseColumn.addArrangedSubview(quit)
+        for view in pauseColumn.arrangedSubviews { view.heightAnchor.constraint(greaterThanOrEqualToConstant:32).isActive = true }
+        updateOptionLabels()
+    }
+    private func confirmDisconnect() {
+        let alert = UIAlertController(title:"Sair da partida?",message:"A conexão com o servidor será encerrada.",preferredStyle:.alert)
+        alert.addAction(UIAlertAction(title:"Cancelar",style:.cancel))
+        alert.addAction(UIAlertAction(title:"Desconectar",style:.destructive) { [weak self] _ in self?.emit(-1,"nh-menu-action","quit") })
+        var controller = overlay.window?.rootViewController
+        while let presented = controller?.presentedViewController { controller = presented }
+        controller?.present(alert,animated:true)
+    }
+    private func updateOptionLabels() {
+        sensitivityLabel.text = "Sensibilidade: \(Int(sensitivity.value.rounded()))%"
+        volumeLabel.text = "Volume geral: \(Int(volume.value.rounded()))%"
+    }
+    @objc private func languageChanged() {
+        let index = min(2,max(0,inventoryLanguage.selectedSegmentIndex))
+        settings.set(index,forKey:"nh.thin.language")
+        emit(-1,"nh-ios-language",["pt_br","en_us","es_es"][index])
+    }
+    @objc private func optionsChanged() {
+        settings.set(Int(sensitivity.value.rounded()),forKey:"nh.thin.sensitivity")
+        settings.set(Int(volume.value.rounded()),forKey:"nh.thin.volume")
+        settings.set(invertY.isOn,forKey:"nh.thin.invertY")
+        settings.set(doubleSprint.isOn,forKey:"nh.thin.doubleSprint")
+        updateOptionLabels()
+        emit(-1,"nh-options","\(Int(sensitivity.value.rounded())),\(invertY.isOn ? 1 : 0),\(doubleSprint.isOn ? 1 : 0),\(Int(volume.value.rounded()))")
     }
     func attach(to root: UIView) {
         let changed = overlay.superview !== root || overlay.frame != root.bounds
@@ -247,7 +324,8 @@ final class NHThinInterface: NSObject, UITextFieldDelegate, UICollectionViewData
         let iw = inventory.bounds.width, ih = inventory.bounds.height
         playerHead.frame = CGRect(x:8,y:4,width:28,height:28)
         inventoryTitle.frame = CGRect(x:42,y:4,width:iw-50,height:28)
-        for (i, control) in inventoryControls.enumerated() { control.frame = CGRect(x:8+CGFloat(i)*(iw-16)/5,y:32,width:(iw-16)/5-3,height:32) }
+        let controlWidth = (iw-16)/CGFloat(inventoryControls.count)
+        for (i, control) in inventoryControls.enumerated() { control.frame = CGRect(x:8+CGFloat(i)*controlWidth,y:32,width:controlWidth-3,height:32) }
         search.isHidden = !creativeCatalog
         categoryButton.isHidden = !creativeCatalog
         categoryButton.frame = CGRect(x:8,y:68,width:170,height:34)
@@ -265,18 +343,30 @@ final class NHThinInterface: NSObject, UITextFieldDelegate, UICollectionViewData
         padTabScroll.contentSize = padTabs.bounds.size
         padViewport.frame = CGRect(x:4,y:106,width:pw-8,height:max(1,padPanel.bounds.height-110))
         padLayout?()
+        pausePanel.frame = CGRect(x:safe.midX-min(380,width-24)/2,y:safe.minY+4,width:min(380,width-24),height:height-8)
+        let menuWidth = pausePanel.bounds.width-24
+        let menuHeight = pauseColumn.systemLayoutSizeFitting(CGSize(width:menuWidth,height:0),withHorizontalFittingPriority:.required,verticalFittingPriority:.fittingSizeLevel).height
+        pauseColumn.frame = CGRect(x:12,y:12,width:menuWidth,height:menuHeight)
+        pausePanel.contentSize = CGSize(width:pausePanel.bounds.width,height:menuHeight+24)
     }
     func handle(_ operation: String, _ args: [String]) -> Bool {
         func arg(_ index: Int) -> String { args.indices.contains(index) ? args[index] : "" }
         switch operation {
+        case "__nh_menu_init":
+            if settings.object(forKey:"nh.thin.volume") == nil { volume.value = Float(min(100,max(0,Int(arg(0)) ?? 100))) }
+            optionsChanged()
+            languageChanged()
+        case "__nh_menu_show":
+            overlay.endEditing(true); pausePanel.isHidden = false; overlay.bringSubviewToFront(pausePanel); layout()
+        case "__nh_menu_hide": pausePanel.isHidden = true
         case "__nh_inventory_show":
             readInventory(arg(0)); inventory.isHidden = false; overlay.bringSubviewToFront(inventory); layout()
         case "__nh_inventory_hide": inventory.isHidden = true; search.resignFirstResponder()
-        case "__nh_hotbar_update": readInventory(arg(0)); hotbar.isHidden = hudHidden
+        case "__nh_hotbar_update": if inventory.isHidden { readInventory(arg(0)) }; hotbar.isHidden = hudHidden
         case "__nh_hotbar_hide": hotbar.isHidden = true
         case "__nh_chat_show": input.text = arg(0); input.isHidden = false; overlay.bringSubviewToFront(input); input.becomeFirstResponder()
         case "__nh_chat_hide": hideChat()
-        case "__nh_chat_reset": hideChat(); messages.removeAll(); chat.text = ""; overlay.removeFromSuperview()
+        case "__nh_chat_reset": hideChat(); messages.removeAll(); chat.text = ""; pausePanel.isHidden = true; inventory.isHidden = true; lastInventory = ""; overlay.removeFromSuperview()
         case "__nh_chat_message":
             messages.append(Self.text(arg(0))); if messages.count > 100 { messages.removeFirst(messages.count-100) }; chat.text = messages.suffix(6).joined(separator:"\n")
         case "__nh_actionbar": actionBar.text = Self.text(arg(0))
@@ -335,10 +425,18 @@ final class NHThinInterface: NSObject, UITextFieldDelegate, UICollectionViewData
         let header = (lines.first ?? "").components(separatedBy:"\t")
         selected = Int(header.first ?? "0") ?? 0
         creative = header.count > 4 && header[4]=="1"
+        menuKind = header.count > 5 ? header[5] : ""
+        let rows = menuKind == "chest" && header.count > 7 ? min(6,max(1,Int(header[7]) ?? 1)) : 0
+        slots = Array(repeating:(0,"",""),count:rows > 0 ? 36+rows*9 : 46)
+        slotLore.removeAll()
+        menuTitle = menuKind == "chest" && header.count > 8 ? Self.text(header[8]) : menuKind == "crafting" ? "Bancada de trabalho" : "Inventário"
         if !creative { creativeCatalog = false }
         for line in lines.dropFirst() {
             let fields = line.components(separatedBy:"\t")
-            if fields.count >= 4, let index = Int(fields[0]), slots.indices.contains(index) { slots[index] = (Int(fields[1]) ?? 0,fields[2],fields[3]) }
+            if fields.count >= 4, let index = Int(fields[0]), slots.indices.contains(index) {
+                slots[index] = (Int(fields[1]) ?? 0,fields[2],Self.text(fields[3]))
+                if fields.count > 6 { slotLore[index] = fields[6].components(separatedBy:"\u{1f}").map { Self.text($0) }.joined(separator:"\n") }
+            }
         }
         for (index, view) in hotbar.arrangedSubviews.enumerated() {
             guard let button = view as? UIButton else { continue }
@@ -354,14 +452,23 @@ final class NHThinInterface: NSObject, UITextFieldDelegate, UICollectionViewData
         if header.count > 3, (Int(header[1]) ?? 0)>0 { inventoryTitle.text = (inventoryTitle.text ?? "") + "  Cursor: \(header[3]) ×\(header[1])" }
         grid.reloadData()
     }
-    private func updateInventoryTitle() { inventoryTitle.text = "Inventário — \(rightClick ? "botão direito" : "botão esquerdo")\(shiftClick ? " + Shift" : "")" }
+    private func updateInventoryTitle() { inventoryTitle.text = "\(menuTitle) — \(inspectSlot ? "toque para ver detalhes" : rightClick ? "botão direito" : "botão esquerdo")\(shiftClick ? " + Shift" : "")" }
     private func clickSlot(_ index: Int) { emit(-1,"nh-inventory-click","\(index),\(rightClick ? 1 : 0),\(shiftClick ? 1 : 0)") }
     private func closeInventory() { emit(-1,"nh-creative-cursor","0"); emit(-1,"nh-inventory-close",""); inventory.isHidden = true; search.resignFirstResponder() }
     @objc private func longPressSlot(_ gesture: UILongPressGestureRecognizer) {
-        guard gesture.state == .began, !creativeCatalog, let path = grid.indexPathForItem(at:gesture.location(in:grid)) else { return }
+        if gesture.state == .ended || gesture.state == .cancelled { lastDragSlot = nil; return }
+        guard (gesture.state == .began || gesture.state == .changed), !creativeCatalog, !inspectSlot,
+              let path = grid.indexPathForItem(at:gesture.location(in:grid)), lastDragSlot != path.item else { return }
+        lastDragSlot = path.item
         emit(-1,"nh-inventory-click","\(path.item),1,0")
     }
     @objc private func filterItems() {
+        if searchAliases.isEmpty, let url = Bundle.main.url(forResource:"creative_search_1_20_1",withExtension:"tsv",subdirectory:"newhorizon/thin-ui/assets/newhorizon"), let text = try? String(contentsOf:url,encoding:.utf8) {
+            for line in text.components(separatedBy:.newlines) where !line.hasPrefix("#") {
+                let fields = line.components(separatedBy:"\t")
+                if fields.count > 1 { searchAliases[fields[0]] = Self.searchText(fields.dropFirst().joined(separator:" ")) }
+            }
+        }
         if catalog.isEmpty, let url = Bundle.main.url(forResource:"creative_inventory_1_20_1",withExtension:"tsv",subdirectory:"newhorizon/thin-ui/assets/newhorizon"), let text = try? String(contentsOf:url,encoding:.utf8) {
             for line in text.components(separatedBy: .newlines) {
                 let fields = line.components(separatedBy:"\t")
@@ -372,10 +479,10 @@ final class NHThinInterface: NSObject, UITextFieldDelegate, UICollectionViewData
                 }
             }
         }
-        let query = (search.text ?? "").lowercased()
+        let query = Self.searchText(search.text ?? "")
         filtered = catalog.filter { item in
             (categories[selectedCategory]?.contains(item.variant) ?? false) &&
-            (query.isEmpty || item.material.lowercased().contains(query) || item.name.lowercased().contains(query))
+            (query.isEmpty || Self.searchText(item.material.replacingOccurrences(of:"_",with:" ")+" "+item.material+" "+item.name).contains(query) || (searchAliases[item.material]?.contains(query) ?? false))
         }
         grid.reloadData()
     }
@@ -391,9 +498,26 @@ final class NHThinInterface: NSObject, UITextFieldDelegate, UICollectionViewData
         image.frame=cell.bounds.insetBy(dx:5,dy:5); image.autoresizingMask=[.flexibleWidth,.flexibleHeight]; cell.contentView.addSubview(image)
         let label=UILabel(frame:cell.bounds); label.autoresizingMask=[.flexibleWidth,.flexibleHeight]; label.textColor = .white; label.font = .systemFont(ofSize:10); label.numberOfLines=3; label.textAlignment = .right
         label.text = amount>0 ? (image.image==nil ? "\(material.replacingOccurrences(of:"minecraft:",with:""))\n×\(amount)" : "\(amount)") : "\(indexPath.item)"
-        cell.contentView.addSubview(label); cell.accessibilityLabel=material; return cell
+        cell.contentView.addSubview(label)
+        let name = creativeCatalog ? filtered[indexPath.item].name : slots[indexPath.item].name
+        cell.accessibilityLabel = name.isEmpty ? material : name
+        cell.accessibilityHint = slotLore[indexPath.item]
+        // Server menu names (e.g. NPC game selectors) must be visible, not only item icons.
+        if !creativeCatalog && !menuKind.isEmpty && !name.isEmpty {
+            label.text = "\(name)\n×\(amount)"; label.backgroundColor = UIColor(white:0,alpha:0.45)
+        }
+        return cell
     }
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        if inspectSlot && !creativeCatalog {
+            let slot = slots[indexPath.item]
+            let alert = UIAlertController(title:slot.name.isEmpty ? slot.material : slot.name,message:slotLore[indexPath.item],preferredStyle:.alert)
+            alert.addAction(UIAlertAction(title:"Fechar",style:.cancel))
+            var controller = overlay.window?.rootViewController
+            while let presented = controller?.presentedViewController { controller = presented }
+            controller?.present(alert,animated:true)
+            return
+        }
         if creativeCatalog { let item=filtered[indexPath.item]; emit(-1,"nh-creative-set-slot","\(36+selected),\(item.id),\(rightClick ? 1 : item.maximum),\(item.material),\(item.nbt)") }
         else { clickSlot(indexPath.item) }
     }
@@ -401,6 +525,9 @@ final class NHThinInterface: NSObject, UITextFieldDelegate, UICollectionViewData
         let name=material.replacingOccurrences(of:"minecraft:",with:"").lowercased()
         guard !name.isEmpty, !name.contains("/"), !name.contains("..") else { return nil }
         if let cached=images.object(forKey:name as NSString) { return cached }
+        if let result = UIImage(contentsOfFile:Bundle.main.bundlePath+"/newhorizon/thin-ui/vanilla_item_icons/\(name).png") {
+            images.setObject(result,forKey:name as NSString,cost:Int(result.size.width*result.size.height*4)); return result
+        }
         for category in ["item","block"] {
             let path=Bundle.main.bundlePath+"/newhorizon/thin-ui/assets/minecraft/textures/\(category)/\(name).png"
             if let result=UIImage(contentsOfFile:path) { images.setObject(result,forKey:name as NSString,cost:Int(result.size.width*result.size.height*4)); return result }
@@ -439,6 +566,9 @@ final class NHThinInterface: NSObject, UITextFieldDelegate, UICollectionViewData
         if let object=value as? [String:Any] { return (object["text"] as? String ?? object["translate"] as? String ?? "") + text(object["with"]) + text(object["extra"]) }
         if let array=value as? [Any] { return array.map { text($0) }.joined() }
         return ""
+    }
+    private static func searchText(_ value: String) -> String {
+        value.folding(options:[.diacriticInsensitive,.caseInsensitive],locale:Locale(identifier:"en_US_POSIX")).trimmingCharacters(in:.whitespacesAndNewlines)
     }
     private static let effectNames=["","Velocidade","Lentidão","Pressa","Fadiga","Força","Cura","Dano","Salto","Náusea","Regeneração","Resistência","Resistência ao fogo","Respiração","Invisibilidade","Cegueira","Visão noturna","Fome","Fraqueza","Veneno","Wither","Vida extra","Absorção","Saturação","Brilho","Levitação","Sorte","Azar","Queda lenta","Poder do canal","Golfinho","Mau presságio","Herói da vila","Escuridão"]
     private static let categoryNames=["Construção","Coloridos","Naturais","Funcionais","Redstone","Barras salvas","Buscar","Ferramentas","Combate","Comidas e bebidas","Ingredientes","Ovos geradores","Operador","Inventário"]

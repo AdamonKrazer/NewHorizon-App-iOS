@@ -32,6 +32,8 @@ public final class SurfaceChunk {
     private long blockLightPresent;
     private int blockEntityCount;
     private final long[] collisionBits = new long[COLLISION_WORDS];
+    // Lazy motion-blocking height cache: 1 KiB per reusable chunk, no frame scans.
+    private final int[] rainHeights = new int[256];
 
     SurfaceChunk(ByteBuffer records, ByteBuffer fullBlockStates,
                  ByteBuffer biomeStates, ByteBuffer lightData,
@@ -54,6 +56,7 @@ public final class SurfaceChunk {
         blockLightPresent = 0L;
         blockEntityCount = 0;
         java.util.Arrays.fill(collisionBits, 0L);
+        java.util.Arrays.fill(rainHeights, -1);
     }
 
     public ByteBuffer records() {
@@ -68,6 +71,7 @@ public final class SurfaceChunk {
         chunkX=source.chunkX; chunkZ=source.chunkZ; revision=source.revision;
         recordCount=source.recordCount; hasFullBlockStates=source.hasFullBlockStates;
         fullBlockHeight=source.fullBlockHeight; skyLightPresent=source.skyLightPresent;
+        System.arraycopy(source.rainHeights,0,rainHeights,0,256);
         blockLightPresent=source.blockLightPresent; blockEntityCount=source.blockEntityCount;
         copy(source.records,records,recordCount*RECORD_BYTES);
         copy(source.fullBlockStates,fullBlockStates,fullBlockHeight*256*2);
@@ -160,11 +164,26 @@ public final class SurfaceChunk {
         int stored = stateId >= 0 && stateId < 0xffff ? stateId : 1;
         fullBlockStates.putShort(fullBlockIndex(x, relativeY, z) * Short.BYTES,
                 (short) stored);
+        rainHeights[z*16+x]=-1;
     }
 
     void finishFullBlockUpdate(int height) {
         hasFullBlockStates = true;
         fullBlockHeight = Math.max(0, Math.min(512, height));
+        java.util.Arrays.fill(rainHeights, -1);
+    }
+
+    int rainHeight(int x,int z) {
+        if(!hasFullBlockStates)return Integer.MIN_VALUE;
+        int cell=z*16+x,cached=rainHeights[cell];
+        if(cached>=0)return cached;
+        for(int y=fullBlockHeight-1;y>=0;y--) {
+            int state=fullBlockState(x,y,z);
+            if(BlockStatePhysics.blocksMovement(state)
+                    ||(BlockStatePhysics.flags(state)&(BlockStatePhysics.WATER|BlockStatePhysics.LAVA))!=0)
+                return rainHeights[cell]=y+1;
+        }
+        return rainHeights[cell]=0;
     }
 
     public boolean hasFullBlockStates() {

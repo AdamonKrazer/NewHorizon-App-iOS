@@ -12,7 +12,7 @@ public final class LocalPlayerSounds {
     private final VanillaSoundCatalog catalog;
     private final Random random = new Random();
     private final Pending[] pending = new Pending[PENDING_LIMIT];
-    private int pendingCursor;
+    private int pendingCursor, nextGroup;
     private long generation = -1;
     private float moveDistance;
     private float nextStep = 1.0f;
@@ -109,35 +109,57 @@ public final class LocalPlayerSounds {
 
     /** The server excludes the acting player from its break/place sound broadcast. */
     public void expectBreak(int x, int y, int z, long now) {
-        expect(1, x, y, z, null, now);
+        expect(1, x, y, z, null, ++nextGroup, now);
+    }
+
+    /** Only the acting client is excluded from vanilla's door/gate sound broadcast. */
+    public void expectUse(int x, int y, int z, int direction, String material,
+                          String offhand, boolean sneaking, long now) {
+        boolean bypass = sneaking && (hasItem(material) || hasItem(offhand));
+        if (!bypass && BlockInteractionSounds.canOpenByHand(world.blockStateAt(x, y, z))) {
+            expect(3, x, y, z, null, ++nextGroup, now);
+            return; // A consumed block use never places the held BlockItem.
+        }
+        expectPlace(x, y, z, direction, material, now);
+    }
+
+    private static boolean hasItem(String material) {
+        return material != null && !material.isEmpty()
+                && !"AIR".equalsIgnoreCase(material) && !"minecraft:air".equalsIgnoreCase(material);
     }
 
     public void expectPlace(int x, int y, int z, int direction, String material, long now) {
-        if (material == null || material.isEmpty()) return;
+        if (!hasItem(material)) return;
         String block = material.toLowerCase(java.util.Locale.ROOT);
         if (!block.startsWith("minecraft:")) block = "minecraft:" + block;
-        // Include both replaceable clicked cells and the outward face candidate.
-        expect(2, x, y, z, block, now);
+        int group = ++nextGroup;
+        // Both possible destinations belong to one action, hence at most one sample.
+        expect(2, x, y, z, block, group, now);
         int dx = direction == 4 ? -1 : direction == 5 ? 1 : 0;
         int dy = direction == 0 ? -1 : direction == 1 ? 1 : 0;
         int dz = direction == 2 ? -1 : direction == 3 ? 1 : 0;
-        expect(2, x + dx, y + dy, z + dz, block, now);
+        expect(2, x + dx, y + dy, z + dz, block, group, now);
     }
 
-    private void expect(int kind, int x, int y, int z, String block, long now) {
+    private void expect(int kind, int x, int y, int z, String block, int group, long now) {
         checkGeneration();
         int state = world.blockStateAt(x, y, z);
         if (state < 0) return;
         for (Pending action : pending) {
+            if (action.active && now > action.deadline) action.active = false;
             if (action.active && action.x == x && action.y == y && action.z == z) {
                 // Holding the same target must not replace its original state.
-                if (action.kind == kind) return;
+                if (action.kind == kind && java.util.Objects.equals(action.block, block)) {
+                    action.group = group;
+                    return;
+                }
                 action.active = false;
             }
         }
         Pending action = pending[pendingCursor++ % pending.length];
         action.active = true;
         action.kind = kind;
+        action.group = group;
         action.x = x; action.y = y; action.z = z;
         action.state = state;
         action.block = block;
@@ -152,6 +174,17 @@ public final class LocalPlayerSounds {
             if (now > action.deadline) { action.active = false; continue; }
             int state = world.blockStateAt(action.x, action.y, action.z);
             if (state < 0 || state == action.state) continue;
+            if (action.kind == 3) {
+                String sound = BlockInteractionSounds.changed(action.state, state);
+                if (sound != null) {
+                    action.active = false;
+                    play(sound, SoundEventQueue.BLOCKS, action.x + 0.5, action.y + 0.5,
+                            action.z + 0.5, 1, 0.9f + random.nextFloat() * 0.1f);
+                } else if (!java.util.Objects.equals(catalog.blockName(action.state), catalog.blockName(state))) {
+                    action.active = false;
+                }
+                continue;
+            }
             action.active = false;
             if (action.kind == 1) {
                 if (!BlockStatePhysics.isAir(state)
@@ -161,7 +194,8 @@ public final class LocalPlayerSounds {
                 if (sound != null) play(sound.breakEvent, SoundEventQueue.BLOCKS,
                         action.x + 0.5, action.y + 0.5, action.z + 0.5,
                         (sound.volume + 1) / 2, sound.pitch * 0.8f);
-            } else if (action.block.equals(catalog.blockName(state))) {
+            } else if (BlockInteractionSounds.placed(action.state, state, action.block)) {
+                for (Pending other : pending) if (other.group == action.group) other.active = false;
                 VanillaSoundCatalog.BlockSound sound = catalog.blockSound(state);
                 if (sound != null) play(sound.placeEvent, SoundEventQueue.BLOCKS,
                         action.x + 0.5, action.y + 0.5, action.z + 0.5,
@@ -184,7 +218,7 @@ public final class LocalPlayerSounds {
 
     private static final class Pending {
         boolean active;
-        int kind, x, y, z, state;
+        int kind, group, x, y, z, state;
         long deadline;
         String block;
     }

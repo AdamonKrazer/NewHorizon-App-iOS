@@ -1,0 +1,1247 @@
+# Original 1.20.1 pt_br/es_es item and block names; fire-charge search alias.
+minecraft:oak_log	Tronco de Carvalho Tronco de roble
+minecraft:oak_wood	Madeira de Carvalho Leño de roble
+minecraft:stripped_oak_log	Tronco de Carvalho Descascado Tronco de roble sin corteza
+minecraft:stripped_oak_wood	Madeira de Carvalho Descascada Leño de roble sin corteza
+minecraft:oak_planks	Tábuas de Carvalho Tablones de roble
+minecraft:oak_stairs	Escadas de Carvalho Escaleras de roble
+minecraft:oak_slab	Laje de Carvalho Losa de roble
+minecraft:oak_fence	Cerca de Carvalho Valla de roble
+minecraft:oak_fence_gate	Portão de Carvalho Puerta de valla de roble
+minecraft:oak_door	Porta de Carvalho Puerta de roble
+minecraft:oak_trapdoor	Alçapão de Carvalho Trampilla de roble
+minecraft:oak_pressure_plate	Placa de Pressão de Carvalho Placa de presión de roble
+minecraft:oak_button	Botão de Carvalho Botón de roble
+minecraft:spruce_log	Tronco de Abeto Tronco de abeto
+minecraft:spruce_wood	Madeira de Abeto Leño de abeto
+minecraft:stripped_spruce_log	Tronco de Abeto Descascado Tronco de abeto sin corteza
+minecraft:stripped_spruce_wood	Madeira de Abeto Descascada Leño de abeto sin corteza
+minecraft:spruce_planks	Tábuas de Abeto Tablones de abeto
+minecraft:spruce_stairs	Escadas de Abeto Escaleras de abeto
+minecraft:spruce_slab	Laje de Abeto Losa de abeto
+minecraft:spruce_fence	Cerca de Abeto Valla de abeto
+minecraft:spruce_fence_gate	Portão de Abeto Puerta de valla de abeto
+minecraft:spruce_door	Porta de Abeto Puerta de abeto
+minecraft:spruce_trapdoor	Alçapão de Abeto Trampilla de abeto
+minecraft:spruce_pressure_plate	Placa de Pressão de Abeto Placa de presión de abeto
+minecraft:spruce_button	Botão de Abeto Botón de abeto
+minecraft:birch_log	Tronco de Bétula Tronco de abedul
+minecraft:birch_wood	Madeira de Bétula Leño de abedul
+minecraft:stripped_birch_log	Tronco de Bétula Descascado Tronco de abedul sin corteza
+minecraft:stripped_birch_wood	Madeira de Bétula Descascada Leño de abedul sin corteza
+minecraft:birch_planks	Tábuas de Bétula Tablones de abedul
+minecraft:birch_stairs	Escadas de Bétula Escaleras de abedul
+minecraft:birch_slab	Laje de Bétula Losa de abedul
+minecraft:birch_fence	Cerca de Bétula Valla de abedul
+minecraft:birch_fence_gate	Portão de Bétula Puerta de valla de abedul
+minecraft:birch_door	Porta de Bétula Puerta de abedul
+minecraft:birch_trapdoor	Alçapão de Bétula Trampilla de abedul
+minecraft:birch_pressure_plate	Placa de Pressão de Bétula Placa de presión de abedul
+minecraft:birch_button	Botão de Bétula Botón de abedul
+minecraft:jungle_log	Tronco da Selva Tronco de jungla
+minecraft:jungle_wood	Madeira da Selva Leño de jungla
+minecraft:stripped_jungle_log	Tronco da Selva Descascado Tronco de jungla sin corteza
+minecraft:stripped_jungle_wood	Madeira da Selva Descascada Leño de jungla sin corteza
+minecraft:jungle_planks	Tábuas da Selva Tablones de jungla
+minecraft:jungle_stairs	Escadas da Selva Escaleras de jungla
+minecraft:jungle_slab	Laje da Selva Losa de jungla
+minecraft:jungle_fence	Cerca da Selva Valla de jungla
+minecraft:jungle_fence_gate	Portão da Selva Puerta de valla de jungla
+minecraft:jungle_door	Porta da Selva Puerta de jungla
+minecraft:jungle_trapdoor	Alçapão da Selva Trampilla de jungla
+minecraft:jungle_pressure_plate	Placa de Pressão da Selva Placa de presión de jungla
+minecraft:jungle_button	Botão da Selva Botón de jungla
+minecraft:acacia_log	Tronco de Acácia Tronco de acacia
+minecraft:acacia_wood	Madeira de Acácia Leño de acacia
+minecraft:stripped_acacia_log	Tronco de Acácia Descascado Tronco de acacia sin corteza
+minecraft:stripped_acacia_wood	Madeira de Acácia Descascada Leño de acacia sin corteza
+minecraft:acacia_planks	Tábuas de Acácia Tablones de acacia
+minecraft:acacia_stairs	Escadas de Acácia Escaleras de acacia
+minecraft:acacia_slab	Laje de Acácia Losa de acacia
+minecraft:acacia_fence	Cerca de Acácia Valla de acacia
+minecraft:acacia_fence_gate	Portão de Acácia Puerta de valla de acacia
+minecraft:acacia_door	Porta de Acácia Puerta de acacia
+minecraft:acacia_trapdoor	Alçapão de Acácia Trampilla de acacia
+minecraft:acacia_pressure_plate	Placa de Pressão de Acácia Placa de presión de acacia
+minecraft:acacia_button	Botão de Acácia Botón de acacia
+minecraft:dark_oak_log	Tronco de Carvalho Escuro Tronco de roble oscuro
+minecraft:dark_oak_wood	Madeira de Carvalho Escuro Leño de roble oscuro
+minecraft:stripped_dark_oak_log	Tronco de Carvalho Escuro Descascado Tronco de roble oscuro sin corteza
+minecraft:stripped_dark_oak_wood	Madeira de Carvalho Escuro Descascada Leño de roble oscuro sin corteza
+minecraft:dark_oak_planks	Tábuas de Carvalho Escuro Tablones de roble oscuro
+minecraft:dark_oak_stairs	Escadas de Carvalho Escuro Escaleras de roble oscuro
+minecraft:dark_oak_slab	Laje de Carvalho Escuro Losa de roble oscuro
+minecraft:dark_oak_fence	Cerca de Carvalho Escuro Valla de roble oscuro
+minecraft:dark_oak_fence_gate	Portão de Carvalho Escuro Puerta de valla de roble oscuro
+minecraft:dark_oak_door	Porta de Carvalho Escuro Puerta de roble oscuro
+minecraft:dark_oak_trapdoor	Alçapão de Carvalho Escuro Trampilla de roble oscuro
+minecraft:dark_oak_pressure_plate	Placa de Pressão de Carvalho Escuro Placa de presión de roble oscuro
+minecraft:dark_oak_button	Botão de Carvalho Escuro Botón de roble oscuro
+minecraft:mangrove_log	Tronco de Mangue Tronco de mangle
+minecraft:mangrove_wood	Madeira de Mangue Leño de mangle
+minecraft:stripped_mangrove_log	Tronco de Mangue Descascado Tronco de mangle sin corteza
+minecraft:stripped_mangrove_wood	Madeira de Mangue Descascada Leño de mangle sin corteza
+minecraft:mangrove_planks	Tábuas de Mangue Tablones de mangle
+minecraft:mangrove_stairs	Escadas de Mangue Escaleras de mangle
+minecraft:mangrove_slab	Laje de Mangue Losa de mangle
+minecraft:mangrove_fence	Cerca de Mangue Valla de mangle
+minecraft:mangrove_fence_gate	Portão de Mangue Puerta de valla de mangle
+minecraft:mangrove_door	Porta de Mangue Puerta de mangle
+minecraft:mangrove_trapdoor	Alçapão de Mangue Trampilla de mangle
+minecraft:mangrove_pressure_plate	Placa de Pressão de Mangue Placa de presión de mangle
+minecraft:mangrove_button	Botão de Mangue Botón de mangle
+minecraft:cherry_log	Tronco de Cerejeira Tronco de cerezo
+minecraft:cherry_wood	Madeira de Cerejeira Leño de cerezo
+minecraft:stripped_cherry_log	Tronco de Cerejeira Descascado Tronco de cerezo sin corteza
+minecraft:stripped_cherry_wood	Madeira de Cerejeira Descascada Leño de cerezo sin corteza
+minecraft:cherry_planks	Tábuas de Cerejeira Tablones de cerezo
+minecraft:cherry_stairs	Escadas de Cerejeira Escaleras de cerezo
+minecraft:cherry_slab	Laje de Cerejeira Losa de cerezo
+minecraft:cherry_fence	Cerca de Cerejeira Valla de cerezo
+minecraft:cherry_fence_gate	Portão de Cerejeira Puerta de valla de cerezo
+minecraft:cherry_door	Porta de Cerejeira Puerta de cerezo
+minecraft:cherry_trapdoor	Alçapão de Cerejeira Trampilla de cerezo
+minecraft:cherry_pressure_plate	Placa de Pressão de Cerejeira Placa de presión de cerezo
+minecraft:cherry_button	Botão de Cerejeira Botón de cerezo
+minecraft:bamboo_block	Bloco de Bambu Bloque de bambú
+minecraft:stripped_bamboo_block	Bloco de Bambu Descascado Bloque de bambú pelado
+minecraft:bamboo_planks	Tábuas de Bambu Tablones de bambú
+minecraft:bamboo_mosaic	Mosaico de Bambu Mosaico de bambú
+minecraft:bamboo_stairs	Escadas de Bambu Escaleras de bambú
+minecraft:bamboo_mosaic_stairs	Escadas de Mosaico de Bambu Escaleras de mosaico de bambú
+minecraft:bamboo_slab	Laje de Bambu Losa de bambú
+minecraft:bamboo_mosaic_slab	Laje de Mosaico de Bambu Losa de mosaico de bambú
+minecraft:bamboo_fence	Cerca de Bambu Valla de bambú
+minecraft:bamboo_fence_gate	Portão de Bambu Puerta de valla de bambú
+minecraft:bamboo_door	Porta de Bambu Puerta de bambú
+minecraft:bamboo_trapdoor	Alçapão de Bambu Trampilla de bambú
+minecraft:bamboo_pressure_plate	Placa de Pressão de Bambu Placa de presión de bambú
+minecraft:bamboo_button	Botão de Bambu Botón de bambú
+minecraft:crimson_stem	Caule Carmesim Tallo carmesí
+minecraft:crimson_hyphae	Hifas Carmesim Hifas carmesí
+minecraft:stripped_crimson_stem	Caule Carmesim Descascado Tallo carmesí pelado
+minecraft:stripped_crimson_hyphae	Hifas Carmesim Descascadas Hifas carmesí peladas
+minecraft:crimson_planks	Tábuas Carmesim Tablones carmesí
+minecraft:crimson_stairs	Escadas Carmesim Escaleras carmesí
+minecraft:crimson_slab	Laje Carmesim Losa carmesí
+minecraft:crimson_fence	Cerca Carmesim Valla carmesí
+minecraft:crimson_fence_gate	Portão Carmesim Puerta de valla carmesí
+minecraft:crimson_door	Porta Carmesim Puerta carmesí
+minecraft:crimson_trapdoor	Alçapão Carmesim Trampilla carmesí
+minecraft:crimson_pressure_plate	Placa de Pressão Carmesim Placa de presión carmesí
+minecraft:crimson_button	Botão Carmesim Botón carmesí
+minecraft:warped_stem	Caule Distorcido Tallo distorsionado
+minecraft:warped_hyphae	Hifas Distorcidas Hifas distorsionadas
+minecraft:stripped_warped_stem	Caule Distorcido Descascado Tallo distorsionado pelado
+minecraft:stripped_warped_hyphae	Hifas Distorcidas Descascadas Hifas distorsionadas peladas
+minecraft:warped_planks	Tábuas Distorcidas Tablones distorsionados
+minecraft:warped_stairs	Escadas Distorcidas Escaleras distorsionadas
+minecraft:warped_slab	Laje Distorcida Losa distorsionada
+minecraft:warped_fence	Cerca Distorcida Valla distorsionada
+minecraft:warped_fence_gate	Portão Distorcido Puerta de valla distorsionada
+minecraft:warped_door	Porta Distorcida Puerta distorsionada
+minecraft:warped_trapdoor	Alçapão Distorcido Trampilla distorsionada
+minecraft:warped_pressure_plate	Placa de Pressão Distorcida Placa de presión distorsionada
+minecraft:warped_button	Botão Distorcido Botón distorsionado
+minecraft:stone	Pedra Piedra
+minecraft:stone_stairs	Escadas de Pedra Escaleras de piedra
+minecraft:stone_slab	Laje de Pedra Losa de piedra
+minecraft:stone_pressure_plate	Placa de Pressão de Pedra Placa de presión de piedra
+minecraft:stone_button	Botão de Pedra Botón de piedra
+minecraft:cobblestone	Pedregulho Roca
+minecraft:cobblestone_stairs	Escadas de Pedregulho Escaleras de roca
+minecraft:cobblestone_slab	Laje de Pedregulho Losa de roca
+minecraft:cobblestone_wall	Muro de Pedregulho Muro de roca
+minecraft:mossy_cobblestone	Pedregulho Musgoso Roca musgosa
+minecraft:mossy_cobblestone_stairs	Escadas de Pedregulho Musgoso Escaleras de roca musgosa
+minecraft:mossy_cobblestone_slab	Laje de Pedregulho Musgoso Losa de roca musgosa
+minecraft:mossy_cobblestone_wall	Muro de Pedregulho Musgoso Muro de roca musgosa
+minecraft:smooth_stone	Pedra Lisa Piedra lisa
+minecraft:smooth_stone_slab	Laje de Pedra Lisa Losa de piedra lisa
+minecraft:stone_bricks	Tijolos de Pedra Ladrillos de piedra
+minecraft:cracked_stone_bricks	Tijolos de Pedra Rachados Ladrillos de piedra agrietados
+minecraft:stone_brick_stairs	Escadas de Tijolos de Pedra Escaleras de ladrillos de piedra
+minecraft:stone_brick_slab	Laje de Tijolos de Pedra Losa de ladrillos de piedra
+minecraft:stone_brick_wall	Muro de Tijolos de Pedra Muro de ladrillos de piedra
+minecraft:chiseled_stone_bricks	Tijolos de Pedra Talhados Ladrillos de piedra cincelados
+minecraft:mossy_stone_bricks	Tijolos de Pedra Musgosos Ladrillos de piedra musgosos
+minecraft:mossy_stone_brick_stairs	Escadas de Tijolos de Pedra Musgosos Escaleras de ladrillos de piedra musgosos
+minecraft:mossy_stone_brick_slab	Laje de Tijolos de Pedra Musgosos Losa de ladrillos de piedra musgosos
+minecraft:mossy_stone_brick_wall	Muro de Tijolos de Pedra Musgosos Muro de ladrillos de piedra musgosos
+minecraft:granite	Granito Granito
+minecraft:granite_stairs	Escadas de Granito Escaleras de granito
+minecraft:granite_slab	Laje de Granito Losa de granito
+minecraft:granite_wall	Muro de Granito Muro de granito
+minecraft:polished_granite	Granito Polido Granito pulido
+minecraft:polished_granite_stairs	Escadas de Granito Polido Escaleras de granito pulido
+minecraft:polished_granite_slab	Laje de Granito Polido Losa de granito pulido
+minecraft:diorite	Diorito Diorita
+minecraft:diorite_stairs	Escadas de Diorito Escaleras de diorita
+minecraft:diorite_slab	Laje de Diorito Losa de diorita
+minecraft:diorite_wall	Muro de Diorito Muro de diorita
+minecraft:polished_diorite	Diorito Polido Diorita pulida
+minecraft:polished_diorite_stairs	Escadas de Diorito Polido Escaleras de diorita pulida
+minecraft:polished_diorite_slab	Laje de Diorito Polido Losa de diorita pulida
+minecraft:andesite	Andesito Andesita
+minecraft:andesite_stairs	Escadas de Andesito Escaleras de andesita
+minecraft:andesite_slab	Laje de Andesito Losa de andesita
+minecraft:andesite_wall	Muro de Andesito Muro de andesita
+minecraft:polished_andesite	Andesito Polido Andesita pulida
+minecraft:polished_andesite_stairs	Escadas de Andesito Polido Escaleras de andesita pulida
+minecraft:polished_andesite_slab	Laje de Andesito Polido Losa de andesita pulida
+minecraft:deepslate	Ardosiabissal Pizarra profunda
+minecraft:cobbled_deepslate	Pedregulho de Ardosiabissal Pizarra profunda rocosa
+minecraft:cobbled_deepslate_stairs	Escadas de Pedregulho de Ardosiabissal Escaleras de pizarra profunda rocosa
+minecraft:cobbled_deepslate_slab	Laje de Pedregulho de Ardosiabissal Losa de pizarra profunda rocosa
+minecraft:cobbled_deepslate_wall	Muro de Pedregulho de Ardosiabissal Muro de pizarra profunda rocosa
+minecraft:chiseled_deepslate	Ardosiabissal Talhada Pizarra profunda cincelada
+minecraft:polished_deepslate	Ardosiabissal Polida Pizarra profunda pulida
+minecraft:polished_deepslate_stairs	Escadas de Ardosiabissal Polida Escaleras de pizarra profunda pulida
+minecraft:polished_deepslate_slab	Laje de Ardosiabissal Polida Losa de pizarra profunda pulida
+minecraft:polished_deepslate_wall	Muro de Ardosiabissal Polida Muro de pizarra profunda pulida
+minecraft:deepslate_bricks	Tijolos de Ardosiabissal Ladrillos de pizarra profunda
+minecraft:cracked_deepslate_bricks	Tijolos de Ardosiabissal Rachados Ladrillos de pizarra profunda agrietados
+minecraft:deepslate_brick_stairs	Escadas de Tijolos de Ardosiabissal Escaleras de ladrillos de pizarra profunda
+minecraft:deepslate_brick_slab	Laje de Tijolos de Ardosiabissal Losa de ladrillos de pizarra profunda
+minecraft:deepslate_brick_wall	Muro de Tijolos de Ardosiabissal Muro de ladrillos de pizarra profunda
+minecraft:deepslate_tiles	Ladrilhos de Ardosiabissal Baldosas de pizarra profunda
+minecraft:cracked_deepslate_tiles	Ladrilhos de Ardosiabissal Rachados Baldosas de pizarra profunda agrietadas
+minecraft:deepslate_tile_stairs	Escadas de Ladrilhos de Ardosiabissal Escaleras de baldosas de pizarra profunda
+minecraft:deepslate_tile_slab	Laje de Ladrilhos de Ardosiabissal Losa de baldosas de pizarra profunda
+minecraft:deepslate_tile_wall	Muro de Ladrilhos de Ardosiabissal Muro de baldosas de pizarra profunda
+minecraft:reinforced_deepslate	Ardosiabissal Reforçada Pizarra profunda reforzada
+minecraft:bricks	Tijolos Ladrillos
+minecraft:brick_stairs	Escadas de Tijolos Escaleras de ladrillos
+minecraft:brick_slab	Laje de Tijolos Losa de ladrillos
+minecraft:brick_wall	Muro de Tijolos Muro de ladrillos
+minecraft:packed_mud	Barro Seco Adobe
+minecraft:mud_bricks	Tijolos de Barro Ladrillos de adobe
+minecraft:mud_brick_stairs	Escadas de Tijolos de Barro Escaleras de ladrillos de adobe
+minecraft:mud_brick_slab	Laje de Tijolos de Barro Losa de ladrillos de adobe
+minecraft:mud_brick_wall	Muro de Tijolos de Barro Muro de ladrillos de adobe
+minecraft:sandstone	Arenito Arenisca
+minecraft:sandstone_stairs	Escadas de Arenito Escaleras de arenisca
+minecraft:sandstone_slab	Laje de Arenito Losa de arenisca
+minecraft:sandstone_wall	Muro de Arenito Muro de arenisca
+minecraft:chiseled_sandstone	Arenito Talhado Arenisca cincelada
+minecraft:smooth_sandstone	Arenito Liso Arenisca lisa
+minecraft:smooth_sandstone_stairs	Escadas de Arenito Liso Escaleras de arenisca lisa
+minecraft:smooth_sandstone_slab	Laje de Arenito Liso Losa de arenisca lisa
+minecraft:cut_sandstone	Arenito Lapidado Arenisca cortada
+minecraft:cut_sandstone_slab	Laje de Arenito Lapidado Losa de arenisca cortada
+minecraft:red_sandstone	Arenito Vermelho Arenisca roja
+minecraft:red_sandstone_stairs	Escadas de Arenito Vermelho Escaleras de arenisca roja
+minecraft:red_sandstone_slab	Laje de Arenito Vermelho Losa de arenisca roja
+minecraft:red_sandstone_wall	Muro de Arenito Vermelho Muro de arenisca roja
+minecraft:chiseled_red_sandstone	Arenito Vermelho Talhado Arenisca roja cincelada
+minecraft:smooth_red_sandstone	Arenito Vermelho Liso Arenisca roja lisa
+minecraft:smooth_red_sandstone_stairs	Escadas de Arenito Vermelho Liso Escaleras de arenisca roja lisa
+minecraft:smooth_red_sandstone_slab	Laje de Arenito Vermelho Liso Losa de arenisca roja lisa
+minecraft:cut_red_sandstone	Arenito Vermelho Lapidado Arenisca roja cortada
+minecraft:cut_red_sandstone_slab	Laje de Arenito Vermelho Lapidado Losa de arenisca roja cortada
+minecraft:sea_lantern	Lanterna Marinha Linterna marina
+minecraft:prismarine	Prismarinho Prismarina
+minecraft:prismarine_stairs	Escadas de Prismarinho Escaleras de prismarina
+minecraft:prismarine_slab	Laje de Prismarinho Losa de prismarina
+minecraft:prismarine_wall	Muro de Prismarinho Muro de prismarina
+minecraft:prismarine_bricks	Tijolos de Prismarinho Ladrillos de prismarina
+minecraft:prismarine_brick_stairs	Escadas de Tijolos de Prismarinho Escaleras de ladrillos de prismarina
+minecraft:prismarine_brick_slab	Laje de Tijolos de Prismarinho Losa de ladrillos de prismarina
+minecraft:dark_prismarine	Prismarinho Escuro Prismarina oscura
+minecraft:dark_prismarine_stairs	Escadas de Prismarinho Escuro Escaleras de prismarina oscura
+minecraft:dark_prismarine_slab	Laje de Prismarinho Escuro Losa de prismarina oscura
+minecraft:netherrack	Netherrack Netherrack
+minecraft:nether_bricks	Tijolos do Nether Ladrillos del Nether
+minecraft:cracked_nether_bricks	Tijolos do Nether Rachados Ladrillos del Nether agrietados
+minecraft:nether_brick_stairs	Escadas de Tijolos do Nether Escaleras de ladrillos del Nether
+minecraft:nether_brick_slab	Laje de Tijolos do Nether Losa de ladrillos del Nether
+minecraft:nether_brick_wall	Muro de Tijolos do Nether Muro de ladrillos del Nether
+minecraft:nether_brick_fence	Cerca de Tijolos do Nether Valla de ladrillos del Nether
+minecraft:chiseled_nether_bricks	Tijolos do Nether Talhados Ladrillos del Nether cincelados
+minecraft:red_nether_bricks	Tijolos Vermelhos do Nether Ladrillos del Nether rojos
+minecraft:red_nether_brick_stairs	Escadas de Tijolos Vermelhos do Nether Escaleras de ladrillos del Nether rojos
+minecraft:red_nether_brick_slab	Laje de Tijolos Vermelhos do Nether Losa de ladrillos del Nether rojos
+minecraft:red_nether_brick_wall	Muro de Tijolos Vermelhos do Nether Muro de ladrillos del Nether rojos
+minecraft:basalt	Basalto Basalto
+minecraft:smooth_basalt	Basalto Liso Basalto liso
+minecraft:polished_basalt	Basalto Polido Basalto pulido
+minecraft:blackstone	Pedra-Negra Piedra negra
+minecraft:gilded_blackstone	Pedra-Negra Dourada Piedra negra áurea
+minecraft:blackstone_stairs	Escadas de Pedra-Negra Escaleras de piedra negra
+minecraft:blackstone_slab	Laje de Pedra-Negra Losa de piedra negra
+minecraft:blackstone_wall	Muro de Pedra-Negra Muro de piedra negra
+minecraft:chiseled_polished_blackstone	Pedra-Negra Polida Talhada Piedra negra pulida cincelada
+minecraft:polished_blackstone	Pedra-Negra Polida Piedra negra pulida
+minecraft:polished_blackstone_stairs	Escadas de Pedra-Negra Polida Escaleras de piedra negra pulida
+minecraft:polished_blackstone_slab	Laje de Pedra-Negra Polida Losa de piedra negra pulida
+minecraft:polished_blackstone_wall	Muro de Pedra-Negra Polida Muro de piedra negra pulida
+minecraft:polished_blackstone_pressure_plate	Placa de Pressão de Pedra-Negra Polida Placa de presión de piedra negra pulida
+minecraft:polished_blackstone_button	Botão de Pedra-Negra Polida Botón de piedra negra pulida
+minecraft:polished_blackstone_bricks	Tijolos de Pedra-Negra Polida Ladrillos de piedra negra pulida
+minecraft:cracked_polished_blackstone_bricks	Tijolos de Pedra-Negra Polida Rachados Ladrillos de piedra negra pulida agrietados
+minecraft:polished_blackstone_brick_stairs	Escadas de Tijolos de Pedra-Negra Polida Escaleras de ladrillos de piedra negra pulida
+minecraft:polished_blackstone_brick_slab	Laje de Tijolos de Pedra-Negra Polida Losa de ladrillos de piedra negra pulida
+minecraft:polished_blackstone_brick_wall	Muro de Tijolos de Pedra-Negra Polida Muro de ladrillos de piedra negra pulida
+minecraft:end_stone	Pedra do End Piedra del End
+minecraft:end_stone_bricks	Tijolos de Pedra do End Ladrillos de piedra del End
+minecraft:end_stone_brick_stairs	Escadas de Tijolos de Pedra do End Escaleras de ladrillos de piedra del End
+minecraft:end_stone_brick_slab	Laje de Tijolos de Pedra do End Losa de ladrillos de piedra del End
+minecraft:end_stone_brick_wall	Muro de Tijolos de Pedra do End Muro de ladrillos de piedra del End
+minecraft:purpur_block	Bloco de Púrpura Bloque de purpur
+minecraft:purpur_pillar	Pilar de Púrpura Pilar de purpur
+minecraft:purpur_stairs	Escadas de Púrpura Escaleras de purpur
+minecraft:purpur_slab	Laje de Púrpura Losa de purpur
+minecraft:coal_block	Bloco de Carvão Bloque de carbón
+minecraft:iron_block	Bloco de Ferro Bloque de hierro
+minecraft:iron_bars	Barras de Ferro Barrotes de hierro
+minecraft:iron_door	Porta de Ferro Puerta de hierro
+minecraft:iron_trapdoor	Alçapão de Ferro Trampilla de hierro
+minecraft:heavy_weighted_pressure_plate	Placa de Pressão de Pesagem Pesada Placa de presión para peso elevado
+minecraft:chain	Corrente Cadena
+minecraft:gold_block	Bloco de Ouro Bloque de oro
+minecraft:light_weighted_pressure_plate	Placa de Pressão de Pesagem Leve Placa de presión para peso ligero
+minecraft:redstone_block	Bloco de Redstone Bloque de redstone
+minecraft:emerald_block	Bloco de Esmeralda Bloque de esmeralda
+minecraft:lapis_block	Bloco de Lápis-Lazúli Bloque de lapislázuli
+minecraft:diamond_block	Bloco de Diamante Bloque de diamante
+minecraft:netherite_block	Bloco de Netherita Bloque de netherita
+minecraft:quartz_block	Bloco de Quartzo Cuarzo
+minecraft:quartz_stairs	Escadas de Quartzo Escaleras de cuarzo
+minecraft:quartz_slab	Laje de Quartzo Losa de cuarzo
+minecraft:chiseled_quartz_block	Bloco de Quartzo Talhado Cuarzo cincelado
+minecraft:quartz_bricks	Tijolos de Quartzo Ladrillos de cuarzo
+minecraft:quartz_pillar	Pilar de Quartzo Pilar de cuarzo
+minecraft:smooth_quartz	Bloco de Quartzo Liso Bloque de cuarzo liso
+minecraft:smooth_quartz_stairs	Escadas de Quartzo Liso Escaleras de cuarzo liso
+minecraft:smooth_quartz_slab	Laje de Quartzo Liso Losa de cuarzo liso
+minecraft:amethyst_block	Bloco de Ametista Bloque de amatista
+minecraft:copper_block	Bloco de Cobre Bloque de cobre
+minecraft:cut_copper	Cobre Lapidado Cobre cortado
+minecraft:cut_copper_stairs	Escadas de Cobre Lapidado Escaleras de cobre cortado
+minecraft:cut_copper_slab	Laje de Cobre Lapidado Losa de cobre cortado
+minecraft:exposed_copper	Cobre Exposto Cobre expuesto
+minecraft:exposed_cut_copper	Cobre Lapidado Exposto Cobre cortado expuesto
+minecraft:exposed_cut_copper_stairs	Escadas de Cobre Lapidado Exposto Escaleras de cobre cortado expuesto
+minecraft:exposed_cut_copper_slab	Laje de Cobre Lapidado Exposto Losa de cobre cortado expuesto
+minecraft:weathered_copper	Cobre Desgastado Cobre degradado
+minecraft:weathered_cut_copper	Cobre Lapidado Desgastado Cobre cortado degradado
+minecraft:weathered_cut_copper_stairs	Escadas de Cobre Lapidado Desgastado Escaleras de cobre cortado degradado
+minecraft:weathered_cut_copper_slab	Laje de Cobre Lapidado Desgastado Losa de cobre cortado degradado
+minecraft:oxidized_copper	Cobre Oxidado Cobre oxidado
+minecraft:oxidized_cut_copper	Cobre Lapidado Oxidado Cobre cortado oxidado
+minecraft:oxidized_cut_copper_stairs	Escadas de Cobre Lapidado Oxidado Escaleras de cobre cortado oxidado
+minecraft:oxidized_cut_copper_slab	Laje de Cobre Lapidado Oxidado Losa de cobre cortado oxidado
+minecraft:waxed_copper_block	Bloco de Cobre Encerado Bloque de cobre encerado
+minecraft:waxed_cut_copper	Cobre Lapidado Encerado Cobre cortado encerado
+minecraft:waxed_cut_copper_stairs	Escadas de Cobre Lapidado Encerado Escaleras de cobre cortado encerado
+minecraft:waxed_cut_copper_slab	Laje de Cobre Lapidado Encerado Losa de cobre cortado encerado
+minecraft:waxed_exposed_copper	Cobre Exposto Encerado Cobre expuesto encerado
+minecraft:waxed_exposed_cut_copper	Cobre Lapidado Exposto Encerado Cobre cortado expuesto encerado
+minecraft:waxed_exposed_cut_copper_stairs	Escadas de Cobre Lapidado Exposto Encerado Escaleras de cobre cortado expuesto encerado
+minecraft:waxed_exposed_cut_copper_slab	Laje de Cobre Lapidado Exposto Encerado Losa de cobre cortado expuesto encerado
+minecraft:waxed_weathered_copper	Cobre Desgastado Encerado Cobre degradado encerado
+minecraft:waxed_weathered_cut_copper	Cobre Lapidado Desgastado Encerado Cobre cortado degradado encerado
+minecraft:waxed_weathered_cut_copper_stairs	Escadas de Cobre Lapidado Desgastado Encerado Escaleras de cobre cortado degradado encerado
+minecraft:waxed_weathered_cut_copper_slab	Laje de Cobre Lapidado Desgastado Encerado Losa de cobre cortado degradado encerado
+minecraft:waxed_oxidized_copper	Cobre Oxidado Encerado Cobre oxidado encerado
+minecraft:waxed_oxidized_cut_copper	Cobre Lapidado Oxidado Encerado Cobre cortado oxidado encerado
+minecraft:waxed_oxidized_cut_copper_stairs	Escadas de Cobre Lapidado Oxidado Encerado Escaleras de cobre cortado oxidado encerado
+minecraft:waxed_oxidized_cut_copper_slab	Laje de Cobre Lapidado Oxidado Encerado Losa de cobre cortado oxidado encerado
+minecraft:white_wool	Lã Branca Lana blanca
+minecraft:light_gray_wool	Lã Cinza-Clara Lana gris claro
+minecraft:gray_wool	Lã Cinza Lana gris
+minecraft:black_wool	Lã Preta Lana negra
+minecraft:brown_wool	Lã Marrom Lana marrón
+minecraft:red_wool	Lã Vermelha Lana roja
+minecraft:orange_wool	Lã Laranja Lana naranja
+minecraft:yellow_wool	Lã Amarela Lana amarilla
+minecraft:lime_wool	Lã Verde-Limão Lana lima
+minecraft:green_wool	Lã Verde Lana verde
+minecraft:cyan_wool	Lã Ciano Lana cian
+minecraft:light_blue_wool	Lã Azul-Clara Lana azul claro
+minecraft:blue_wool	Lã Azul Lana azul
+minecraft:purple_wool	Lã Roxa Lana morada
+minecraft:magenta_wool	Lã Magenta Lana magenta
+minecraft:pink_wool	Lã Rosa Lana rosa
+minecraft:white_carpet	Tapete Branco Alfombra blanca
+minecraft:light_gray_carpet	Tapete Cinza-Claro Alfombra gris claro
+minecraft:gray_carpet	Tapete Cinza Alfombra gris
+minecraft:black_carpet	Tapete Preto Alfombra negra
+minecraft:brown_carpet	Tapete Marrom Alfombra marrón
+minecraft:red_carpet	Tapete Vermelho Alfombra roja
+minecraft:orange_carpet	Tapete Laranja Alfombra naranja
+minecraft:yellow_carpet	Tapete Amarelo Alfombra amarilla
+minecraft:lime_carpet	Tapete Verde-Limão Alfombra verde lima
+minecraft:green_carpet	Tapete Verde Alfombra verde
+minecraft:cyan_carpet	Tapete Ciano Alfombra cian
+minecraft:light_blue_carpet	Tapete Azul-Claro Alfombra azul claro
+minecraft:blue_carpet	Tapete Azul Alfombra azul
+minecraft:purple_carpet	Tapete Roxo Alfombra morada
+minecraft:magenta_carpet	Tapete Magenta Alfombra magenta
+minecraft:pink_carpet	Tapete Rosa Alfombra rosa
+minecraft:terracotta	Terracota Terracota
+minecraft:white_terracotta	Terracota Branca Terracota blanca
+minecraft:light_gray_terracotta	Terracota Cinza-Clara Terracota gris claro
+minecraft:gray_terracotta	Terracota Cinza Terracota gris
+minecraft:black_terracotta	Terracota Preta Terracota negra
+minecraft:brown_terracotta	Terracota Marrom Terracota marrón
+minecraft:red_terracotta	Terracota Vermelha Terracota roja
+minecraft:orange_terracotta	Terracota Laranja Terracota naranja
+minecraft:yellow_terracotta	Terracota Amarela Terracota amarilla
+minecraft:lime_terracotta	Terracota Verde-Limão Terracota verde lima
+minecraft:green_terracotta	Terracota Verde Terracota verde
+minecraft:cyan_terracotta	Terracota Ciano Terracota cian
+minecraft:light_blue_terracotta	Terracota Azul-Clara Terracota azul claro
+minecraft:blue_terracotta	Terracota Azul Terracota azul
+minecraft:purple_terracotta	Terracota Roxa Terracota morada
+minecraft:magenta_terracotta	Terracota Magenta Terracota magenta
+minecraft:pink_terracotta	Terracota Rosa Terracota rosa
+minecraft:white_concrete	Concreto Branco Hormigón blanco
+minecraft:light_gray_concrete	Concreto Cinza-Claro Hormigón gris claro
+minecraft:gray_concrete	Concreto Cinza Hormigón gris
+minecraft:black_concrete	Concreto Preto Hormigón negro
+minecraft:brown_concrete	Concreto Marrom Hormigón marrón
+minecraft:red_concrete	Concreto Vermelho Hormigón rojo
+minecraft:orange_concrete	Concreto Laranja Hormigón naranja
+minecraft:yellow_concrete	Concreto Amarelo Hormigón amarillo
+minecraft:lime_concrete	Concreto Verde-Limão Hormigón verde lima
+minecraft:green_concrete	Concreto Verde Hormigón verde
+minecraft:cyan_concrete	Concreto Ciano Hormigón cian
+minecraft:light_blue_concrete	Concreto Azul-Claro Hormigón azul claro
+minecraft:blue_concrete	Concreto Azul Hormigón azul
+minecraft:purple_concrete	Concreto Roxo Hormigón morado
+minecraft:magenta_concrete	Concreto Magenta Hormigón magenta
+minecraft:pink_concrete	Concreto Rosa Hormigón rosa
+minecraft:white_concrete_powder	Cimento Branco Cemento blanco
+minecraft:light_gray_concrete_powder	Cimento Cinza-Claro Cemento gris claro
+minecraft:gray_concrete_powder	Cimento Cinza Cemento gris
+minecraft:black_concrete_powder	Cimento Preto Cemento negro
+minecraft:brown_concrete_powder	Cimento Marrom Cemento marrón
+minecraft:red_concrete_powder	Cimento Vermelho Cemento rojo
+minecraft:orange_concrete_powder	Cimento Laranja Cemento naranja
+minecraft:yellow_concrete_powder	Cimento Amarelo Cemento amarillo
+minecraft:lime_concrete_powder	Cimento Verde-Limão Cemento verde lima
+minecraft:green_concrete_powder	Cimento Verde Cemento verde
+minecraft:cyan_concrete_powder	Cimento Ciano Cemento cian
+minecraft:light_blue_concrete_powder	Cimento Azul-Claro Cemento azul claro
+minecraft:blue_concrete_powder	Cimento Azul Cemento azul
+minecraft:purple_concrete_powder	Cimento Roxo Cemento morado
+minecraft:magenta_concrete_powder	Cimento Magenta Cemento magenta
+minecraft:pink_concrete_powder	Cimento Rosa Cemento rosa
+minecraft:white_glazed_terracotta	Azulejo Branco Azulejo blanco
+minecraft:light_gray_glazed_terracotta	Azulejo Cinza-Claro Azulejo gris claro
+minecraft:gray_glazed_terracotta	Azulejo Cinza Azulejo gris
+minecraft:black_glazed_terracotta	Azulejo Preto Azulejo negro
+minecraft:brown_glazed_terracotta	Azulejo Marrom Azulejo marrón
+minecraft:red_glazed_terracotta	Azulejo Vermelho Azulejo rojo
+minecraft:orange_glazed_terracotta	Azulejo Laranja Azulejo naranja
+minecraft:yellow_glazed_terracotta	Azulejo Amarelo Azulejo amarillo
+minecraft:lime_glazed_terracotta	Azulejo Verde-Limão Azulejo verde lima
+minecraft:green_glazed_terracotta	Azulejo Verde Azulejo verde
+minecraft:cyan_glazed_terracotta	Azulejo Ciano Azulejo cian
+minecraft:light_blue_glazed_terracotta	Azulejo Azul-Claro Azulejo azul claro
+minecraft:blue_glazed_terracotta	Azulejo Azul Azulejo azul
+minecraft:purple_glazed_terracotta	Azulejo Roxo Azulejo morado
+minecraft:magenta_glazed_terracotta	Azulejo Magenta Azulejo magenta
+minecraft:pink_glazed_terracotta	Azulejo Rosa Azulejo rosa
+minecraft:glass	Vidro Cristal
+minecraft:tinted_glass	Vidro Fosco Cristal opaco
+minecraft:white_stained_glass	Vidro Branco Cristal tintado de blanco
+minecraft:light_gray_stained_glass	Vidro Cinza-Claro Cristal tintado de gris claro
+minecraft:gray_stained_glass	Vidro Cinza Cristal tintado de gris
+minecraft:black_stained_glass	Vidro Preto Cristal tintado de negro
+minecraft:brown_stained_glass	Vidro Marrom Cristal tintado de marrón
+minecraft:red_stained_glass	Vidro Vermelho Cristal tintado de rojo
+minecraft:orange_stained_glass	Vidro Laranja Cristal tintado de naranja
+minecraft:yellow_stained_glass	Vidro Amarelo Cristal tintado de amarillo
+minecraft:lime_stained_glass	Vidro Verde-Limão Cristal tintado de verde lima
+minecraft:green_stained_glass	Vidro Verde Cristal tintado de verde
+minecraft:cyan_stained_glass	Vidro Ciano Cristal tintado de cian
+minecraft:light_blue_stained_glass	Vidro Azul-Claro Cristal tintado de azul claro
+minecraft:blue_stained_glass	Vidro Azul Cristal tintado de azul
+minecraft:purple_stained_glass	Vidro Roxo Cristal tintado de morado
+minecraft:magenta_stained_glass	Vidro Magenta Cristal tintado de magenta
+minecraft:pink_stained_glass	Vidro Rosa Cristal tintado de rosa
+minecraft:glass_pane	Vidraça Panel de cristal
+minecraft:white_stained_glass_pane	Vidraça Branca Panel de cristal tintado de blanco
+minecraft:light_gray_stained_glass_pane	Vidraça Cinza-Clara Panel de cristal tintado de gris claro
+minecraft:gray_stained_glass_pane	Vidraça Cinza Panel de cristal tintado de gris
+minecraft:black_stained_glass_pane	Vidraça Preta Panel de cristal tintado de negro
+minecraft:brown_stained_glass_pane	Vidraça Marrom Panel de cristal tintado de marrón
+minecraft:red_stained_glass_pane	Vidraça Vermelha Panel de cristal tintado de rojo
+minecraft:orange_stained_glass_pane	Vidraça Laranja Panel de cristal tintado de naranja
+minecraft:yellow_stained_glass_pane	Vidraça Amarela Panel de cristal tintado de amarillo
+minecraft:lime_stained_glass_pane	Vidraça Verde-Limão Panel de cristal tintado de verde lima
+minecraft:green_stained_glass_pane	Vidraça Verde Panel de cristal tintado de verde
+minecraft:cyan_stained_glass_pane	Vidraça Ciano Panel de cristal tintado de cian
+minecraft:light_blue_stained_glass_pane	Vidraça Azul-Clara Panel de cristal tintado de azul claro
+minecraft:blue_stained_glass_pane	Vidraça Azul Panel de cristal tintado de azul
+minecraft:purple_stained_glass_pane	Vidraça Roxa Panel de cristal tintado de morado
+minecraft:magenta_stained_glass_pane	Vidraça Magenta Panel de cristal tintado de magenta
+minecraft:pink_stained_glass_pane	Vidraça Rosa Panel de cristal tintado de rosa
+minecraft:shulker_box	Caixa de Shulker Caja de shulker
+minecraft:white_shulker_box	Caixa de Shulker Branca Caja de shulker blanca
+minecraft:light_gray_shulker_box	Caixa de Shulker Cinza-Clara Caja de shulker gris claro
+minecraft:gray_shulker_box	Caixa de Shulker Cinza Caja de shulker gris
+minecraft:black_shulker_box	Caixa de Shulker Preta Caja de shulker negra
+minecraft:brown_shulker_box	Caixa de Shulker Marrom Caja de shulker marrón
+minecraft:red_shulker_box	Caixa de Shulker Vermelha Caja de shulker roja
+minecraft:orange_shulker_box	Caixa de Shulker Laranja Caja de shulker naranja
+minecraft:yellow_shulker_box	Caixa de Shulker Amarela Caja de shulker amarilla
+minecraft:lime_shulker_box	Caixa de Shulker Verde-Limão Caja de shulker verde lima
+minecraft:green_shulker_box	Caixa de Shulker Verde Caja de shulker verde
+minecraft:cyan_shulker_box	Caixa de Shulker Ciano Caja de shulker cian
+minecraft:light_blue_shulker_box	Caixa de Shulker Azul-Clara Caja de shulker azul claro
+minecraft:blue_shulker_box	Caixa de Shulker Azul Caja de shulker azul
+minecraft:purple_shulker_box	Caixa de Shulker Roxa Caja de shulker morada
+minecraft:magenta_shulker_box	Caixa de Shulker Magenta Caja de shulker magenta
+minecraft:pink_shulker_box	Caixa de Shulker Rosa Caja de shulker rosa
+minecraft:white_bed	Cama Branca Cama blanca
+minecraft:light_gray_bed	Cama Cinza-Clara Cama gris claro
+minecraft:gray_bed	Cama Cinza Cama gris
+minecraft:black_bed	Cama Preta Cama negra
+minecraft:brown_bed	Cama Marrom Cama marrón
+minecraft:red_bed	Cama Vermelha Cama roja
+minecraft:orange_bed	Cama Laranja Cama naranja
+minecraft:yellow_bed	Cama Amarela Cama amarilla
+minecraft:lime_bed	Cama Verde-Limão Cama verde lima
+minecraft:green_bed	Cama Verde Cama verde
+minecraft:cyan_bed	Cama Ciano Cama cian
+minecraft:light_blue_bed	Cama Azul-Clara Cama azul claro
+minecraft:blue_bed	Cama Azul Cama azul
+minecraft:purple_bed	Cama Roxa Cama morada
+minecraft:magenta_bed	Cama Magenta Cama magenta
+minecraft:pink_bed	Cama Rosa Cama rosa
+minecraft:candle	Vela Vela
+minecraft:white_candle	Vela Branca Vela blanca
+minecraft:light_gray_candle	Vela Cinza-Clara Vela gris claro
+minecraft:gray_candle	Vela Cinza Vela gris
+minecraft:black_candle	Vela Preta Vela negra
+minecraft:brown_candle	Vela Marrom Vela marrón
+minecraft:red_candle	Vela Vermelha Vela roja
+minecraft:orange_candle	Vela Laranja Vela naranja
+minecraft:yellow_candle	Vela Amarela Vela amarilla
+minecraft:lime_candle	Vela Verde-Limão Vela verde lima
+minecraft:green_candle	Vela Verde Vela verde
+minecraft:cyan_candle	Vela Ciano Vela cian
+minecraft:light_blue_candle	Vela Azul-Clara Vela azul claro
+minecraft:blue_candle	Vela Azul Vela azul
+minecraft:purple_candle	Vela Roxa Vela morada
+minecraft:magenta_candle	Vela Magenta Vela magenta
+minecraft:pink_candle	Vela Rosa Vela rosa
+minecraft:white_banner	Estandarte Branco Estandarte blanco
+minecraft:light_gray_banner	Estandarte Cinza-Claro Estandarte gris claro
+minecraft:gray_banner	Estandarte Cinza Estandarte gris
+minecraft:black_banner	Estandarte Preto Estandarte negro
+minecraft:brown_banner	Estandarte Marrom Estandarte marrón
+minecraft:red_banner	Estandarte Vermelho Estandarte rojo
+minecraft:orange_banner	Estandarte Laranja Estandarte naranja
+minecraft:yellow_banner	Estandarte Amarelo Estandarte amarillo
+minecraft:lime_banner	Estandarte Verde-Limão Estandarte verde lima
+minecraft:green_banner	Estandarte Verde Estandarte verde
+minecraft:cyan_banner	Estandarte Ciano Estandarte cian
+minecraft:light_blue_banner	Estandarte Azul-Claro Estandarte azul claro
+minecraft:blue_banner	Estandarte Azul Estandarte azul
+minecraft:purple_banner	Estandarte Roxo Estandarte morado
+minecraft:magenta_banner	Estandarte Magenta Estandarte magenta
+minecraft:pink_banner	Estandarte Rosa Estandarte rosa
+minecraft:grass_block	Bloco de Grama Césped
+minecraft:podzol	Podzol Podsol
+minecraft:mycelium	Micélio Micelio
+minecraft:dirt_path	Caminho de Terra Camino de tierra
+minecraft:dirt	Terra Tierra
+minecraft:coarse_dirt	Terra Infértil Tierra estéril
+minecraft:rooted_dirt	Terra Enraizada Tierra enraizada
+minecraft:farmland	Terra Arada Tierra de cultivo
+minecraft:mud	Barro Barro
+minecraft:clay	Argila Bloque de arcilla
+minecraft:gravel	Cascalho Grava
+minecraft:sand	Areia Arena
+minecraft:red_sand	Areia Vermelha Arena roja
+minecraft:ice	Gelo Hielo
+minecraft:packed_ice	Gelo Compactado Hielo compacto
+minecraft:blue_ice	Gelo Azul Hielo azul
+minecraft:snow_block	Bloco de Neve Bloque de nieve
+minecraft:snow	Neve Capa de nieve
+minecraft:moss_block	Bloco de Musgo Bloque de musgo
+minecraft:moss_carpet	Tapete de Musgo Capa de musgo
+minecraft:calcite	Calcita Calcita
+minecraft:tuff	Tufo Toba
+minecraft:dripstone_block	Bloco de Espeleotema Bloque de caliza
+minecraft:pointed_dripstone	Espeleotema Pontiagudo Caliza puntiaguda
+minecraft:magma_block	Bloco de Magma Bloque de magma
+minecraft:obsidian	Obsidiana Obsidiana
+minecraft:crying_obsidian	Obsidiana Chorona Obsidiana llorosa
+minecraft:crimson_nylium	Nicélio Carmesim Necelio carmesí
+minecraft:warped_nylium	Nicélio Distorcido Necelio distorsionado
+minecraft:soul_sand	Areia das Almas Arena de almas
+minecraft:soul_soil	Terra das Almas Tierra de almas
+minecraft:bone_block	Bloco de Ossos Bloque de huesos
+minecraft:coal_ore	Minério de Carvão Mena de carbón
+minecraft:deepslate_coal_ore	Minério de Carvão de Ardosiabissal Mena de carbón de pizarra profunda
+minecraft:iron_ore	Minério de Ferro Mena de hierro
+minecraft:deepslate_iron_ore	Minério de Ferro de Ardosiabissal Mena de hierro de pizarra profunda
+minecraft:copper_ore	Minério de Cobre Mena de cobre
+minecraft:deepslate_copper_ore	Minério de Cobre de Ardosiabissal Mena de cobre de pizarra profunda
+minecraft:gold_ore	Minério de Ouro Mena de oro
+minecraft:deepslate_gold_ore	Minério de Ouro de Ardosiabissal Mena de oro de pizarra profunda
+minecraft:redstone_ore	Minério de Redstone Mena de redstone
+minecraft:deepslate_redstone_ore	Minério de Redstone de Ardosiabissal Mena de redstone de pizarra profunda
+minecraft:emerald_ore	Minério de Esmeralda Mena de esmeralda
+minecraft:deepslate_emerald_ore	Minério de Esmeralda de Ardosiabissal Mena de esmeralda de pizarra profunda
+minecraft:lapis_ore	Minério de Lápis-Lazúli Mena de lapislázuli
+minecraft:deepslate_lapis_ore	Minério de Lápis-Lazúli de Ardosiabissal Mena de lapislázuli de pizarra profunda
+minecraft:diamond_ore	Minério de Diamante Mena de diamante
+minecraft:deepslate_diamond_ore	Minério de Diamante de Ardosiabissal Mena de diamante de pizarra profunda
+minecraft:nether_gold_ore	Minério de Ouro do Nether Mena de oro del Nether
+minecraft:nether_quartz_ore	Minério de Quartzo do Nether Mena de cuarzo del Nether
+minecraft:ancient_debris	Detritos Ancestrais Escombros ancestrales
+minecraft:raw_iron_block	Bloco de Ferro Bruto Bloque de hierro en bruto
+minecraft:raw_copper_block	Bloco de Cobre Bruto Bloque de cobre en bruto
+minecraft:raw_gold_block	Bloco de Ouro Bruto Bloque de oro en bruto
+minecraft:glowstone	Pedra Luminosa Piedra luminosa
+minecraft:budding_amethyst	Drusa de Ametista Brotador de amatista
+minecraft:small_amethyst_bud	Cristal de Ametista Pequeno Brote de amatista pequeño
+minecraft:medium_amethyst_bud	Cristal de Ametista Médio Brote de amatista mediano
+minecraft:large_amethyst_bud	Cristal de Ametista Grande Brote de amatista grande
+minecraft:amethyst_cluster	Agregado de Ametista Cúmulo de amatista
+minecraft:mangrove_roots	Raízes de Mangue Raíces de mangle
+minecraft:muddy_mangrove_roots	Raízes Barrentas de Mangue Raíces de mangle embarradas
+minecraft:mushroom_stem	Caule de Cogumelo Tallo de champiñón
+minecraft:oak_leaves	Folhas de Carvalho Hojas de roble
+minecraft:spruce_leaves	Folhas de Abeto Hojas de abeto
+minecraft:birch_leaves	Folhas de Bétula Hojas de abedul
+minecraft:jungle_leaves	Folhas da Selva Hojas de jungla
+minecraft:acacia_leaves	Folhas de Acácia Hojas de acacia
+minecraft:dark_oak_leaves	Folhas de Carvalho Escuro Hojas de roble oscuro
+minecraft:mangrove_leaves	Folhas de Mangue Hojas de mangle
+minecraft:cherry_leaves	Folhas de Cerejeira Hojas de cerezo
+minecraft:azalea_leaves	Folhas de Azaleia Hojas de azalea
+minecraft:flowering_azalea_leaves	Folhas de Azaleia Florescente Hojas de azalea florecida
+minecraft:brown_mushroom_block	Bloco de Cogumelo Marrom Bloque de champiñón marrón
+minecraft:red_mushroom_block	Bloco de Cogumelo Vermelho Bloque de champiñón rojo
+minecraft:nether_wart_block	Bloco de Fungos do Nether Bloque de verrugas del Nether
+minecraft:warped_wart_block	Bloco de Fungos Distorcidos Bloque de verrugas distorsionadas
+minecraft:shroomlight	Cogubrilho Brillongo
+minecraft:oak_sapling	Muda de Carvalho Brote de roble
+minecraft:spruce_sapling	Muda de Abeto Brote de abeto
+minecraft:birch_sapling	Muda de Bétula Brote de abedul
+minecraft:jungle_sapling	Muda da Selva Brote de jungla
+minecraft:acacia_sapling	Muda de Acácia Brote de acacia
+minecraft:dark_oak_sapling	Muda de Carvalho Escuro Brote de roble oscuro
+minecraft:mangrove_propagule	Propágulo de Mangue Propágulo de mangle
+minecraft:cherry_sapling	Muda de Cerejeira Brote de cerezo
+minecraft:azalea	Azaleia Azalea
+minecraft:flowering_azalea	Azaleia Florescente Azalea florecida
+minecraft:brown_mushroom	Cogumelo Marrom Champiñón marrón
+minecraft:red_mushroom	Cogumelo Vermelho Champiñón rojo
+minecraft:crimson_fungus	Fungo Carmesim Hongo carmesí
+minecraft:warped_fungus	Fungo Distorcido Hongo distorsionado
+minecraft:grass	Grama Hierba
+minecraft:fern	Samambaia Helecho
+minecraft:dead_bush	Arbusto Morto Arbusto muerto
+minecraft:dandelion	Dente-de-Leão Diente de león
+minecraft:poppy	Papoula Amapola
+minecraft:blue_orchid	Orquídea-Azul Orquídea azul
+minecraft:allium	Alho-Silvestre Allium
+minecraft:azure_bluet	Flor-Silvestre-Azul Azure bluet
+minecraft:red_tulip	Tulipa Vermelha Tulipán rojo
+minecraft:orange_tulip	Tulipa Laranja Tulipán naranja
+minecraft:white_tulip	Tulipa Branca Tulipán blanco
+minecraft:pink_tulip	Tulipa Rosa Tulipán rosa
+minecraft:oxeye_daisy	Margarida Margarita
+minecraft:cornflower	Centáurea Aciano
+minecraft:lily_of_the_valley	Lírio-do-Vale Convalaria
+minecraft:torchflower	Plantocha Plantorcha
+minecraft:wither_rose	Rosa do Wither Rosa del Wither
+minecraft:pink_petals	Pétalas Rosas Pétalos rosas
+minecraft:spore_blossom	Flor de Esporos Flor de esporas
+minecraft:bamboo	Bambu Bambú
+minecraft:sugar_cane	Cana-de-Açúcar Caña de azúcar
+minecraft:cactus	Cacto Cactus
+minecraft:crimson_roots	Raízes Carmesim Raíces carmesí
+minecraft:warped_roots	Raízes Distorcidas Raíces distorsionadas
+minecraft:nether_sprouts	Brotos do Nether Rastrojo del Nether
+minecraft:weeping_vines	Trepadeiras Choronas Enredaderas lacrimosas
+minecraft:twisting_vines	Trepadeiras Retorcidas Enredaderas retorcidas
+minecraft:vine	Trepadeiras Enredaderas
+minecraft:tall_grass	Grama Alta Hierba alta
+minecraft:large_fern	Samambaia Grande Helecho grande
+minecraft:sunflower	Girassol Girasol
+minecraft:lilac	Lilás Lila
+minecraft:rose_bush	Roseira Rosal
+minecraft:peony	Peônia Peonía
+minecraft:pitcher_plant	Planta Ancestral Planta odre
+minecraft:big_dripleaf	Plantaforma Grande Plantaforma grande
+minecraft:small_dripleaf	Plantaforma Pequena Plantaforma pequeña
+minecraft:chorus_plant	Planta do Coro Planta chorus
+minecraft:chorus_flower	Flor do Coro Flor chorus
+minecraft:glow_lichen	Líquen Brilhante Liquen luminoso
+minecraft:hanging_roots	Raízes Suspensas Raíces colgantes
+minecraft:frogspawn	Ovos de Sapo Huevas de rana
+minecraft:turtle_egg	Ovo de Tartaruga Huevo de tortuga
+minecraft:sniffer_egg	Ovo de Farejador Huevo de sniffer
+minecraft:wheat_seeds	Sementes de Trigo Semillas de trigo
+minecraft:cocoa_beans	Sementes de Cacau Semillas de cacao
+minecraft:pumpkin_seeds	Sementes de Abóbora Semillas de calabaza
+minecraft:melon_seeds	Sementes de Melancia Semillas de sandía
+minecraft:beetroot_seeds	Sementes de Beterraba Semillas de remolacha
+minecraft:torchflower_seeds	Sementes de Plantocha Semillas de plantorcha
+minecraft:pitcher_pod	Vagem de Planta Ancestral Vaina de planta odre
+minecraft:glow_berries	Bagas Brilhantes Bayas luminosas
+minecraft:sweet_berries	Bagas Doces Bayas dulces
+minecraft:nether_wart	Fungo do Nether Verruga del Nether
+minecraft:lily_pad	Vitória-Régia Nenúfar
+minecraft:seagrass	Erva Marinha Hierba marina
+minecraft:sea_pickle	Pepino-do-Mar Pepino de mar
+minecraft:kelp	Alga Alga
+minecraft:dried_kelp_block	Bloco de Algas Secas Bloque de algas secas
+minecraft:tube_coral_block	Bloco de Coral-de-Tubo Bloque de coral de tubo
+minecraft:brain_coral_block	Bloco de Coral-de-Cérebro Bloque de coral de cerebro
+minecraft:bubble_coral_block	Bloco de Coral-de-Bolha Bloque de coral de burbuja
+minecraft:fire_coral_block	Bloco de Coral-de-Fogo Bloque de coral de fuego
+minecraft:horn_coral_block	Bloco de Coral-de-Chifre Bloque de coral de cuerno
+minecraft:dead_tube_coral_block	Bloco de Coral-de-Tubo Morto Bloque de coral de tubo muerto
+minecraft:dead_brain_coral_block	Bloco de Coral-de-Cérebro Morto Bloque de coral de cerebro muerto
+minecraft:dead_bubble_coral_block	Bloco de Coral-de-Bolha Morto Bloque de coral de burbuja muerto
+minecraft:dead_fire_coral_block	Bloco de Coral-de-Fogo Morto Bloque de coral de fuego muerto
+minecraft:dead_horn_coral_block	Bloco de Coral-de-Chifre Morto Bloque de coral de cuerno muerto
+minecraft:tube_coral	Coral-de-Tubo Coral de tubo
+minecraft:brain_coral	Coral-de-Cérebro Coral de cerebro
+minecraft:bubble_coral	Coral-de-Bolha Coral de burbuja
+minecraft:fire_coral	Coral-de-Fogo Coral de fuego
+minecraft:horn_coral	Coral-de-Chifre Coral de cuerno
+minecraft:dead_tube_coral	Coral-de-Tubo Morto Coral de tubo muerto
+minecraft:dead_brain_coral	Coral-de-Cérebro Morto Coral de cerebro muerto
+minecraft:dead_bubble_coral	Coral-de-Bolha Morto Coral de burbuja muerto
+minecraft:dead_fire_coral	Coral-de-Fogo Morto Coral de fuego muerto
+minecraft:dead_horn_coral	Coral-de-Chifre Morto Coral de cuerno muerto
+minecraft:tube_coral_fan	Gorgônia-de-Tubo Gorgonia de tubo
+minecraft:brain_coral_fan	Gorgônia-de-Cérebro Gorgonia de cerebro
+minecraft:bubble_coral_fan	Gorgônia-de-Bolha Gorgonia de burbuja
+minecraft:fire_coral_fan	Gorgônia-de-Fogo Gorgonia de fuego
+minecraft:horn_coral_fan	Gorgônia-de-Chifre Gorgonia de cuerno
+minecraft:dead_tube_coral_fan	Gorgônia-de-Tubo Morta Gorgonia de tubo muerta
+minecraft:dead_brain_coral_fan	Gorgônia-de-Cérebro Morta Gorgonia de cerebro muerta
+minecraft:dead_bubble_coral_fan	Gorgônia-de-Bolha Morta Gorgonia de burbuja muerta
+minecraft:dead_fire_coral_fan	Gorgônia-de-Fogo Morta Gorgonia de fuego muerta
+minecraft:dead_horn_coral_fan	Gorgônia-de-Chifre Morta Gorgonia de cuerno muerta
+minecraft:sponge	Esponja Esponja
+minecraft:wet_sponge	Esponja Úmida Esponja mojada
+minecraft:melon	Melancia Sandía
+minecraft:pumpkin	Abóbora Calabaza
+minecraft:carved_pumpkin	Abóbora Esculpida Calabaza tallada
+minecraft:jack_o_lantern	Abóbora de Halloween Calabaza de Halloween
+minecraft:hay_block	Fardo de Feno Bala de heno
+minecraft:bee_nest	Colmeia Colmena
+minecraft:honeycomb_block	Bloco de Favo de Mel Bloque de panal
+minecraft:slime_block	Bloco de Slime Bloque de slime
+minecraft:honey_block	Bloco de Mel Bloque de miel
+minecraft:ochre_froglight	Anfibrilho Ocre Ranaluz ocre
+minecraft:verdant_froglight	Anfibrilho Verdejante Ranaluz verde
+minecraft:pearlescent_froglight	Anfibrilho Perolado Ranaluz nacarada
+minecraft:sculk	Sculk Sculk
+minecraft:sculk_vein	Veio de Sculk Vena de sculk
+minecraft:sculk_catalyst	Catalisador de Sculk Catalizador de sculk
+minecraft:sculk_shrieker	Emissor de Sculk Chillador de sculk
+minecraft:sculk_sensor	Sensor de Sculk Sensor de sculk
+minecraft:cobweb	Teia de Aranha Telaraña
+minecraft:bedrock	Rocha Matriz Piedra base
+minecraft:torch	Tocha Antorcha
+minecraft:soul_torch	Tocha das Almas Antorcha de almas
+minecraft:redstone_torch	Tocha de Redstone Antorcha de redstone
+minecraft:lantern	Lampião Farol
+minecraft:soul_lantern	Lampião das Almas Farol de almas
+minecraft:end_rod	Vara do End Vara del End
+minecraft:redstone_lamp	Lâmpada de Redstone Lámpara de redstone
+minecraft:crafting_table	Bancada de Trabalho Mesa de trabajo
+minecraft:stonecutter	Cortador de Pedras Cortapiedras
+minecraft:cartography_table	Bancada de Cartografia Mesa de cartografía
+minecraft:fletching_table	Bancada de Arco e Flecha Mesa de flechas
+minecraft:smithing_table	Bancada de Ferraria Mesa de herrería
+minecraft:grindstone	Rebolo Afiladora
+minecraft:loom	Tear Telar
+minecraft:furnace	Fornalha Horno
+minecraft:smoker	Defumador Ahumador
+minecraft:blast_furnace	Alto-Forno Alto horno
+minecraft:campfire	Fogueira Hoguera
+minecraft:soul_campfire	Fogueira das Almas Hoguera de almas
+minecraft:anvil	Bigorna Yunque
+minecraft:chipped_anvil	Bigorna Rachada Yunque dañado
+minecraft:damaged_anvil	Bigorna Danificada Yunque muy dañado
+minecraft:composter	Composteira Compostador
+minecraft:note_block	Bloco Musical Bloque musical
+minecraft:jukebox	Toca-Discos Tocadiscos
+minecraft:enchanting_table	Mesa de Encantamentos Mesa de encantamientos
+minecraft:end_crystal	Cristal do End Cristal del End
+minecraft:brewing_stand	Suporte de Poções Soporte para pociones
+minecraft:cauldron	Caldeirão Caldero
+minecraft:bell	Sino Campana
+minecraft:beacon	Sinalizador Faro
+minecraft:conduit	Conduto Canalizador
+minecraft:lodestone	Magnetita Magnetita
+minecraft:ladder	Escada de Mão Escalera de mano
+minecraft:scaffolding	Andaime Andamio
+minecraft:beehive	Colmeia Artificial Apiario
+minecraft:suspicious_sand	Areia Suspeita Arena sospechosa
+minecraft:suspicious_gravel	Cascalho Suspeito Grava sospechosa
+minecraft:lightning_rod	Para-Raios Pararrayos
+minecraft:flower_pot	Vaso Maceta
+minecraft:decorated_pot	Vaso Decorado Vasija decorada
+minecraft:armor_stand	Suporte de Armaduras Soporte para armadura
+minecraft:item_frame	Moldura Marco
+minecraft:glow_item_frame	Moldura Brilhante Marco luminoso
+minecraft:painting	Quadro Cuadro
+minecraft:bookshelf	Estante de Livros Librería
+minecraft:chiseled_bookshelf	Porta-Livros Estantería
+minecraft:lectern	Atril Atril
+minecraft:oak_sign	Placa de Carvalho Cartel de roble
+minecraft:oak_hanging_sign	Placa Suspensa de Carvalho Cartel colgante de roble
+minecraft:spruce_sign	Placa de Abeto Cartel de abeto
+minecraft:spruce_hanging_sign	Placa Suspensa de Abeto Cartel colgante de abeto
+minecraft:birch_sign	Placa de Bétula Cartel de abedul
+minecraft:birch_hanging_sign	Placa Suspensa de Bétula Cartel colgante de abedul
+minecraft:jungle_sign	Placa da Selva Cartel de jungla
+minecraft:jungle_hanging_sign	Placa Suspensa da Selva Cartel colgante de jungla
+minecraft:acacia_sign	Placa de Acácia Cartel de acacia
+minecraft:acacia_hanging_sign	Placa Suspensa de Acácia Cartel colgante de acacia
+minecraft:dark_oak_sign	Placa de Carvalho Escuro Cartel de roble oscuro
+minecraft:dark_oak_hanging_sign	Placa Suspensa de Carvalho Escuro Cartel colgante de roble oscuro
+minecraft:mangrove_sign	Placa de Mangue Cartel de mangle
+minecraft:mangrove_hanging_sign	Placa Suspensa de Mangue Cartel colgante de mangle
+minecraft:cherry_sign	Placa de Cerejeira Cartel de cerezo
+minecraft:cherry_hanging_sign	Placa Suspensa de Cerejeira Cartel colgante de cerezo
+minecraft:bamboo_sign	Placa de Bambu Cartel de bambú
+minecraft:bamboo_hanging_sign	Placa Suspensa de Bambu Cartel colgante de bambú
+minecraft:crimson_sign	Placa Carmesim Cartel carmesí
+minecraft:crimson_hanging_sign	Placa Suspensa Carmesim Cartel colgante carmesí
+minecraft:warped_sign	Placa Distorcida Cartel distorsionado
+minecraft:warped_hanging_sign	Placa Suspensa Distorcida Cartel colgante distorsionado
+minecraft:chest	Baú Cofre
+minecraft:barrel	Barril Barril
+minecraft:ender_chest	Baú de Ender Cofre de ender
+minecraft:respawn_anchor	Âncora de Renascimento Nexo de reaparición
+minecraft:skeleton_skull	Crânio de Esqueleto Calavera de esqueleto
+minecraft:wither_skeleton_skull	Crânio de Esqueleto Wither Calavera de esqueleto del Wither
+minecraft:player_head	Cabeça de Jogador Cabeza de jugador
+minecraft:zombie_head	Cabeça de Zumbi Cabeza de zombi
+minecraft:creeper_head	Cabeça de Creeper Cabeza de creeper
+minecraft:piglin_head	Cabeça de Piglin Cabeza de piglin
+minecraft:dragon_head	Cabeça do Dragão Cabeza de dragón
+minecraft:dragon_egg	Ovo do Dragão Huevo de dragón
+minecraft:end_portal_frame	Moldura do Portal do End Marco del portal del End
+minecraft:ender_eye	Olho de Ender Ojo de ender
+minecraft:infested_stone	Pedra Infestada Piedra infestada
+minecraft:infested_cobblestone	Pedregulho Infestado Roca infestada
+minecraft:infested_stone_bricks	Tijolos de Pedra Infestados Ladrillos de piedra infestados
+minecraft:infested_mossy_stone_bricks	Tijolos de Pedra Musgosos Infestados Ladrillos de piedra musgosos infestados
+minecraft:infested_cracked_stone_bricks	Tijolos de Pedra Rachados Infestados Ladrillos de piedra agrietados infestados
+minecraft:infested_chiseled_stone_bricks	Tijolos de Pedra Talhados Infestados Ladrillos de piedra cincelados infestados
+minecraft:infested_deepslate	Ardosiabissal Infestada Pizarra profunda infestada
+minecraft:redstone	Pó de Redstone Polvo de redstone
+minecraft:repeater	Repetidor de Redstone Repetidor de redstone
+minecraft:comparator	Comparador de Redstone Comparador de redstone
+minecraft:target	Alvo Diana
+minecraft:lever	Alavanca Palanca
+minecraft:calibrated_sculk_sensor	Sensor de Sculk Calibrado Sensor de sculk calibrado
+minecraft:tripwire_hook	Gancho de Armadilha Gancho de cuerda
+minecraft:string	Linha Hilo
+minecraft:daylight_detector	Detector de Luz Solar Sensor de luz solar
+minecraft:piston	Pistão Pistón
+minecraft:sticky_piston	Pistão Grudento Pistón pegajoso
+minecraft:dispenser	Ejetor Dispensador
+minecraft:dropper	Liberador Soltador
+minecraft:hopper	Funil Tolva
+minecraft:trapped_chest	Baú com Armadilha Cofre trampa
+minecraft:observer	Observador Observador
+minecraft:rail	Trilho Raíl
+minecraft:powered_rail	Trilho Elétrico Raíl propulsor
+minecraft:detector_rail	Trilho Detector Raíl detector
+minecraft:activator_rail	Trilho Ativador Raíl activador
+minecraft:minecart	Carrinho de Mina Vagoneta
+minecraft:hopper_minecart	Carrinho de Mina com Funil Vagoneta con tolva
+minecraft:chest_minecart	Carrinho de Mina com Baú Vagoneta con cofre
+minecraft:furnace_minecart	Carrinho de Mina com Fornalha Vagoneta con horno
+minecraft:tnt_minecart	Carrinho de Mina com TNT Vagoneta con dinamita
+minecraft:oak_chest_boat	Bote de Carvalho com Baú Barca de roble con cofre
+minecraft:bamboo_chest_raft	Jangada de Bambu com Baú Balsa de bambú con cofre
+minecraft:tnt	TNT Dinamita
+minecraft:wooden_shovel	Pá de Madeira Pala de madera
+minecraft:wooden_pickaxe	Picareta de Madeira Pico de madera
+minecraft:wooden_axe	Machado de Madeira Hacha de madera
+minecraft:wooden_hoe	Enxada de Madeira Azada de madera
+minecraft:stone_shovel	Pá de Pedra Pala de piedra
+minecraft:stone_pickaxe	Picareta de Pedra Pico de piedra
+minecraft:stone_axe	Machado de Pedra Hacha de piedra
+minecraft:stone_hoe	Enxada de Pedra Azada de piedra
+minecraft:iron_shovel	Pá de Ferro Pala de hierro
+minecraft:iron_pickaxe	Picareta de Ferro Pico de hierro
+minecraft:iron_axe	Machado de Ferro Hacha de hierro
+minecraft:iron_hoe	Enxada de Ferro Azada de hierro
+minecraft:golden_shovel	Pá de Ouro Pala de oro
+minecraft:golden_pickaxe	Picareta de Ouro Pico de oro
+minecraft:golden_axe	Machado de Ouro Hacha de oro
+minecraft:golden_hoe	Enxada de Ouro Azada de oro
+minecraft:diamond_shovel	Pá de Diamante Pala de diamante
+minecraft:diamond_pickaxe	Picareta de Diamante Pico de diamante
+minecraft:diamond_axe	Machado de Diamante Hacha de diamante
+minecraft:diamond_hoe	Enxada de Diamante Azada de diamante
+minecraft:netherite_shovel	Pá de Netherita Pala de netherita
+minecraft:netherite_pickaxe	Picareta de Netherita Pico de netherita
+minecraft:netherite_axe	Machado de Netherita Hacha de netherita
+minecraft:netherite_hoe	Enxada de Netherita Azada de netherita
+minecraft:bucket	Balde Cubo
+minecraft:water_bucket	Balde de Água Cubo con agua
+minecraft:cod_bucket	Balde com Bacalhau Cubo con bacalao
+minecraft:salmon_bucket	Balde com Salmão Cubo con salmón
+minecraft:tropical_fish_bucket	Balde com Peixe Tropical Cubo con pez tropical
+minecraft:pufferfish_bucket	Balde com Baiacu Cubo con pez globo
+minecraft:axolotl_bucket	Balde com Axolote Cubo con ajolote
+minecraft:tadpole_bucket	Balde com Girino Cubo con renacuajo
+minecraft:lava_bucket	Balde de Lava Cubo con lava
+minecraft:powder_snow_bucket	Balde de Neve Fofa Cubo con nieve polvo
+minecraft:milk_bucket	Balde de Leite Cubo con leche
+minecraft:fishing_rod	Vara de Pesca Caña de pescar
+minecraft:flint_and_steel	Pederneira Mechero
+minecraft:fire_charge	Bola de Fogo Carga ígnea bola de fogo carga de fogo
+minecraft:bone_meal	Farinha de Osso Polvo de hueso
+minecraft:shears	Tesoura Tijeras
+minecraft:brush	Pincel Pincel
+minecraft:name_tag	Etiqueta Etiqueta
+minecraft:lead	Laço Rienda
+minecraft:compass	Bússola Brújula
+minecraft:recovery_compass	Bússola de Retomada Brújula de recuperación
+minecraft:clock	Relógio Reloj
+minecraft:spyglass	Luneta Catalejo
+minecraft:map	Mapa em Branco Mapa en blanco
+minecraft:writable_book	Livro e Pena Libro y pluma
+minecraft:ender_pearl	Pérola de Ender Perla de ender
+minecraft:elytra	Élitros Élitros
+minecraft:firework_rocket	Fogo de Artifício Cohete de fuegos artificiales
+minecraft:saddle	Sela Montura
+minecraft:carrot_on_a_stick	Vara com Cenoura Caña con zanahoria
+minecraft:warped_fungus_on_a_stick	Vara com Fungo Distorcido Caña con hongo distorsionado
+minecraft:oak_boat	Bote de Carvalho Barca de roble
+minecraft:spruce_boat	Bote de Abeto Barca de abeto
+minecraft:spruce_chest_boat	Bote de Abeto com Baú Barca de abeto con cofre
+minecraft:birch_boat	Bote de Bétula Barca de abedul
+minecraft:birch_chest_boat	Bote de Bétula com Baú Barca de abedul con cofre
+minecraft:jungle_boat	Bote da Selva Barca de jungla
+minecraft:jungle_chest_boat	Bote da Selva com Baú Barca de jungla con cofre
+minecraft:acacia_boat	Bote de Acácia Barca de acacia
+minecraft:acacia_chest_boat	Bote de Acácia com Baú Barca de acacia con cofre
+minecraft:dark_oak_boat	Bote de Carvalho Escuro Barca de roble oscuro
+minecraft:dark_oak_chest_boat	Bote de Carvalho Escuro com Baú Barca de roble oscuro con cofre
+minecraft:mangrove_boat	Bote de Mangue Barca de mangle
+minecraft:mangrove_chest_boat	Bote de Mangue com Baú Barca de mangle con cofre
+minecraft:cherry_boat	Bote de Cerejeira Barca de cerezo
+minecraft:cherry_chest_boat	Bote de Cerejeira com Baú Barca de cerezo con cofre
+minecraft:bamboo_raft	Jangada de Bambu Balsa de bambú
+minecraft:music_disc_13	Disco Musical Disco de música
+minecraft:music_disc_cat	Disco Musical Disco de música
+minecraft:music_disc_blocks	Disco Musical Disco de música
+minecraft:music_disc_chirp	Disco Musical Disco de música
+minecraft:music_disc_far	Disco Musical Disco de música
+minecraft:music_disc_mall	Disco Musical Disco de música
+minecraft:music_disc_mellohi	Disco Musical Disco de música
+minecraft:music_disc_stal	Disco Musical Disco de música
+minecraft:music_disc_strad	Disco Musical Disco de música
+minecraft:music_disc_ward	Disco Musical Disco de música
+minecraft:music_disc_11	Disco Musical Disco de música
+minecraft:music_disc_wait	Disco Musical Disco de música
+minecraft:music_disc_otherside	Disco Musical Disco de música
+minecraft:music_disc_5	Disco Musical Disco de música
+minecraft:music_disc_pigstep	Disco Musical Disco de música
+minecraft:music_disc_relic	Disco Musical Disco de música
+minecraft:wooden_sword	Espada de Madeira Espada de madera
+minecraft:stone_sword	Espada de Pedra Espada de piedra
+minecraft:iron_sword	Espada de Ferro Espada de hierro
+minecraft:golden_sword	Espada de Ouro Espada de oro
+minecraft:diamond_sword	Espada de Diamante Espada de diamante
+minecraft:netherite_sword	Espada de Netherita Espada de netherita
+minecraft:trident	Tridente Tridente
+minecraft:shield	Escudo Escudo
+minecraft:leather_helmet	Capuz de Couro Sombrero de cuero
+minecraft:leather_chestplate	Túnica de Couro Túnica de cuero
+minecraft:leather_leggings	Calças de Couro Pantalones de cuero
+minecraft:leather_boots	Botas de Couro Botas de cuero
+minecraft:chainmail_helmet	Capacete de Malha Casco de cota de mallas
+minecraft:chainmail_chestplate	Peitoral de Malha Peto de cota de mallas
+minecraft:chainmail_leggings	Calças de Malha Grebas de cota de mallas
+minecraft:chainmail_boots	Botas de Malha Botas de cota de mallas
+minecraft:iron_helmet	Capacete de Ferro Casco de hierro
+minecraft:iron_chestplate	Peitoral de Ferro Peto de hierro
+minecraft:iron_leggings	Calças de Ferro Grebas de hierro
+minecraft:iron_boots	Botas de Ferro Botas de hierro
+minecraft:golden_helmet	Capacete de Ouro Casco de oro
+minecraft:golden_chestplate	Peitoral de Ouro Peto de oro
+minecraft:golden_leggings	Calças de Ouro Grebas de oro
+minecraft:golden_boots	Botas de Ouro Botas de oro
+minecraft:diamond_helmet	Capacete de Diamante Casco de diamante
+minecraft:diamond_chestplate	Peitoral de Diamante Peto de diamante
+minecraft:diamond_leggings	Calças de Diamante Grebas de diamante
+minecraft:diamond_boots	Botas de Diamante Botas de diamante
+minecraft:netherite_helmet	Capacete de Netherita Casco de netherita
+minecraft:netherite_chestplate	Peitoral de Netherita Peto de netherita
+minecraft:netherite_leggings	Calças de Netherita Grebas de netherita
+minecraft:netherite_boots	Botas de Netherita Botas de netherita
+minecraft:turtle_helmet	Casco de Tartaruga Caparazón de tortuga
+minecraft:leather_horse_armor	Armadura de Couro para Cavalo Armadura de cuero para caballo
+minecraft:iron_horse_armor	Armadura de Ferro para Cavalo Armadura de hierro para caballo
+minecraft:golden_horse_armor	Armadura de Ouro para Cavalo Armadura de oro para caballo
+minecraft:diamond_horse_armor	Armadura de Diamante para Cavalo Armadura de diamante para caballo
+minecraft:totem_of_undying	Totem da Imortalidade Tótem de inmortalidad
+minecraft:snowball	Bola de Neve Bola de nieve
+minecraft:egg	Ovo Huevo
+minecraft:bow	Arco Arco
+minecraft:crossbow	Besta Ballesta
+minecraft:arrow	Flecha Flecha
+minecraft:spectral_arrow	Flecha Espectral Flecha espectral
+minecraft:tipped_arrow	Flecha com Efeito Flecha con efecto
+minecraft:apple	Maçã Manzana
+minecraft:golden_apple	Maçã Dourada Manzana dorada
+minecraft:enchanted_golden_apple	Maçã Dourada Encantada Manzana dorada encantada
+minecraft:melon_slice	Fatia de Melancia Rodaja de sandía
+minecraft:chorus_fruit	Fruta do Coro Fruta chorus
+minecraft:carrot	Cenoura Zanahoria
+minecraft:golden_carrot	Cenoura Dourada Zanahoria dorada
+minecraft:potato	Batata Patata
+minecraft:baked_potato	Batata Assada Patata cocida
+minecraft:poisonous_potato	Batata Venenosa Patata venenosa
+minecraft:beetroot	Beterraba Remolacha
+minecraft:dried_kelp	Algas Secas Algas secas
+minecraft:beef	Bife Cru Filete crudo
+minecraft:cooked_beef	Filé Filete asado
+minecraft:porkchop	Costeleta de Porco Crua Chuleta de cerdo cruda
+minecraft:cooked_porkchop	Costeleta de Porco Assada Chuleta de cerdo cocinada
+minecraft:mutton	Carneiro Cru Cordero crudo
+minecraft:cooked_mutton	Carneiro Assado Cordero asado
+minecraft:chicken	Frango Cru Pollo crudo
+minecraft:cooked_chicken	Frango Assado Pollo asado
+minecraft:rabbit	Coelho Cru Conejo crudo
+minecraft:cooked_rabbit	Coelho Assado Conejo asado
+minecraft:cod	Bacalhau Cru Bacalao crudo
+minecraft:cooked_cod	Bacalhau Assado Bacalao cocinado
+minecraft:salmon	Salmão Cru Salmón crudo
+minecraft:cooked_salmon	Salmão Assado Salmón ahumado
+minecraft:tropical_fish	Peixe Tropical Pez tropical
+minecraft:pufferfish	Baiacu Pez globo
+minecraft:bread	Pão Pan
+minecraft:cookie	Biscoito Galleta
+minecraft:cake	Bolo Tarta
+minecraft:pumpkin_pie	Torta de Abóbora Tarta de calabaza
+minecraft:rotten_flesh	Carne Podre Carne podrida
+minecraft:spider_eye	Olho de Aranha Ojo de araña
+minecraft:mushroom_stew	Ensopado de Cogumelos Estofado de champiñones
+minecraft:beetroot_soup	Ensopado de Beterraba Estofado de remolacha
+minecraft:rabbit_stew	Ensopado de Coelho Estofado de conejo
+minecraft:suspicious_stew	Ensopado Suspeito Estofado sospechoso
+minecraft:honey_bottle	Frasco de Mel Frasco con miel
+minecraft:potion	Poção Poción
+minecraft:splash_potion	Poção Arremessável Poción arrojadiza
+minecraft:lingering_potion	Poção Prolongada Poción persistente
+minecraft:coal	Carvão Carbón
+minecraft:charcoal	Carvão Vegetal Carbón vegetal
+minecraft:raw_iron	Ferro Bruto Hierro en bruto
+minecraft:raw_copper	Cobre Bruto Cobre en bruto
+minecraft:raw_gold	Ouro Bruto Oro en bruto
+minecraft:emerald	Esmeralda Esmeralda
+minecraft:lapis_lazuli	Lápis-Lazúli Lapislázuli
+minecraft:diamond	Diamante Diamante
+minecraft:quartz	Quartzo do Nether Cuarzo del Nether
+minecraft:amethyst_shard	Fragmento de Ametista Fragmento de amatista
+minecraft:iron_nugget	Pepita de Ferro Pepita de hierro
+minecraft:gold_nugget	Pepita de Ouro Pepita de oro
+minecraft:iron_ingot	Lingote de Ferro Lingote de hierro
+minecraft:copper_ingot	Lingote de Cobre Lingote de cobre
+minecraft:gold_ingot	Lingote de Ouro Lingote de oro
+minecraft:netherite_scrap	Fragmentos de Netherita Fragmentos de netherita
+minecraft:netherite_ingot	Lingote de Netherita Lingote de netherita
+minecraft:stick	Graveto Palo
+minecraft:flint	Sílex Pedernal
+minecraft:wheat	Trigo Trigo
+minecraft:bone	Osso Hueso
+minecraft:feather	Pena Pluma
+minecraft:leather	Couro Cuero
+minecraft:rabbit_hide	Pele de Coelho Piel de conejo
+minecraft:honeycomb	Favo de Mel Panal
+minecraft:ink_sac	Bolsa de Tinta Saco de tinta
+minecraft:glow_ink_sac	Bolsa de Tinta Brilhante Saco de tinta luminosa
+minecraft:scute	Escama Escama
+minecraft:slime_ball	Bola de Slime Bola de slime
+minecraft:clay_ball	Bola de Argila Bola de arcilla
+minecraft:prismarine_shard	Pedaço de Prismarinho Fragmento de prismarina
+minecraft:prismarine_crystals	Cristais de Prismarinho Cristales de prismarina
+minecraft:nautilus_shell	Concha de Náutilo Caparazón de nautilo
+minecraft:heart_of_the_sea	Coração do Mar Corazón del mar
+minecraft:blaze_rod	Vara de Blaze Vara de blaze
+minecraft:nether_star	Estrela do Nether Estrella del Nether
+minecraft:shulker_shell	Casco de Shulker Caparazón de shulker
+minecraft:popped_chorus_fruit	Fruta do Coro Cozida Fruta chorus horneada
+minecraft:echo_shard	Fragmento de Eco Fragmento resonante
+minecraft:disc_fragment_5	Fragmento de Disco Fragmento de disco
+minecraft:white_dye	Corante Branco Tinte blanco
+minecraft:light_gray_dye	Corante Cinza-Claro Tinte gris claro
+minecraft:gray_dye	Corante Cinza Tinte gris
+minecraft:black_dye	Corante Preto Tinte negro
+minecraft:brown_dye	Corante Marrom Tinte marrón
+minecraft:red_dye	Corante Vermelho Tinte rojo
+minecraft:orange_dye	Corante Laranja Tinte naranja
+minecraft:yellow_dye	Corante Amarelo Tinte amarillo
+minecraft:lime_dye	Corante Verde-Limão Tinte verde lima
+minecraft:green_dye	Corante Verde Tinte verde
+minecraft:cyan_dye	Corante Ciano Tinte cian
+minecraft:light_blue_dye	Corante Azul-Claro Tinte azul claro
+minecraft:blue_dye	Corante Azul Tinte azul
+minecraft:purple_dye	Corante Roxo Tinte morado
+minecraft:magenta_dye	Corante Magenta Tinte magenta
+minecraft:pink_dye	Corante Rosa Tinte rosa
+minecraft:bowl	Tigela Cuenco
+minecraft:brick	Tijolo Ladrillo
+minecraft:nether_brick	Tijolo do Nether Ladrillo del Nether
+minecraft:paper	Papel Papel
+minecraft:book	Livro Libro
+minecraft:firework_star	Estrela de Fogo de Artifício Estrella de fuegos artificiales
+minecraft:glass_bottle	Frasco de Vidro Frasco de cristal
+minecraft:glowstone_dust	Pó de Pedra Luminosa Polvo de piedra luminosa
+minecraft:gunpowder	Pólvora Pólvora
+minecraft:dragon_breath	Bafo do Dragão Aliento de dragón
+minecraft:fermented_spider_eye	Olho de Aranha Fermentado Ojo de araña fermentado
+minecraft:blaze_powder	Pó de Blaze Polvo de blaze
+minecraft:sugar	Açúcar Azúcar
+minecraft:rabbit_foot	Pé de Coelho Pata de conejo
+minecraft:glistering_melon_slice	Fatia de Melancia Reluzente Rodaja de sandía reluciente
+minecraft:magma_cream	Creme de Magma Crema de magma
+minecraft:ghast_tear	Lágrima de Ghast Lágrima de ghast
+minecraft:phantom_membrane	Membrana de Espectro Membrana de fantasma
+minecraft:flower_banner_pattern	Figura para Estandarte Diseño de estandarte
+minecraft:creeper_banner_pattern	Figura para Estandarte Diseño de estandarte
+minecraft:skull_banner_pattern	Figura para Estandarte Diseño de estandarte
+minecraft:mojang_banner_pattern	Figura para Estandarte Diseño de estandarte
+minecraft:globe_banner_pattern	Figura para Estandarte Diseño de estandarte
+minecraft:piglin_banner_pattern	Figura para Estandarte Diseño de estandarte
+minecraft:angler_pottery_sherd	Óstraco de Pesca Fragmento de cerámica de caña de pescar
+minecraft:archer_pottery_sherd	Óstraco de Arco Fragmento de cerámica de arco
+minecraft:arms_up_pottery_sherd	Óstraco de Figura Fragmento de cerámica de monigote
+minecraft:blade_pottery_sherd	Óstraco de Espada Fragmento de cerámica de espada
+minecraft:brewer_pottery_sherd	Óstraco de Poção Fragmento de cerámica de poción
+minecraft:burn_pottery_sherd	Óstraco de Fogo Fragmento de cerámica de fuego
+minecraft:danger_pottery_sherd	Óstraco de Creeper Fragmento de cerámica de creeper
+minecraft:explorer_pottery_sherd	Óstraco de Mapa Fragmento de cerámica de mapa
+minecraft:friend_pottery_sherd	Óstraco de Amigo Fragmento de cerámica de amistad
+minecraft:heart_pottery_sherd	Óstraco de Coração Fragmento de cerámica de corazón
+minecraft:heartbreak_pottery_sherd	Óstraco de Coração Partido Fragmento de cerámica de corazón roto
+minecraft:howl_pottery_sherd	Óstraco de Lobo Fragmento de cerámica de lobo
+minecraft:miner_pottery_sherd	Óstraco de Picareta Fragmento de cerámica de pico
+minecraft:mourner_pottery_sherd	Óstraco de Defensor Fragmento de cerámica de warden
+minecraft:plenty_pottery_sherd	Óstraco de Baú Fragmento de cerámica de cofre
+minecraft:prize_pottery_sherd	Óstraco de Joia Fragmento de cerámica de gema
+minecraft:sheaf_pottery_sherd	Óstraco de Trigo Fragmento de cerámica de paja
+minecraft:shelter_pottery_sherd	Óstraco de Árvore Fragmento de cerámica de refugio
+minecraft:skull_pottery_sherd	Óstraco de Caveira Fragmento de cerámica de calavera
+minecraft:snort_pottery_sherd	Óstraco de Farejador Fragmento de cerámica de sniffer
+minecraft:netherite_upgrade_smithing_template	Molde de Ferraria Molde de herrería
+minecraft:sentry_armor_trim_smithing_template	Molde de Ferraria Molde de herrería
+minecraft:vex_armor_trim_smithing_template	Molde de Ferraria Molde de herrería
+minecraft:wild_armor_trim_smithing_template	Molde de Ferraria Molde de herrería
+minecraft:coast_armor_trim_smithing_template	Molde de Ferraria Molde de herrería
+minecraft:dune_armor_trim_smithing_template	Molde de Ferraria Molde de herrería
+minecraft:wayfinder_armor_trim_smithing_template	Molde de Ferraria Molde de herrería
+minecraft:raiser_armor_trim_smithing_template	Molde de Ferraria Molde de herrería
+minecraft:shaper_armor_trim_smithing_template	Molde de Ferraria Molde de herrería
+minecraft:host_armor_trim_smithing_template	Molde de Ferraria Molde de herrería
+minecraft:ward_armor_trim_smithing_template	Molde de Ferraria Molde de herrería
+minecraft:silence_armor_trim_smithing_template	Molde de Ferraria Molde de herrería
+minecraft:tide_armor_trim_smithing_template	Molde de Ferraria Molde de herrería
+minecraft:snout_armor_trim_smithing_template	Molde de Ferraria Molde de herrería
+minecraft:rib_armor_trim_smithing_template	Molde de Ferraria Molde de herrería
+minecraft:eye_armor_trim_smithing_template	Molde de Ferraria Molde de herrería
+minecraft:spire_armor_trim_smithing_template	Molde de Ferraria Molde de herrería
+minecraft:experience_bottle	Frasco de Experiência Frasco con experiencia
+minecraft:enchanted_book	Livro Encantado Libro encantado
+minecraft:spawner	Gerador de Criaturas Generador de criaturas
+minecraft:allay_spawn_egg	Ovo Gerador de Allay Generar allay
+minecraft:axolotl_spawn_egg	Ovo Gerador de Axolote Generar ajolote
+minecraft:bat_spawn_egg	Ovo Gerador de Morcego Generar murciélago
+minecraft:bee_spawn_egg	Ovo Gerador de Abelha Generar abeja
+minecraft:blaze_spawn_egg	Ovo Gerador de Blaze Generar blaze
+minecraft:camel_spawn_egg	Ovo Gerador de Camelo Generar camello
+minecraft:cat_spawn_egg	Ovo Gerador de Gato Generar gato
+minecraft:cave_spider_spawn_egg	Ovo Gerador de Aranha das Cavernas Generar araña de cueva
+minecraft:chicken_spawn_egg	Ovo Gerador de Galinha Generar pollo
+minecraft:cod_spawn_egg	Ovo Gerador de Bacalhau Generar bacalao
+minecraft:cow_spawn_egg	Ovo Gerador de Vaca Generar vaca
+minecraft:creeper_spawn_egg	Ovo Gerador de Creeper Generar creeper
+minecraft:dolphin_spawn_egg	Ovo Gerador de Golfinho Generar delfín
+minecraft:donkey_spawn_egg	Ovo Gerador de Burro Generar burro
+minecraft:drowned_spawn_egg	Ovo Gerador de Afogado Generar ahogado
+minecraft:elder_guardian_spawn_egg	Ovo Gerador de Guardião-Mestre Generar guardián anciano
+minecraft:enderman_spawn_egg	Ovo Gerador de Enderman Generar enderman
+minecraft:endermite_spawn_egg	Ovo Gerador de Endermite Generar endermite
+minecraft:evoker_spawn_egg	Ovo Gerador de Invocador Generar evocador
+minecraft:fox_spawn_egg	Ovo Gerador de Raposa Generar zorro
+minecraft:frog_spawn_egg	Ovo Gerador de Sapo Generar rana
+minecraft:ghast_spawn_egg	Ovo Gerador de Ghast Generar ghast
+minecraft:glow_squid_spawn_egg	Ovo Gerador de Lula-Brilhante Generar calamar luminoso
+minecraft:goat_spawn_egg	Ovo Gerador de Cabra Generar cabra
+minecraft:guardian_spawn_egg	Ovo Gerador de Guardião Generar guardián
+minecraft:hoglin_spawn_egg	Ovo Gerador de Hoglin Generar hoglin
+minecraft:horse_spawn_egg	Ovo Gerador de Cavalo Generar caballo
+minecraft:husk_spawn_egg	Ovo Gerador de Zumbi-Múmia Generar disecado
+minecraft:iron_golem_spawn_egg	Ovo Gerador de Golem de Ferro Generar gólem de hierro
+minecraft:llama_spawn_egg	Ovo Gerador de Lhama Generar llama
+minecraft:magma_cube_spawn_egg	Ovo Gerador de Cubo de Magma Generar cubo de magma
+minecraft:mooshroom_spawn_egg	Ovo Gerador de Mooshroom Generar mooshroom
+minecraft:mule_spawn_egg	Ovo Gerador de Mula Generar mula
+minecraft:ocelot_spawn_egg	Ovo Gerador de Jaguatirica Generar ocelote
+minecraft:panda_spawn_egg	Ovo Gerador de Panda Generar panda
+minecraft:parrot_spawn_egg	Ovo Gerador de Papagaio Generar loro
+minecraft:phantom_spawn_egg	Ovo Gerador de Espectro Generar fantasma
+minecraft:pig_spawn_egg	Ovo Gerador de Porco Generar cerdo
+minecraft:piglin_spawn_egg	Ovo Gerador de Piglin Generar piglin
+minecraft:piglin_brute_spawn_egg	Ovo Gerador de Piglin Bárbaro Generar piglin bruto
+minecraft:pillager_spawn_egg	Ovo Gerador de Saqueador Generar saqueador
+minecraft:polar_bear_spawn_egg	Ovo Gerador de Urso-Polar Generar oso polar
+minecraft:pufferfish_spawn_egg	Ovo Gerador de Baiacu Generar pez globo
+minecraft:rabbit_spawn_egg	Ovo Gerador de Coelho Generar conejo
+minecraft:ravager_spawn_egg	Ovo Gerador de Devastador Generar devastador
+minecraft:salmon_spawn_egg	Ovo Gerador de Salmão Generar salmón
+minecraft:sheep_spawn_egg	Ovo Gerador de Ovelha Generar oveja
+minecraft:shulker_spawn_egg	Ovo Gerador de Shulker Generar shulker
+minecraft:silverfish_spawn_egg	Ovo Gerador de Traça Generar lepisma
+minecraft:skeleton_spawn_egg	Ovo Gerador de Esqueleto Generar esqueleto
+minecraft:skeleton_horse_spawn_egg	Ovo Gerador de Cavalo-Esqueleto Generar caballo esqueleto
+minecraft:slime_spawn_egg	Ovo Gerador de Slime Generar slime
+minecraft:sniffer_spawn_egg	Ovo Gerador de Farejador Generar sniffer
+minecraft:snow_golem_spawn_egg	Ovo Gerador de Golem de Neve Generar gólem de nieve
+minecraft:spider_spawn_egg	Ovo Gerador de Aranha Generar araña
+minecraft:squid_spawn_egg	Ovo Gerador de Lula Generar calamar
+minecraft:stray_spawn_egg	Ovo Gerador de Errante Generar errante
+minecraft:strider_spawn_egg	Ovo Gerador de Lavagante Generar lavagante
+minecraft:tadpole_spawn_egg	Ovo Gerador de Girino Generar renacuajo
+minecraft:trader_llama_spawn_egg	Ovo Gerador de Lhama do Vendedor Generar llama ambulante
+minecraft:tropical_fish_spawn_egg	Ovo Gerador de Peixe Tropical Generar pez tropical
+minecraft:turtle_spawn_egg	Ovo Gerador de Tartaruga Generar tortuga
+minecraft:vex_spawn_egg	Ovo Gerador de Vex Generar vex
+minecraft:villager_spawn_egg	Ovo Gerador de Aldeão Generar aldeano
+minecraft:vindicator_spawn_egg	Ovo Gerador de Vingador Generar vindicador
+minecraft:wandering_trader_spawn_egg	Ovo Gerador de Vendedor Ambulante Generar vendedor ambulante
+minecraft:warden_spawn_egg	Ovo Gerador de Defensor Generar warden
+minecraft:witch_spawn_egg	Ovo Gerador de Bruxa Generar bruja
+minecraft:wither_skeleton_spawn_egg	Ovo Gerador de Esqueleto Wither Generar esqueleto del Wither
+minecraft:wolf_spawn_egg	Ovo Gerador de Lobo Generar lobo
+minecraft:zoglin_spawn_egg	Ovo Gerador de Zoglin Generar zoglin
+minecraft:zombie_spawn_egg	Ovo Gerador de Zumbi Generar zombi
+minecraft:zombie_horse_spawn_egg	Ovo Gerador de Cavalo-Zumbi Generar caballo zombi
+minecraft:zombie_villager_spawn_egg	Ovo Gerador de Aldeão Zumbi Generar aldeano zombi
+minecraft:zombified_piglin_spawn_egg	Ovo Gerador de Piglin-Zumbi Generar piglin zombificado
+minecraft:command_block	Bloco de Comando Bloque de comandos
+minecraft:chain_command_block	Bloco de Comando em Cadeia Bloque de comandos en cadena
+minecraft:repeating_command_block	Bloco de Comando em Repetição Bloque de comando de repetición
+minecraft:command_block_minecart	Carrinho de Mina com Bloco de Comando Vagoneta con bloque de comandos
+minecraft:jigsaw	Bloco-Quebra-Cabeça Bloque rompecabezas
+minecraft:structure_block	Gerador de Estruturas Bloque estructural
+minecraft:structure_void	Vazio Estrutural Vacío estructural
+minecraft:barrier	Barreira Barrera
+minecraft:debug_stick	Graveto de Depuração Palo de desarrollo
+minecraft:light	Luz Luz

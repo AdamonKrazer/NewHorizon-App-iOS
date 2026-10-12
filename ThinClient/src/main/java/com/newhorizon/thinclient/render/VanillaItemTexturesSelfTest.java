@@ -10,6 +10,16 @@ import java.awt.image.BufferedImage;
 public final class VanillaItemTexturesSelfTest {
     private VanillaItemTexturesSelfTest() { }
     public static void run()throws Exception {
+        VanillaBlockItemSelfTest.run();
+        check(TridentModel.MESH.length==30*4*5,"trident has all six faces of five cuboids");
+        float minY=Float.POSITIVE_INFINITY,maxY=Float.NEGATIVE_INFINITY,minX=Float.POSITIVE_INFINITY,maxX=Float.NEGATIVE_INFINITY;
+        for(int i=0;i<TridentModel.MESH.length;i+=5) {
+            float[] m=TridentModel.MESH;minY=Math.min(minY,m[i+1]);maxY=Math.max(maxY,m[i+1]);minX=Math.min(minX,m[i]);maxX=Math.max(maxX,m[i]);
+            check(m[i+3]>=0&&m[i+3]<=32&&m[i+4]>=0&&m[i+4]<=32,"trident UVs remain inside original skin");
+            check(Math.abs(m[i+2])==.03125f,"trident has genuine one-pixel depth");
+        }
+        check(minY==-.25f&&maxY==1.6875f&&minX==-.15625f&&maxX==.15625f,"vanilla trident shaft and three prongs dimensions");
+        check((TridentModel.pixel(1,8)>>>24)!=0,"original shaft texture available");
         check(VanillaItemSprites.modelNames().size()==983,"all generated models");
         check(VanillaItemSprites.eggCount()==77,"all spawn egg colors");
         check(CombatItemSprites.load("shield")!=null,"dedicated dropped shield skin");

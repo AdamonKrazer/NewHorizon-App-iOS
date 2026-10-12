@@ -1,5 +1,7 @@
 package com.newhorizon.thinclient.world;
 
+import com.newhorizon.thinclient.protocol.ProtocolException;
+
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
@@ -12,7 +14,12 @@ final class ColdChunkCache implements AutoCloseable {
     static final int KIND_SECTIONS = 0;
     static final int KIND_AUXILIARY = 1;
     static final int KIND_BIOMES = 2;
+    static final int KIND_LIGHT = 3;
     static final int MAX_RECORD_BYTES = 256 * 1024;
+    static final int LIGHT_SCRATCH_BYTES = 2 * MAX_RECORD_BYTES;
+    private final ByteBuffer lightRead = ByteBuffer.allocateDirect(MAX_RECORD_BYTES);
+    private final ByteBuffer lightWrite = ByteBuffer.allocateDirect(MAX_RECORD_BYTES);
+    private final VanillaLightUpdateMerger lightMerger = new VanillaLightUpdateMerger();
     private static final int FILE_BYTES = 64 * 1024 * 1024;
     private static final int MAX_ENTRIES = 2048;
 
@@ -41,7 +48,7 @@ final class ColdChunkCache implements AutoCloseable {
     }
 
     synchronized boolean put(int kind, int chunkX, int chunkZ, ByteBuffer payload) throws IOException {
-        if (kind < KIND_SECTIONS || kind > KIND_BIOMES) return false;
+        if (kind < KIND_SECTIONS || kind > KIND_LIGHT) return false;
         int length = payload.remaining();
         if (length <= 0 || length > MAX_RECORD_BYTES) return false;
         if (writeOffset + length > FILE_BYTES) writeOffset = 0;
@@ -68,6 +75,19 @@ final class ColdChunkCache implements AutoCloseable {
         stamps[slot] = ++clock;
         writeOffset = end;
         return true;
+    }
+
+    synchronized void putLightUpdate(int chunkX,int chunkZ,ByteBuffer update)
+            throws IOException,ProtocolException {
+        // Do not hold deltas after the underlying column has left the disk ring.
+        if(!contains(KIND_SECTIONS,chunkX,chunkZ))return;
+        ByteBuffer previous=readInto(KIND_LIGHT,chunkX,chunkZ,lightRead)?lightRead:null;
+        lightMerger.merge(previous,update,lightWrite);
+        put(KIND_LIGHT,chunkX,chunkZ,lightWrite);
+    }
+
+    synchronized void removeKind(int kind,int chunkX,int chunkZ) {
+        int slot=find(kind,chunkX,chunkZ);if(slot>=0)removeAt(slot);
     }
 
     boolean readInto(int chunkX, int chunkZ, ByteBuffer destination) throws IOException {

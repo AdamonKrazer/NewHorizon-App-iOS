@@ -4,21 +4,33 @@ package com.newhorizon.thinclient.world;
 public final class LocalPlayerVisual {
     public final EntityTracker.Renderable model=new EntityTracker.Renderable();
     private final EntityAnimation animation=new EntityAnimation();
-    private final ChickenBodyRotation rotation=new ChickenBodyRotation();
+    public LocalPlayerVisual(){model.appearance[18]=1;}
     private boolean initialized;
     private long tick;
     private double lastX,lastZ;
+    private float bodyYaw,previousBodyYaw;
     public void update(long now,double x,double y,double z,float yaw,float pitch){
-        if(!initialized){animation.reset(0,x,y,z,yaw,now);rotation.reset(x,z,yaw,yaw,now);tick=now;initialized=true;lastX=x;lastZ=z;}
+        if(!initialized){animation.reset(0,x,y,z,yaw,now);bodyYaw=previousBodyYaw=yaw;tick=now;initialized=true;lastX=x;lastZ=z;}
         if(now-tick>=50_000_000L){
             animation.swimming(model.prone);
-            double dx=x-lastX,dz=z-lastZ;float body=yaw;
-            if(dx*dx+dz*dz>1e-5){body=(float)-Math.toDegrees(Math.atan2(dx,dz));if(Math.abs(ChickenBodyRotation.wrap(yaw-body))>90)body+=180;}
-            rotation.tick(x,z,body,yaw,false);rotation.tickNanos=now;
+            previousBodyYaw=bodyYaw;
+            double dx=x-lastX,dz=z-lastZ;float target=bodyYaw;
+            // LivingEntity.tick/tickHeadTurn (1.20.1), not the mob BodyRotationControl.
+            // The five-degree margin keeps tiny depth noise during strafing from
+            // alternating between forward and backward headings every tick.
+            if(dx*dx+dz*dz>0.0025000002f){
+                target=(float)-Math.toDegrees(Math.atan2(dx,dz));
+                if(Math.abs(ChickenBodyRotation.wrap(yaw-target))>95)target-=180;
+            }
+            if(model.swingProgress>0)target=yaw;
+            bodyYaw+=ChickenBodyRotation.wrap(target-bodyYaw)*.3f;
+            float headDelta=ChickenBodyRotation.wrap(yaw-bodyYaw);
+            if(Math.abs(headDelta)>50)bodyYaw+=headDelta-Math.signum(headDelta)*50;
             animation.tick(x,y,z,122,model.riding||model.sleeping,model.inWater,0,0,0);animation.tickTime=now;tick=now;lastX=x;lastZ=z;
         }
         model.x=(float)x;model.y=(float)y-(model.sneaking?.125f:0);model.z=(float)z;model.yaw=yaw;model.pitch=pitch;
-        model.bodyYaw=rotation.bodyYaw(now);model.headYaw=yaw;model.type=122;model.player=true;model.appearance[17]=127;
+        float partial=Math.max(0,Math.min(1,(now-tick)/50_000_000f));
+        model.bodyYaw=ChickenBodyRotation.interpolate(previousBodyYaw,bodyYaw,partial);model.headYaw=yaw;model.type=122;model.player=true;model.appearance[17]=127;
         animation.snapshot(model,now);
     }
 }

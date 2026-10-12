@@ -18,7 +18,7 @@ public final class ServerHudState {
     private static final class Boss {String name="\"\"";float progress;int color,overlay,flags;Boss(){}Boss(Boss b){name=b.name;progress=b.progress;color=b.color;overlay=b.overlay;flags=b.flags;}}
     private static final class Objective {String title;int kind;Objective(String title,int kind){this.title=title;this.kind=kind;}}
     private static final class Score {String owner,objective;int value;Score(String owner,String objective,int value){this.owner=owner;this.objective=objective;this.value=value;}}
-    private static final class Team {String prefix="\"\"",suffix="\"\"";int color=-1;Set<String> members=new HashSet<>();Team(){}Team(Team t){prefix=t.prefix;suffix=t.suffix;color=t.color;members.addAll(t.members);}}
+    private static final class Team {String visibility="always";String prefix="\"\"",suffix="\"\"";int color=-1;Set<String> members=new HashSet<>();Team(){}Team(Team t){visibility=t.visibility;prefix=t.prefix;suffix=t.suffix;color=t.color;members.addAll(t.members);}}
     public static boolean handles(int id){return id==0x0b||id==0x0e||id==0x51||id==0x58||id==0x5a||id==0x5b||id==0x5d||id==0x5f||id==0x60;}
     public synchronized void read(int id,ByteBuffer in)throws ProtocolException{
         if(id==0x0b){readBoss(in);return;}
@@ -49,7 +49,7 @@ public final class ServerHudState {
     private void readTeam(ByteBuffer in)throws ProtocolException{
         String name=BinaryCodec.readString(in,128);BinaryCodec.require(in,1);int action=in.get()&255;if(action>4)throw new ProtocolException("Team action");
         Team old=teams.get(name),t=old==null?new Team():new Team(old);
-        if(action==0||action==2){component(in);BinaryCodec.require(in,1);in.get();BinaryCodec.readString(in,160);BinaryCodec.readString(in,160);t.color=VarInts.read(in);t.prefix=component(in);t.suffix=component(in);}
+        if(action==0||action==2){component(in);BinaryCodec.require(in,1);in.get();t.visibility=BinaryCodec.readString(in,160);BinaryCodec.readString(in,160);t.color=VarInts.read(in);t.prefix=component(in);t.suffix=component(in);}
         List<String> members=new ArrayList<>();if(action==0||action==3||action==4){int n=count(in,4096);for(int i=0;i<n;i++){String member=BinaryCodec.readString(in,160);if(i<256)members.add(member);}}end(in);
         if(action==1){teams.remove(name);return;}
         if(old==null&&action!=0||old==null&&teams.size()>=64)return;
@@ -59,6 +59,11 @@ public final class ServerHudState {
     }
     private static String component(ByteBuffer in)throws ProtocolException{return BinaryCodec.readString(in,32768);}
     private String teamOf(String name){for(Map.Entry<String,Team> e:teams.entrySet())if(e.getValue().members.contains(name))return e.getKey();return "";}
+    public synchronized String label(String player,String local){
+        Team t=teams.get(teamOf(player));boolean same=teamOf(player).equals(teamOf(local));
+        if(t!=null&&("never".equals(t.visibility)||"hideForOtherTeams".equals(t.visibility)&&!same||"hideForOwnTeam".equals(t.visibility)&&same))return "";
+        return name(player);
+    }
     private String name(String player){Team t=teams.get(teamOf(player));if(t==null)return ChatProtocol.quote(player);
         String base="{\"text\":"+ChatProtocol.quote(player)+(t.color>=0&&t.color<16?",\"color\":\""+COLORS[t.color]+"\"":"")+"}";
         return "["+t.prefix+","+base+","+t.suffix+"]";

@@ -11,6 +11,9 @@ public final class ProjectileSelfTest {
                 && MinecraftPacketIds.PLAY_CLIENTBOUND_SET_ENTITY_DATA==0x52
                 && MinecraftPacketIds.PLAY_CLIENTBOUND_SET_ENTITY_MOTION==0x54,
                 "IDs audited against official ConnectionProtocol PLAY registration");
+        for(String name:new String[]{"TRIDENT","trident","minecraft:trident","MINECRAFT:TRIDENT"})
+            check(ProjectileKind.airUseItem(name)&&ProjectileKind.chargedItem(name),"trident recognized as held charge from bridge/creative: "+name);
+        check(!ProjectileKind.airUseItem("minecraft:fire_charge")&&!ProjectileKind.chargedItem("minecraft:fire_charge"),"vanilla fire charge remains use-on ignition, not player-thrown");
         ProjectileMotion p=new ProjectileMotion();
         check(ProjectileKind.airUseItem("minecraft:egg") && ProjectileKind.chargedItem("bow")
                 && ProjectileKind.chargedItem("BOW") && !ProjectileKind.airUseItem("mod:egg"),

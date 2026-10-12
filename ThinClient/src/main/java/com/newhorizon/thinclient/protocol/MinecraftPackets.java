@@ -177,13 +177,20 @@ public final class MinecraftPackets {
                                       int x, int y, int z, int direction,
                                       float hitX, float hitY, float hitZ,
                                       boolean insideBlock, int sequence) {
-        if (direction < 0 || direction > 5 || sequence < 0
+        writeUseItemOn(packet,0,x,y,z,direction,hitX,hitY,hitZ,insideBlock,sequence);
+    }
+
+    public static void writeUseItemOn(ByteBuffer packet, int hand,
+                                      int x, int y, int z, int direction,
+                                      float hitX, float hitY, float hitZ,
+                                      boolean insideBlock, int sequence) {
+        if (hand < 0 || hand > 1 || direction < 0 || direction > 5 || sequence < 0
                 || !Float.isFinite(hitX) || !Float.isFinite(hitY)
                 || !Float.isFinite(hitZ)) {
             throw new IllegalArgumentException("use item on");
         }
         VarInts.write(packet, MinecraftPacketIds.PLAY_SERVERBOUND_USE_ITEM_ON);
-        VarInts.write(packet, 0); // InteractionHand.MAIN_HAND
+        VarInts.write(packet, hand);
         packet.putLong(packBlockPosition(x, y, z));
         VarInts.write(packet, direction);
         packet.putFloat(hitX).putFloat(hitY).putFloat(hitZ);
@@ -207,13 +214,21 @@ public final class MinecraftPackets {
     }
     /** Low byte is game mode, high byte is the vanilla data-to-keep mask. */
     public static int readRespawnFlags(ByteBuffer packet) throws ProtocolException {
-        BinaryCodec.readString(packet,32767);BinaryCodec.readString(packet,32767);
+        return readRespawn(packet).flags;
+    }
+    public static final class Respawn {
+        public final String type, dimension;
+        public final int flags, portalCooldown;
+        Respawn(String type, String dimension, int flags, int cooldown) { this.type=type; this.dimension=dimension; this.flags=flags; this.portalCooldown=cooldown; }
+    }
+    public static Respawn readRespawn(ByteBuffer packet) throws ProtocolException {
+        String type=BinaryCodec.readString(packet,32767),dimension=BinaryCodec.readString(packet,32767);
         BinaryCodec.require(packet,14);packet.getLong();int mode=packet.get()&255;
         packet.get();packet.get();packet.get();int keep=packet.get()&255;
         if(packet.get()!=0) {BinaryCodec.readString(packet,32767);BinaryCodec.require(packet,8);packet.getLong();}
         int cooldown=VarInts.read(packet);
         if(mode>3||cooldown<0||packet.hasRemaining())throw new ProtocolException("Invalid respawn packet");
-        return mode|(keep<<8);
+        return new Respawn(type,dimension,mode|(keep<<8),cooldown);
     }
 
     static long packBlockPosition(int x, int y, int z) {

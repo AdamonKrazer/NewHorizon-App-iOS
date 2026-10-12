@@ -41,15 +41,13 @@ public final class ProjectileKind {
     /** These uses target a block before considering an offhand shield. */
     public static boolean blockUseItem(String material) {
         String key=materialKey(material);
-        return "LEAD".equals(key)||"FIREWORK_ROCKET".equals(key)||"MINECART".equals(key)||"CHEST_MINECART".equals(key)
-                ||"FURNACE_MINECART".equals(key)||"HOPPER_MINECART".equals(key)||"TNT_MINECART".equals(key)
-                ||"COMMAND_BLOCK_MINECART".equals(key)||"RAIL".equals(key)||"POWERED_RAIL".equals(key)
-                ||"DETECTOR_RAIL".equals(key)||"ACTIVATOR_RAIL".equals(key);
+        return com.newhorizon.thinclient.inventory.ItemInteractionCatalog.blockAction(key);
     }
 
     public static boolean airUseItem(String material) {
         material=materialKey(material);
-        return ((!material.contains(":"))&&(material.endsWith("_BOAT")||material.endsWith("_RAFT"))) || chargedItem(material) || "EGG".equals(material)
+        return com.newhorizon.thinclient.inventory.ItemInteractionCatalog.bucket(material)
+                || ((!material.contains(":"))&&(material.endsWith("_BOAT")||material.endsWith("_RAFT"))) || chargedItem(material) || "EGG".equals(material)
                 || "FISHING_ROD".equals(material) || "SNOWBALL".equals(material) || "ENDER_PEARL".equals(material)
                 || "SPLASH_POTION".equals(material) || "LINGERING_POTION".equals(material)
                 || "EXPERIENCE_BOTTLE".equals(material);
@@ -59,7 +57,8 @@ public final class ProjectileKind {
     }
     public static String materialKey(String material) {
         if(material==null) return "";
-        if(material.startsWith("minecraft:")) material=material.substring(10);
-        return material.toUpperCase(java.util.Locale.ROOT);
+        material=material.trim().toUpperCase(java.util.Locale.ROOT);
+        if(material.startsWith("MINECRAFT:"))material=material.substring(10);
+        return material;
     }
 }
