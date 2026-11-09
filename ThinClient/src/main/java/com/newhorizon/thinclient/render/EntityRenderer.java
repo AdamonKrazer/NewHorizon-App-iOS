@@ -60,6 +60,8 @@ final class EntityRenderer implements AutoCloseable {
     private com.newhorizon.thinclient.world.PlayerListState playerList;
     private com.newhorizon.thinclient.world.PlayerSkins playerSkins;
     private EntityTracker.Renderable localModel;
+    private boolean spectatorViewer;
+    void viewerSpectator(boolean value){spectatorViewer=value;}
     private int playerOrigin=-1;
     void players(com.newhorizon.thinclient.world.PlayerListState list,com.newhorizon.thinclient.world.PlayerSkins skins){playerList=list;playerSkins=skins;}
     void localPlayer(EntityTracker.Renderable model){localModel=model;}
@@ -93,14 +95,12 @@ final class EntityRenderer implements AutoCloseable {
         GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, instanceVbo);
         GL33.glBufferData(GL33.GL_ARRAY_BUFFER,
                 (long) instances.capacity() * Float.BYTES, GL33.GL_STREAM_DRAW);
-        configureInstanceAttribute(1, 3, 0);
-        configureInstanceAttribute(2, 3, 3);
-        configureInstanceAttribute(3, 4, 6);
-        configureInstanceAttribute(4, 1, 10);
-        configureInstanceAttribute(5, 4, 11);
-        configureInstanceAttribute(6, 1, 15);
-        configureInstanceAttribute(7,4,16);configureInstanceAttribute(8,2,20);configureInstanceAttribute(9,3,22);configureInstanceAttribute(10,1,25);
-        configureInstanceAttribute(11,3,26);configureInstanceAttribute(12,3,29);configureInstanceAttribute(13,3,32);configureInstanceAttribute(14,1,35);configureInstanceAttribute(15,4,36);
+        // Pack the unchanged 40-float record into ten vec4 inputs. Consuming all
+        // 16 attribute locations prevents ANGLE from emulating gl_VertexID on
+        // some backends. Eleven total inputs leave room without losing precision.
+        for (int index = 0; index < INSTANCE_FLOATS / 4; index++) {
+            configureInstanceAttribute(index + 1, 4, index * 4);
+        }
         GL33.glBindVertexArray(0);
         System.out.println("[NH-THIN] bounded entity renderer entities="
                 + MAX_ENTITIES + " instanceKiB="
@@ -120,6 +120,7 @@ final class EntityRenderer implements AutoCloseable {
               float medium, int ignoredEntityId) {
         int count = tracker.snapshotVisible(snapshots, System.nanoTime(),
                 cameraX, cameraY, cameraZ, RENDER_DISTANCE, ignoredEntityId);
+        count=com.newhorizon.thinclient.world.PlayerVisibility.filter(snapshots,count,playerList,spectatorViewer);
         drawSnapshots(count,cameraX,cameraY,cameraZ,yaw,pitch,aspect,projection,medium);
     }
 
@@ -181,8 +182,8 @@ final class EntityRenderer implements AutoCloseable {
         overlayTint0=litOverlay(EntityAppearance.overlayColor(entity,0));overlayTint1=litOverlay(EntityAppearance.overlayColor(entity,1));
         VanillaEntityModels.Model baked=VanillaEntityModels.model(entity);
         if(baked!=null){
-            if(!entity.invisible)bakedModel(entity,baked);
-            wornEquipment(entity,baked);
+            if(!entity.invisible||entity.spectator)bakedModel(entity,baked);
+            if(!entity.spectator)wornEquipment(entity,baked);
             if(!entity.invisible&&entity.type==82&&(entity.appearance[17]&16)==0){currentSkin=EntitySkins.find("sheep/sheep_fur");modelTint=(EntityAppearance.dye(entity.appearance[17]&15)<<8)|255;bakedModel(entity,VanillaEntityModels.find("SheepFurModel."));}
             return;}
         if(entity.invisible)return;
@@ -409,6 +410,7 @@ final class EntityRenderer implements AutoCloseable {
     private void bakedModel(EntityTracker.Renderable e,VanillaEntityModels.Model model) {
         float scale=e.player||e.type==122?.9375f:e.type==42?6f:e.type==12?.7f:e.type==114?1.2f:e.type==5?.35f:e.type==41?4f:e.type==25?2.35f:1f;
         if(e.type==88||e.type==62)scale=Math.max(1,e.size);
+        if(e.type==71)scale=1+.15f*Math.max(0,Math.min(64,e.appearance[16]));
         if(com.newhorizon.thinclient.world.ArmorStandState.small(e))scale*=.5f;
         boolean boat=com.newhorizon.thinclient.world.RidingState.boat(e.type),cart=com.newhorizon.thinclient.world.RidingState.minecart(e.type);
         float unit=scale/16f,baseline=boat||cart?6:24;
@@ -416,6 +418,7 @@ final class EntityRenderer implements AutoCloseable {
         modelAnimation.prepare(model,e);
         for(int part=0;part<model.paths.length;part++) {
             String path=model.paths[part];
+            if(!com.newhorizon.thinclient.world.PlayerVisibility.part(e.spectator,path))continue;
             if(!com.newhorizon.thinclient.world.ArmorStandState.visiblePart(e,path))continue;
             if(path.contains("baby_leg"))continue;
             if(e.player||e.type==122){
@@ -436,6 +439,7 @@ final class EntityRenderer implements AutoCloseable {
                 ChickenModelPose.apply(path,e.headYaw-yaw,e.pitch,partCenter,basis);
             }
             if(e.type==44||e.type==96)EntityModelAnimation.squidBody(e,partCenter,basis);
+            if(e.type==71)EntityModelAnimation.phantomBody(e,partCenter,basis);
             if((e.player||e.type==122)&&e.swimAmount>0)EntityModelAnimation.swimmingBody(e,partCenter,basis,unit);
             if(boat)yaw+=90;
             boolean youngHead=com.newhorizon.thinclient.world.ArmorStandState.small(e)&&path.equals("/head");
@@ -555,14 +559,9 @@ final class EntityRenderer implements AutoCloseable {
         GL33.glAttachShader(result, vertex);
         GL33.glAttachShader(result, fragment);
         GL33.glBindAttribLocation(result, 0, "aPosition");
-        GL33.glBindAttribLocation(result, 1, "iOffset");
-        GL33.glBindAttribLocation(result, 2, "iSize");
-        GL33.glBindAttribLocation(result, 3, "iColor");
-        GL33.glBindAttribLocation(result, 4, "iYaw");
-        GL33.glBindAttribLocation(result, 5, "iDeath");
-        GL33.glBindAttribLocation(result, 6, "iPitch");
-        GL33.glBindAttribLocation(result,7,"iSkin");GL33.glBindAttribLocation(result,8,"iUv");GL33.glBindAttribLocation(result,9,"iPixels");GL33.glBindAttribLocation(result,10,"iMirror");
-        GL33.glBindAttribLocation(result,11,"iBasisX");GL33.glBindAttribLocation(result,12,"iBasisY");GL33.glBindAttribLocation(result,13,"iBasisZ");GL33.glBindAttribLocation(result,14,"iCentered");GL33.glBindAttribLocation(result,15,"iOverlay");
+        for (int index = 0; index < INSTANCE_FLOATS / 4; index++) {
+            GL33.glBindAttribLocation(result, index + 1, "iData" + index);
+        }
         GL33.glLinkProgram(result);
         if (GL33.glGetProgrami(result, GL33.GL_LINK_STATUS) == GL33.GL_FALSE) {
             throw new IllegalStateException("Entity shader link failed: "
@@ -595,12 +594,15 @@ final class EntityRenderer implements AutoCloseable {
 
     private static final String VERTEX_SHADER =
             "#version 150 core\n"
-            + "in vec3 aPosition; in vec3 iOffset; in vec3 iSize;\n"
-            + "in vec4 iColor; in float iYaw; in vec4 iDeath; in float iPitch; out vec4 vColor; out vec3 vWorld;\n"
-            + "in vec4 iSkin;in vec2 iUv;in vec3 iPixels;in float iMirror;in vec3 iBasisX;in vec3 iBasisY;in vec3 iBasisZ;in float iCentered;out vec2 vUv;in vec4 iOverlay;out vec4 vOverlayUv;out vec3 vOverlayColor0;out vec3 vOverlayColor1;\n"
+            + "in vec3 aPosition; in vec4 iData0,iData1,iData2,iData3,iData4,iData5,iData6,iData7,iData8,iData9;\n"
+            + "out vec4 vColor;out vec3 vWorld;out vec2 vUv;out vec4 vOverlayUv;out vec3 vOverlayColor0;out vec3 vOverlayColor1;\n"
             + "uniform vec3 uCamera; uniform vec2 uRotation;\n"
             + "uniform float uAspect; uniform float uProjection;\n"
             + "void main(){\n"
+            + " vec3 iOffset=iData0.xyz;vec3 iSize=vec3(iData0.w,iData1.xy);vec4 iColor=vec4(iData1.zw,iData2.xy);\n"
+            + " float iYaw=iData2.z;vec4 iDeath=vec4(iData2.w,iData3.xyz);float iPitch=iData3.w;vec4 iSkin=iData4;\n"
+            + " vec2 iUv=iData5.xy;vec3 iPixels=vec3(iData5.zw,iData6.x);float iMirror=iData6.y;\n"
+            + " vec3 iBasisX=vec3(iData6.zw,iData7.x);vec3 iBasisY=iData7.yzw;vec3 iBasisZ=iData8.xyz;float iCentered=iData8.w;vec4 iOverlay=iData9;\n"
             + " vec3 local=vec3((aPosition.x-0.5)*iSize.x,(aPosition.y-iCentered*0.5)*iSize.y,(aPosition.z-0.5)*iSize.z);local=vec3(dot(iBasisX,local),dot(iBasisY,local),dot(iBasisZ,local));\n"
             + " float pitch=radians(iPitch); local.xy=mat2(cos(pitch),-sin(pitch),sin(pitch),cos(pitch))*local.xy;"
             + " float e=radians(-iYaw); local.xz=mat2(cos(e),-sin(e),sin(e),cos(e))*local.xz;\n"

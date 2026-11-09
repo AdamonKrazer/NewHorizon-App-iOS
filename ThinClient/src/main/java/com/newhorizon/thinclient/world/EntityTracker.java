@@ -523,6 +523,7 @@ public final class EntityTracker {
                 else if(meta.pose==1||meta.pose==3||meta.pose==4)height=.6;
                 else if(meta.pose==2||meta.pose==7){halfWidth=.1;height=.2;}
             } else if(types[slot]==62||types[slot]==88) {halfWidth*=.255*meta.size;height*=.255*meta.size;}
+            else if(types[slot]==71) {double scale=1+.2*Math.max(0,Math.min(64,meta.appearance[16]))/(halfWidth*2);halfWidth*=scale;height*=scale;}
             else if(types[slot]==52) {halfWidth=meta.interactionWidth/2;height=meta.interactionHeight;}
             else if(meta.baby && CombatHitboxes.hasBabySize(types[slot])) {halfWidth*=.5;height*=.5;}
             double progress=interpolation(slot,now);
@@ -948,7 +949,7 @@ public final class EntityTracker {
         public float headYaw;
         public boolean player;
         public java.util.UUID profileId;
-        public boolean slim,sneaking,swimming,prone;
+        public boolean slim,sneaking,swimming,prone,spectator;
         public float swimAmount;
         public final int[] appearance=new int[32];
         public final float[] armorStandPose=ArmorStandState.create();

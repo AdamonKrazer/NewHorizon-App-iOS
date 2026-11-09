@@ -138,7 +138,9 @@ public final class GeckoNativeBridge implements BrowserPort {
     public static void showChat(String initial){command("__nh_chat_show",initial);}
     public static void hideChat(){command("__nh_chat_hide");}
     public static void resetChat(){command("__nh_chat_reset");}
-    public static void createMinePad(int id,String url){command("__nh_pad_create",Integer.toString(id),MinePadResources.resolve(url));}
+    public static void tabletNotification(String self,String json){command("__nh_tablet_notification",self,json);}
+    public static void tabletEvent(int id,String json){command("__nh_tablet_event",Integer.toString(id),json);}
+    public static void createMinePad(int id,String url){command("__nh_pad_create",Integer.toString(id),MinePadResources.resolve(url),MinePadController.TABLET_HOME.equals(url)?"1":"0");}
     public static void navigateMinePad(int id,String url){command("__nh_pad_navigate",Integer.toString(id),MinePadResources.resolve(url));}
     public static void showMinePad(int id,String url,int index,String[] urls,boolean editing){command("__nh_pad_show",Integer.toString(id),url,Integer.toString(index),String.join("\n",urls),editing?"1":"0");}
     public static void hideMinePad(){command("__nh_pad_hide");}

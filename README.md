@@ -1,13 +1,12 @@
 # New Horizon Launcher for iOS
 
-Port of the New Horizon Android launcher to iOS/iPadOS, built on the Amethyst native launcher base. Version **1.2** imports the Android source snapshot from **2026-10-12**, including the independent New Horizon thin client alongside **Minecraft 1.20.1 + Forge 47.4.0**.
+Port of the New Horizon Android launcher to iOS/iPadOS, built on the Amethyst native launcher base. Version **1.3** imports the Android source snapshot from **2026-11-09**, including the independent New Horizon thin client alongside **Minecraft 1.20.1 + Forge 47.4.0** for the offline test world.
 
 ## Production contract
 
-- Normal mode selects `1.20.1-forge-47.4.0`; missing Forge is installed from its official Maven repository. Launcher-owned patches from older releases are restored from verified pristine backups, matching Android's current normal-Forge route.
-- **Settings → Java → Lightweight client** selects the imported Java/LWJGL runtime and protocol 763. Minecraft 1.20.1 metadata/assets are downloaded, but Minecraft/Forge classes and mod JARs are not loaded into that runtime.
-- Configure **Lightweight client server** as `host:port`. The Android default `127.0.0.1:9055` is retained; it needs a tunnel on the iPhone itself. An Android/desktop loopback tunnel is not reachable from another device.
-- The existing **Quick local test (superflat)** takes priority over lightweight mode. It creates/reopens the local Creative/Peaceful test world through Forge, including when the server is offline.
+- Normal mode always uses the imported Java/LWJGL thin runtime and protocol 763, matching Android's current primary route. Minecraft 1.20.1 metadata/assets are downloaded, but Minecraft/Forge classes and mod JARs are not loaded into that runtime. The former lightweight-client toggle no longer changes this route.
+- Configure **New Horizon server** as `host:port`. The Android default `127.0.0.1:9055` is retained; it needs a tunnel on the iPhone itself. An Android/desktop loopback tunnel is not reachable from another device.
+- **Quick local test (superflat)** creates/reopens the local Creative/Peaceful world through `1.20.1-forge-47.4.0`, including when the server is offline. Missing Forge is installed from its official Maven repository; old launcher-owned patches are restored from verified pristine backups.
 - LTW is the only exposed and accepted Minecraft renderer.
 - Browser composition is GPU-only. A browser that requests CPU frames is rejected instead of silently falling back.
 - Server authentication credentials are stored in the iOS Keychain and commands are sent through the in-game chat state machine.
@@ -17,7 +16,16 @@ The imported thin core includes bounded chunk streaming/mesh workers, vanilla bl
 
 `ThinClient/server-bridge/src` records the matching Android server plugin source for protocol compatibility. It is not shipped in the IPA and this update does not deploy or restart any server.
 
-### Changes in 1.2
+### Changes in 1.3
+
+- Imported the latest shared runtime: FML3 login and server-owned item IDs, terrain mipmaps, display ray targeting, player visibility, sneaking at edges, updated equipment/animation, drops and world labels.
+- The original Android social tablet page now runs in Reynard. Its trusted local page can open the browser/Spotify, manage contacts and friendship requests, send messages and open validated HTTP(S) links. Social features require a server advertising `newhorizon:tablet_chat` version 1.
+- UIKit supplies in-game notification banners, unread counts and the original Horizon sound, with persisted sound/popup settings, duplicate suppression and suppression while reading the conversation. External pages cannot invoke the social bridge. No background/OS notification delivery is added.
+- Native inventory/hotbar slots display Android's durability values from server NBT. The tablet home uses its own aspect ratio and hides browser chrome; external tabs retain navigation controls and a Home action.
+- Microsoft authentication respects HTTP 429 `Retry-After`, persists the cooldown and uses the returned Minecraft token lifetime. Credentials remain in Keychain.
+- Reynard, GPU-only IOSurface/ANGLE browser transport, LTW, the offline superflat creator and the vendored dependency/build fixes are retained. Amethyst continues to provide native launcher and touch controls; Android Canvas widgets and Android account-activity/background-service internals are not copied into UIKit.
+
+### Previous changes in 1.2
 
 - Updated the shared runtime: original block/item models, animated textures, server/block lighting, Overworld/Nether/End and portals, precipitation, interaction sounds, entity interpolation/equipment, maps, labels, frame pacing and bounded terrain work.
 - Native crafting-table and 1–6-row chest/NPC menus preserve server slot IDs, cursor state, item names and lore. UIKit adds a Details mode, localized item names (Portuguese/English/Spanish), accent-insensitive creative search and the Android item icon snapshot.
@@ -25,7 +33,7 @@ The imported thin core includes bounded chunk streaming/mesh workers, vanilla bl
 - MinePad uses the unchanged Android domain/search/redirect policy through JNI, including the bundled 84,133-rule snapshot and dynamic popup capture. Displays receive the latest physical-pixel viewport script; the initial `about:blank` document no longer prematurely ends the redirect allowance. All browser transport remains GPU-only.
 - Refreshed WebDisplays for Forge and the matching server-bridge source. Existing iOS superflat creation, session/low-memory mods and LTW remain intact.
 
-The Windows checks do not certify iPhone behavior or produce an IPA. Build `main` in Codemagic, then smoke-test connection/retries, chest/NPC clicks, crafting, portals, MinePad redirects/tabs, browser textures and touch/audio on the device.
+The Windows checks do not certify iPhone behavior or produce an IPA. Build `main` in Codemagic, then smoke-test login/retries, Forge server negotiation, tablet contacts/messages/notifications, chest/NPC clicks, crafting, portals, MinePad redirects/tabs, browser textures, offline superflat and touch/audio on the device.
 
 ## GPU architecture
 
@@ -61,7 +69,7 @@ make all PLATFORM=2
 
 The resulting IPA is written below `artifacts/`. JIT and increased-memory entitlements still depend on the chosen signing/install method, as with upstream Amethyst.
 
-The Java build compiles `ThinClient` from source and runs its self-tests before Gecko. The Reynard script also parses the two iOS bridge files and type-checks the standalone UIKit interface before the Firefox build. Local Windows validation covers the Java core, patcher and JavaScript; final Xcode compilation, IPA installation, GPU presentation, audio and touch behavior require the macOS/iOS build and a device.
+The Java build compiles `ThinClient` from source and runs its self-tests before Gecko. The Reynard script also parses the three iOS integration files and type-checks the standalone UIKit interface and notification adapter before the Firefox build. Local Windows validation covers the Java core, patcher and JavaScript; final Xcode compilation, IPA installation, GPU presentation, audio and touch behavior require the macOS/iOS build and a device.
 
 ## Layout
 

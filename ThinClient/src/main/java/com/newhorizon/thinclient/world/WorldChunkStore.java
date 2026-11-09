@@ -1360,6 +1360,18 @@ public final class WorldChunkStore implements AutoCloseable, WorldBlockRaycast.B
         return (long) playerChunkX << 32 | playerChunkZ & 0xffff_ffffL;
     }
 
+    /** Follow local movement without turning prediction into a server correction.
+     * Only queue disk promotion here: the mesh worker performs the actual I/O.
+     */
+    public synchronized void updateStreamingCenter(double x, double z) {
+        if (closed || !hasPlayerPosition || !Double.isFinite(x) || !Double.isFinite(z)) return;
+        int chunkX = floorChunk(x), chunkZ = floorChunk(z);
+        if (chunkX == playerChunkX && chunkZ == playerChunkZ) return;
+        playerChunkX = chunkX;
+        playerChunkZ = chunkZ;
+        promotionPending = true;
+    }
+
     private void exposeFullNeighbour(int worldX, int worldY, int worldZ,
                                      int faceMask) {
         int relativeY = worldY - minY;

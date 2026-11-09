@@ -6,10 +6,12 @@ import java.util.*;
 /** Render-thread tablet state. The server item remains the durable source of PadID/PadTabs. */
 public final class MinePadController implements AutoCloseable {
     // Original client's pad_resolution=720 with MinePad's 59:30 viewport ratio.
+    public static final String TABLET_HOME="mod://webdisplays/newhorizon-tablet.html";
     public static final int WIDTH=1416,HEIGHT=720,MAX_LIVE=8;
     public interface Port extends BrowserPort {
         void show(int browser,String url,int index,String[] urls,boolean editing);
         void hide();
+        default void event(int browser,String json){}
         void error(String message);
     }
     public interface Sender {void send(UUID id,int action,int index,String url)throws Exception;}
@@ -19,6 +21,7 @@ public final class MinePadController implements AutoCloseable {
     }
     private static final class Pad {
         final UUID id;final ArrayList<Tab> tabs=new ArrayList<>();int index;
+        final Tab shell=new Tab(TABLET_HOME);boolean home=true;
         MinePadData source;long optimisticUntil;boolean present;
         Pad(MinePadData data){id=data.id;source=data;index=data.index;for(String url:data.urls)tabs.add(new Tab(url));}
     }
@@ -33,7 +36,7 @@ public final class MinePadController implements AutoCloseable {
     private int heldMain=-1,heldOff=-1;
     public MinePadController(DisplayController displays,Port port,Sender sender){this.displays=displays;this.port=port;this.sender=sender;}
     public boolean isOpen(){return opened!=null;}
-    public int activeBrowser(){return opened==null?-1:opened.tabs.get(opened.index).browser;}
+    public int activeBrowser(){return opened==null?-1:active(opened).browser;}
     public int heldBrowser(boolean offhand){return offhand?heldOff:heldMain;}
     public void update(InventoryState inventory,long now){
         clock=now;
@@ -55,24 +58,33 @@ public final class MinePadController implements AutoCloseable {
                         if(now>=pad.optimisticUntil||matches(pad,data)){apply(pad,data);pad.source=data;pad.optimisticUntil=0;}
                     }
                 }else if(slots[slot]!=null){pad=pads.get(slots[slot]);
-                    if(pad!=null&&now>=pad.optimisticUntil){if(opened==pad)hide();destroy(pad);pads.remove(pad.id);slots[slot]=null;pad=null;}
+                    if(pad!=null&&now>=pad.optimisticUntil){slots[slot]=null;pad=null;}
                 }
                 if(pad!=null)pad.present=true;
             }
-            Iterator<Pad> iterator=pads.values().iterator();
-            while(iterator.hasNext()){Pad pad=iterator.next();if(!pad.present){if(opened==pad)hide();destroy(pad);iterator.remove();}}
+            // Respawn/world/kit snapshots may temporarily remove the item. Keep every
+            // live page by PadID and reconnect it when that same item returns.
+            if(opened!=null&&!opened.present)hide();
         }
         for(Pad pad:pads.values()){
             Tab tab=pad.tabs.get(pad.index);
             if(tab.changed!=0&&now-tab.changed>=750_000_000L){persist(pad,tab);}
         }
         heldMain=held(inventory.selectedHotbar());heldOff=held(40);
-        for(Pad pad:pads.values())for(Tab tab:pad.tabs){
-            boolean visible=opened==pad&&pad.tabs.get(pad.index)==tab||tab.browser==heldMain||tab.browser==heldOff;
+        for(Pad pad:pads.values())for(int t=-1;t<pad.tabs.size();t++){Tab tab=t<0?pad.shell:pad.tabs.get(t);
+            boolean visible=opened==pad&&active(pad)==tab||tab.browser==heldMain||tab.browser==heldOff;
             if(tab.browser>=0&&tab.visible!=visible){port.setVisible(tab.browser,visible);tab.visible=visible;}
         }
     }
-    private int held(int slot){Pad pad=pads.get(slots[slot]);return pad==null?-1:browser(pad.tabs.get(pad.index));}
+    private static Tab active(Pad pad){return pad.home?pad.shell:pad.tabs.get(pad.index);}
+    private int held(int slot){Pad pad=pads.get(slots[slot]);return pad==null?-1:browser(active(pad));}
+    public boolean isShell(int id){for(Pad pad:pads.values())if(pad.shell.browser==id)return true;return false;}
+    public void event(String json){for(Pad pad:pads.values())if(pad.shell.browser>=0)port.event(pad.shell.browser,json);}
+    public void openLink(String value){
+        try{action(1,0,TabletLinkUrl.validate(value));}
+        catch(IllegalArgumentException invalid){port.error(invalid.getMessage());}
+    }
+    public void launchBrowser(){if(opened!=null){opened.home=false;show(false);}}
     public void open(InventoryState inventory,int slot,boolean editing,long now){
         Pad pad=ensurePad(inventory,slot,now);if(pad==null)return;
         opened=pad;show(editing);
@@ -102,12 +114,13 @@ public final class MinePadController implements AutoCloseable {
         persist(pad,pad.tabs.get(pad.index));
         if(!send(pad.id,1,0,url))return false;
         pad.tabs.add(new Tab(url));pad.index=pad.tabs.size()-1;pad.optimisticUntil=now+3_000_000_000L;
-        if(opened==pad)show(false);
+        pad.home=false;if(opened==pad)show(false);
         return true;
     }
     public void action(int action,int index,String value){
         if(action==5){hide();return;} // close GUI, distinct from item shutdown
         Pad pad=opened;if(pad==null)return;
+        if(action==9){pad.home=true;show(false);return;}
         Tab old=pad.tabs.get(pad.index);persist(pad,old);
         if(action==0||action==1){
             String url;
@@ -130,6 +143,7 @@ public final class MinePadController implements AutoCloseable {
             // Wait for the server's removal of PadID rather than resurrecting stale item NBT.
             return;
         }else return;
+        if(action>=0&&action<=3)pad.home=false;
         pad.optimisticUntil=clock+3_000_000_000L;show(false);
     }
     /** Route delayed popup destinations to their owning tablet, even after its GUI closes. */
@@ -157,6 +171,7 @@ public final class MinePadController implements AutoCloseable {
         if(opened==null)return;Tab tab=opened.tabs.get(opened.index);persist(opened,tab);opened=null;port.hide();
     }
     private void persist(Pad pad,Tab tab){
+        if(!pad.present)return; // Persist deferred navigation once its server item returns.
         if(tab.changed==0||tab.url.equals(tab.persisted)){tab.changed=0;return;}
         // The original packet changes the current tab. Background tabs cannot overwrite it.
         if(pad.tabs.get(pad.index)!=tab)return;
@@ -167,7 +182,7 @@ public final class MinePadController implements AutoCloseable {
         catch(Exception failure){port.error("N\u00e3o foi poss\u00edvel atualizar o MinePad no servidor.");return false;}
     }
     private void show(boolean editing){
-        if(opened==null)return;Tab tab=opened.tabs.get(opened.index);int id=browser(tab);
+        if(opened==null)return;Tab tab=active(opened);int id=browser(tab);
         if(id<0){port.error("Navegador indispon\u00edvel.");hide();return;}
         String[] urls=new String[opened.tabs.size()];for(int i=0;i<urls.length;i++)urls[i]=opened.tabs.get(i).url;
         port.show(id,tab.url,opened.index,urls,editing);
@@ -175,16 +190,17 @@ public final class MinePadController implements AutoCloseable {
     private int browser(Tab tab){
         tab.used=++clock;if(tab.browser>=0)return tab.browser;
         int count=0;Tab oldest=null;
-        for(Pad pad:pads.values())for(Tab candidate:pad.tabs)if(candidate.browser>=0){
-            count++;if(candidate.browser!=heldMain&&candidate.browser!=heldOff&&(opened==null||opened.tabs.get(opened.index)!=candidate)
+        for(Pad pad:pads.values())for(int t=-1;t<pad.tabs.size();t++){Tab candidate=t<0?pad.shell:pad.tabs.get(t);if(candidate.browser>=0){
+            count++;if(candidate.browser!=heldMain&&candidate.browser!=heldOff&&(opened==null||active(opened)!=candidate)
                     &&(oldest==null||candidate.used<oldest.used))oldest=candidate;
+        }
         }
         if(count>=MAX_LIVE){if(oldest==null)return -1;release(oldest);}
         int id=displays.reserveAuxiliaryBrowser();if(id<0)return -1;
         tab.browser=id;tab.visible=true;port.create(id,tab.url,true);port.resize(id,WIDTH,HEIGHT);return id;
     }
     private void release(Tab tab){if(tab.browser>=0){port.destroy(tab.browser);displays.releaseAuxiliaryBrowser(tab.browser);tab.browser=-1;tab.visible=false;}}
-    private void destroy(Pad pad){for(Tab tab:pad.tabs)release(tab);}
+    private void destroy(Pad pad){release(pad.shell);for(Tab tab:pad.tabs)release(tab);}
     private static boolean matches(Pad pad,MinePadData data){
         if(pad.index!=data.index||pad.tabs.size()!=data.urls.length)return false;
         for(int i=0;i<data.urls.length;i++)if(!pad.tabs.get(i).url.equals(data.urls[i]))return false;return true;

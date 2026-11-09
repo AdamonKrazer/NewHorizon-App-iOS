@@ -67,6 +67,17 @@ final class EntityModelAnimation {
             b[col]=x;b[3+col]=cx*y-sx*z;b[6+col]=sx*y+cx*z;
         }
     }
+    static void phantomBody(EntityTracker.Renderable e,float[] c,float[] b) {
+        // PhantomRenderer: pitch the whole model, then scale/translate (0,1.3125,.1875)
+        // before LivingEntityRenderer's inverted axes and 1.501-block baseline.
+        float cx=cos(e.pitch*DEG),sx=sin(e.pitch*DEG);
+        float y=c[1]+3.016f,z=c[2]+3;
+        c[1]=cx*y-sx*z-24;c[2]=sx*y+cx*z;
+        for(int col=0;col<3;col++) {
+            y=b[3+col];z=b[6+col];
+            b[3+col]=cx*y-sx*z;b[6+col]=sx*y+cx*z;
+        }
+    }
     private static void animate(String path,String part,EntityTracker.Renderable e,float[] p) {
         if(e.player||e.type==122){
             if(part.endsWith("sleeve"))part=part.replace("sleeve","arm");
@@ -95,7 +106,7 @@ final class EntityModelAnimation {
         boolean headPart=part.equals("head")||path.equals("/hat")||horse&&part.equals("head_parts");
         if(horse&&part.equals("head"))headPart=false;
         // Chicken's validated shared neck transform remains in ChickenModelPose.
-        if(headPart&&!fish&&e.type!=15) {p[3]+=pitch;p[4]+=head;}
+        if(headPart&&!fish&&e.type!=15&&e.type!=71) {p[3]+=pitch;p[4]+=head;}
         if(e.type==79) {
             if(part.equals("nose")||part.endsWith("ear")){p[3]=pitch;p[4]+=head;}
             float jump=sin(e.jumpProgress*PI);
@@ -112,9 +123,10 @@ final class EntityModelAnimation {
             return;
         }
         if(e.type==71) {
-            float flap=cos((e.entityId*3+age)*7.448451f*DEG)*16*DEG;
+            float phase=(e.entityId*3+age)*7.448451f*DEG;
+            float flap=cos(phase)*16*DEG;
             if(part.contains("wing"))p[5]=(left?1:-1)*flap;
-            if(part.startsWith("tail"))p[3]=-5*DEG+flap;
+            if(part.startsWith("tail"))p[3]=-(5+cos(phase*2)*5)*DEG;
             return;
         }
         if(e.type==0||e.type==107) {

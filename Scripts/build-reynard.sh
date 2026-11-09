@@ -31,10 +31,12 @@ done
 # Parse the iOS presentation sources before downloading/compiling Gecko.
 xcrun swiftc -frontend -parse \
     "$REYNARD_DIR/browser/GeckoView/NewHorizonMCEFBridge.swift" \
-    "$REYNARD_DIR/browser/GeckoView/NewHorizonThinUI.swift"
+    "$REYNARD_DIR/browser/GeckoView/NewHorizonThinUI.swift" \
+    "$REYNARD_DIR/browser/GeckoView/NewHorizonTablet.swift"
 xcrun swiftc -typecheck \
     -sdk "$(xcrun --sdk iphoneos --show-sdk-path)" -target "arm64-apple-ios${IOS_DEPLOYMENT_TARGET}" \
-    "$REYNARD_DIR/browser/GeckoView/NewHorizonThinUI.swift"
+    "$REYNARD_DIR/browser/GeckoView/NewHorizonThinUI.swift" \
+    "$REYNARD_DIR/browser/GeckoView/NewHorizonTablet.swift"
 
 if [ ! -d "$FIREFOX_DIR/.git" ]; then
     if [ -d "$FIREFOX_DIR" ] && [ -n "$(ls -A "$FIREFOX_DIR" 2>/dev/null)" ]; then

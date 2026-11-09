@@ -98,6 +98,8 @@ private final class NHMCEFBrowser: NSObject, GeckoEventListenerInternal,
     private var visible = true
     let thinDisplay: Bool
     let thinPad: Bool
+    let tabletHomeURL: String?
+    var tabletAction: ((String,String,String) -> Bool)?
     var laserEnabled = false
     private var lastLaserInput: TimeInterval = 0
     private var lastDisplayLink = ""
@@ -116,10 +118,12 @@ private final class NHMCEFBrowser: NSObject, GeckoEventListenerInternal,
     private var nextNavigationID = 1
     private var pendingNavigations: [Int: CheckedContinuation<AllowOrDeny, Never>] = [:]
 
-    init(id: Int32, url: String, thinDisplay: Bool = false, thinPad: Bool = false) {
+    init(id: Int32, url: String, thinDisplay: Bool = false, thinPad: Bool = false, tabletShell: Bool = false) {
         self.id = id
         self.thinDisplay = thinDisplay
         self.thinPad = thinPad
+        let location = URL(string:url)
+        self.tabletHomeURL = tabletShell && thinPad && location?.scheme == "http" && location?.host == "127.0.0.1" && location?.path == "/mod/webdisplays/newhorizon-tablet.html" ? url : nil
         self.lockedURL = url
         super.init()
         session.contentDelegate = self
@@ -208,6 +212,21 @@ private final class NHMCEFBrowser: NSObject, GeckoEventListenerInternal,
                 post(to: portID, ["type": "eval", "code": script])
             }
         case "query":
+            if let home = tabletHomeURL {
+                let queryID = integer(data["id"])
+                var accepted = false
+                if portID == mainPortID, loadingURL == home, data["url"] as? String == home,
+                   let raw = data["request"] as? String, raw.utf16.count <= 4096,
+                   let bytes = raw.data(using:.utf8), let request = (try? JSONSerialization.jsonObject(with:bytes)) as? [String:Any] {
+                    let action = request["action"] as? String ?? "", peer = request["peer"] as? String ?? "", text = request["text"] as? String ?? ""
+                    let allowed = ["ready","browser","spotify","open_link","close","shutdown","contacts","history","send","friend_request","friend_accept","friend_decline","friend_cancel","friend_remove","report","notification_view","notification_settings","notification_test"]
+                    if allowed.contains(action), peer.utf16.count <= 36, !peer.contains("\n"), !peer.contains("\r"), text.utf16.count <= 2048 {
+                        accepted = tabletAction?(action,peer,text) ?? false
+                    }
+                }
+                post(to:portID,["type":"query-result","id":queryID,"success":accepted,"errorCode":accepted ? 0 : 400,"response":accepted ? "{}" : "Solicitação inválida.","persistent":false])
+                return
+            }
             let pageID = integer(data["id"])
             let bridgeID = nextQueryID
             nextQueryID += 1
@@ -255,6 +274,7 @@ private final class NHMCEFBrowser: NSObject, GeckoEventListenerInternal,
     }
 
     func load(_ url: String) {
+        if let home = tabletHomeURL, url != home { return }
         if thinDisplay { lockedURL = url; initialNavigation = true }
         if thinPad {
             guard let filtered = NHNativeBridge.minePadURL(url) else { return }
@@ -376,6 +396,7 @@ private final class NHMCEFBrowser: NSObject, GeckoEventListenerInternal,
     }
 
     private func navigation(_ request: LoadRequest, mainFrame: Bool) async -> AllowOrDeny {
+        if let home = tabletHomeURL { return mainFrame && request.uri == home ? .allow : .deny }
         if thinPad {
             guard let filtered = NHNativeBridge.minePadURL(request.uri) else { return .deny }
             if filtered != request.uri {
@@ -477,7 +498,8 @@ private final class NHMCEFBrowser: NSObject, GeckoEventListenerInternal,
     }
 
     func onPreNavigation(session: GeckoSession, request: LoadRequest) async -> AllowOrDeny {
-        .allow
+        if let home = tabletHomeURL { return request.uri == home ? .allow : .deny }
+        return .allow
     }
 
     func onSubframeLoadRequest(
@@ -490,6 +512,7 @@ private final class NHMCEFBrowser: NSObject, GeckoEventListenerInternal,
         session: GeckoSession, uri: String, windowId: String,
         target: LoadRequestTarget
     ) async -> GeckoSession? {
+        if tabletHomeURL != nil { return nil }
         if thinPad {
             if let filtered = NHNativeBridge.minePadURL(uri) {
                 NHNativeBridge.submitRawEvent(browserID: id, type: "nh-pad-popup", payload: filtered)
@@ -517,6 +540,14 @@ private final class NHMCEFBrowser: NSObject, GeckoEventListenerInternal,
         submit(type: "loading-state", payload: ["loading": false])
     }
 
+    func sendTabletEvent(_ event: [String:Any]) {
+        guard let home = tabletHomeURL, loadingURL == home, let port = mainPortID,
+              JSONSerialization.isValidJSONObject(event), let data = try? JSONSerialization.data(withJSONObject:event),
+              let json = String(data:data,encoding:.utf8) else { return }
+        // Transient messages must not enter retainedScripts or replay on unrelated pages.
+        post(to:port,["type":"eval","code":"window.nhReceive&&window.nhReceive(\(json));"])
+    }
+
     func onProgressChange(session: GeckoSession, progress: Int) {}
 }
 
@@ -530,6 +561,8 @@ private final class NHReynardMCEFManager: GeckoEventListenerInternal {
     private var extensionReady = false
     private var thinUI: NHThinInterface?
     private var activePad: Int32?
+    private let tabletNotifications = NHTabletNotifications()
+    private var tabletReading: [Int32:String] = [:]
     private var displayLaser = false
 
     private init() {
@@ -603,9 +636,30 @@ private final class NHReynardMCEFManager: GeckoEventListenerInternal {
                     guard let self, let id = self.activePad, let browser = self.browsers[id], let viewport = self.thinUI?.padViewport else { return }
                     browser.view.frame = viewport.bounds
                 }
+                tabletNotifications.stateChanged = { [weak self] state in
+                    guard let self else { return }
+                    for browser in self.browsers.values { browser.sendTabletEvent(state) }
+                }
+                tabletNotifications.showNotice = { [weak self] text in self?.thinUI?.showTabletNotice(text) }
+                tabletNotifications.isVisible = { [weak self] in self?.rootView()?.window?.isKeyWindow == true }
             }
             if let root = rootView() { thinUI?.attach(to: root) }
+            if operation == "__nh_chat_reset" { tabletNotifications.reset(); tabletReading.removeAll() }
             if thinUI?.handle(operation, arguments) == true { return }
+        }
+        if operation == "__nh_tablet_notification" || operation == "__nh_tablet_event" {
+            guard let data = string(arguments,1).data(using:.utf8), data.count <= 524288,
+                  let event = (try? JSONSerialization.jsonObject(with:data)) as? [String:Any] else { return }
+            if operation == "__nh_tablet_notification" {
+                tabletNotifications.account(string(arguments,0))
+                tabletNotifications.read(activePad.flatMap { tabletReading[$0] } ?? "")
+                tabletNotifications.receive(selfID:string(arguments,0),event:event)
+            } else {
+                if event["kind"] as? String == "state", let id = event["self"] as? String { tabletNotifications.account(id) }
+                browsers[int32(arguments,0,fallback:-1)]?.sendTabletEvent(event)
+                tabletNotifications.publish()
+            }
+            return
         }
         if operation == "__nh_display_laser" {
             displayLaser = boolean(arguments, 0)
@@ -618,13 +672,14 @@ private final class NHReynardMCEFManager: GeckoEventListenerInternal {
         if operation == "__nh_display_cancel" { browsers[int32(arguments, 0, fallback: -1)]?.cancelInput(); return }
         if operation == "__nh_pad_hide" {
             if let id = activePad { browsers[id]?.hideOverlay(in: rootView()) }
-            activePad = nil; thinUI?.hidePad(); return
+            activePad = nil; tabletNotifications.read(""); thinUI?.hidePad(); return
         }
         if operation == "__nh_pad_show" {
             let id = int32(arguments, 0, fallback: -1)
             guard let browser = browsers[id], let ui = thinUI else { return }
             if let previous = activePad, previous != id { browsers[previous]?.hideOverlay(in: rootView()) }
             activePad = id
+            tabletNotifications.read(tabletReading[id] ?? "")
             ui.showPad(id: id, url: string(arguments, 1), selected: integer(arguments, 2), urls: string(arguments, 3).components(separatedBy: "\n"), editing: boolean(arguments, 4))
             browser.showOverlay(in: ui.padViewport, frame: ui.padViewport.bounds, url: "")
             browser.view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
@@ -637,9 +692,24 @@ private final class NHReynardMCEFManager: GeckoEventListenerInternal {
             browsers.removeValue(forKey: browserID)?.close()
             let browser = NHMCEFBrowser(
                 id: browserID, url: string(arguments, 1, fallback: "about:blank"),
-                thinDisplay: operation == "__nh_display_create", thinPad: operation == "__nh_pad_create"
+                thinDisplay: operation == "__nh_display_create", thinPad: operation == "__nh_pad_create",
+                tabletShell: operation == "__nh_pad_create" && boolean(arguments,2)
             )
             browser.laserEnabled = displayLaser
+            browser.tabletAction = { [weak self] action, peer, text in
+                guard let self else { return false }
+                if action == "notification_view" {
+                    guard peer.isEmpty || UUID(uuidString:peer) != nil else { return false }
+                    self.tabletReading[browserID] = peer
+                    if self.activePad == browserID { self.tabletNotifications.read(peer) }
+                    self.tabletNotifications.publish()
+                } else if action == "notification_settings" {
+                    guard let data = text.data(using:.utf8), let values = (try? JSONSerialization.jsonObject(with:data)) as? [String:Any] else { return false }
+                    return self.tabletNotifications.configure(values)
+                } else if action == "notification_test" { self.tabletNotifications.play() }
+                else { NHNativeBridge.submitRawEvent(browserID:browserID,type:"nh-pad-social",payload:action+"\n"+peer+"\n"+text) }
+                return true
+            }
             browsers[browserID] = browser
             attachOffscreen(browser)
             return
@@ -647,6 +717,7 @@ private final class NHReynardMCEFManager: GeckoEventListenerInternal {
 
         let browserID = int32(arguments, 0, fallback: -1)
         if operation.hasSuffix("RemoteDestroyBrowser") {
+            tabletReading.removeValue(forKey:browserID)
             browsers.removeValue(forKey: browserID)?.close()
             return
         }

@@ -25,6 +25,7 @@ public final class PlayerListState {
     public synchronized long revision(){return revision;}
     public synchronized Entry get(UUID id){Entry e=entries.get(id);return e==null?null:new Entry(e);}
     public synchronized String textures(UUID id){Entry e=entries.get(id);return e==null?"":e.textures;}
+    public synchronized boolean isSpectator(UUID id){Entry e=entries.get(id);return e!=null&&e.gameMode==3;}
     public synchronized List<Entry> listed(){
         List<Entry> out=new ArrayList<>();for(Entry e:entries.values())if(e.listed)out.add(new Entry(e));return out;
     }

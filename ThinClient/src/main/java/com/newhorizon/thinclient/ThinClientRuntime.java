@@ -17,6 +17,7 @@ public final class ThinClientRuntime implements AutoCloseable {
     public static final int PROTOCOL_1_20_1 = 763;
     public static final int MAX_PACKET_BYTES = 2 * 1024 * 1024;
 
+    public final com.newhorizon.thinclient.display.TabletSocialState tabletSocial=new com.newhorizon.thinclient.display.TabletSocialState();
     public volatile String connectionStatus = "";
     public final MemoryBudget budget;
     public final BoundedBufferPool packetBuffers;

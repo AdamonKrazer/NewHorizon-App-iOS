@@ -35,6 +35,7 @@ public final class IOSInventoryPresentation {
                     if (line > 0) out.append('\u001f');
                     out.append(clean(display.lore.get(line)));
                 }
+                out.append('\t').append(ThinItemDurability.remaining(fields[2],fields[5]));
             } else out.append(lines[i]);
             out.append('\n');
         }
@@ -49,6 +50,17 @@ public final class IOSInventoryPresentation {
         if (!project(source).contains("Stone")) throw new AssertionError("English item name");
         if (!project(source).contains("\t1\t?")) throw new AssertionError("Original stack data altered");
         if (ThinContainerTag.read("0a000008").name != null) throw new AssertionError("Truncated NBT accepted");
+        // Root compound containing Damage=125: an iron sword has 250 durability.
+        String damage = "0a000003000644616d6167650000007d00";
+        if (ThinItemDurability.remaining("minecraft:iron_sword", damage) != 0.5f
+                || !project("0\n0\t1\tminecraft:iron_sword\tSword\t1\t"+damage+"\n").endsWith("\t0.5\n")) {
+            throw new AssertionError("Damaged item projection");
+        }
+        if (ThinItemDurability.remaining("minecraft:stone", damage) != -1
+                || ThinItemDurability.remaining("minecraft:iron_sword", "0a000000") != -1
+                || ThinItemDurability.remaining("minecraft:iron_sword", damage.substring(0,damage.length()-2)+"01000b556e627265616b61626c650100") != -1) {
+            throw new AssertionError("Durability bar on non-damageable, undamaged or unbreakable item");
+        }
         try {
             java.io.ByteArrayOutputStream bytes = new java.io.ByteArrayOutputStream();
             java.io.DataOutputStream tag = new java.io.DataOutputStream(bytes);

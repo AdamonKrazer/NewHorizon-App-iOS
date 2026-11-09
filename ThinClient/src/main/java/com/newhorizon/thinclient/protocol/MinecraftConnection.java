@@ -31,6 +31,7 @@ public final class MinecraftConnection implements AutoCloseable {
     private static final int COMPATIBILITY_HELLO_ATTEMPTS = 6;
     private static final long COMPATIBILITY_HELLO_INTERVAL_NANOS = 1_000_000_000L;
     private final ThinClientRuntime runtime;
+    private final ForgeLogin forge;
     private final MinecraftSessionAuthenticator authenticator;
     private final Listener listener;
     private final MinecraftFrameCodec frameCodec;
@@ -77,6 +78,8 @@ public final class MinecraftConnection implements AutoCloseable {
             throw new NullPointerException();
         }
         this.runtime = runtime;
+        this.forge = new ForgeLogin(runtime.budget);
+        runtime.inventory.setNativeItems(forge.items);
         this.listener = listener;
         this.authenticator = authenticator;
         frameCodec = new MinecraftFrameCodec(runtime.budget,
@@ -99,7 +102,7 @@ public final class MinecraftConnection implements AutoCloseable {
             channel=connected;
             state = State.LOGIN;
         }
-        sendPacket(packet -> MinecraftPackets.writeHandshake(packet, host, port));
+        sendPacket(packet -> MinecraftPackets.writeHandshake(packet, host + "\0FML3\0", port));
         sendPacket(packet -> MinecraftPackets.writeLoginStart(
                 packet, credentials.username, credentials.profileId));
         listener.onConnected();
@@ -138,7 +141,27 @@ public final class MinecraftConnection implements AutoCloseable {
     public synchronized void sendCustomPayload(String channelName, ByteBuffer payload)
             throws IOException, ProtocolException {
         if (state != State.PLAY || closed) return;
+        // Selection is a vanilla action. A plugin snapshot is not a substitute
+        // for updating the server's carried slot before the next interaction.
+        if (InventoryProtocol.CHANNEL.equals(channelName) && payload.remaining() == 7) {
+            ByteBuffer request = payload.duplicate();
+            if (request.getInt() == 0x4e484931 && request.get() == 2 && request.get() == 4) {
+                int slot = request.get() & 255;
+                if (slot < 9) {
+                    runtime.inventory.selectHotbar(slot);
+                    syncCarriedSlot();
+                }
+            }
+        }
         sendPacket(packet -> MinecraftPackets.writeCustomPayload(packet, channelName, payload));
+    }
+
+    private void syncCarriedSlot() throws IOException, ProtocolException {
+        final int slot = runtime.inventory.selectedHotbar();
+        sendPacket(packet -> {
+            VarInts.write(packet, 0x28); // 1.20.1 ServerboundSetCarriedItemPacket
+            packet.putShort((short) slot);
+        });
     }
 
     public synchronized boolean sendMovement(double x, double y, double z,
@@ -201,6 +224,17 @@ public final class MinecraftConnection implements AutoCloseable {
         return true;
     }
 
+    public synchronized void clickPlayerInventory(int slot, int button, boolean shift)
+            throws IOException, ProtocolException {
+        if (state != State.PLAY || closed || runtime.workbench.window()>0) return;
+        sendPacket(packet -> WorkbenchState.writePlayerClick(packet, slot, button, shift));
+    }
+
+    public synchronized void closePlayerInventory() throws IOException, ProtocolException {
+        if (state == State.PLAY && !closed) sendPacket(packet -> WorkbenchState.writeClose(packet, 0));
+        runtime.inventory.clearCursor();
+    }
+
     public synchronized void clickWorkbench(int expectedWindow, int slot, int button, boolean shift)
             throws IOException, ProtocolException {
         if (state != State.PLAY || closed || expectedWindow != runtime.workbench.window() || !runtime.workbench.ready()) return;
@@ -257,6 +291,7 @@ public final class MinecraftConnection implements AutoCloseable {
                                           boolean insideBlock)
             throws IOException, ProtocolException {
         if (state != State.PLAY || closed) return false;
+        syncCarriedSlot();
         int sequence = nextInteractionSequence();
         sendPacket(packet -> MinecraftPackets.writeUseItemOn(packet,
                 hand, x, y, z, direction, hitX, hitY, hitZ, insideBlock, sequence));
@@ -268,6 +303,7 @@ public final class MinecraftConnection implements AutoCloseable {
     }
     public synchronized boolean useHandItem(int hand) throws IOException, ProtocolException {
         if (state != State.PLAY || closed) return false;
+        syncCarriedSlot();
         int sequence = nextInteractionSequence();
         sendPacket(packet -> MinecraftPackets.writeUseItem(packet, hand,sequence));
         return true;
@@ -302,7 +338,7 @@ public final class MinecraftConnection implements AutoCloseable {
 
     public synchronized boolean setFlying(boolean requested)
             throws IOException, ProtocolException {
-        if (state != State.PLAY || closed || (requested && !mayFly)) return false;
+        if (state != State.PLAY || closed || (requested && !mayFly) || (isSpectator()&&!requested)) return false;
         sendPacket(packet -> MinecraftPackets.writePlayerAbilities(packet, requested));
         flying = requested;
         return true;
@@ -313,7 +349,7 @@ public final class MinecraftConnection implements AutoCloseable {
     }
 
     public boolean isFlying() {
-        return flying;
+        return flying || isSpectator();
     }
 
     public float flyingSpeed() {
@@ -355,6 +391,7 @@ public final class MinecraftConnection implements AutoCloseable {
                     streamCipher = new MinecraftStreamCipher(encryption.secret);
                     break;
                 case MinecraftPacketIds.LOGIN_CLIENTBOUND_SUCCESS:
+                    forge.verifyComplete();
                     MinecraftPackets.LoginSuccess success =
                             MinecraftPackets.readLoginSuccess(packet);
                     state = State.PLAY;
@@ -367,11 +404,13 @@ public final class MinecraftConnection implements AutoCloseable {
                     break;
                 case MinecraftPacketIds.LOGIN_CLIENTBOUND_CUSTOM_QUERY:
                     MinecraftPackets.LoginQuery query = MinecraftPackets.readLoginQuery(packet);
-                    // Rejecting Forge's query declares this as a vanilla-compatible client.
-                    // A server bridge supplies the thin display protocol after login.
-                    sendPacket(output -> MinecraftPackets.writeRejectedLoginQuery(
-                            output, query.transactionId));
-                    listener.onLoginQueryRejected(query.channel);
+                    int reply = forge.receive(query.channel, query.payload);
+                    if (reply == ForgeLogin.REJECT) {
+                        sendPacket(output -> MinecraftPackets.writeRejectedLoginQuery(output, query.transactionId));
+                        listener.onLoginQueryRejected(query.channel);
+                    } else if (reply != ForgeLogin.NO_RESPONSE) {
+                        sendPacket(output -> forge.writeResponse(output, query.transactionId, reply));
+                    }
                     break;
                 default:
                     throw new ProtocolException("Unexpected login packet 0x"
@@ -563,6 +602,14 @@ public final class MinecraftConnection implements AutoCloseable {
                 // The server suspends the player at the exit portal until PERFORM_RESPAWN.
                 // The thin client has no credits screen; acknowledge the return directly.
                 if (endReturn) sendPacket(MinecraftPackets::writeRespawnRequest);
+                completePlayHandshake();
+                return;
+            }
+            if (packetId == 0x4d) { // ClientboundSetCarriedItemPacket, 1.20.1
+                BinaryCodec.require(packet, 1);
+                int slot = packet.get() & 255;
+                if (slot > 8 || packet.hasRemaining()) throw new ProtocolException("Invalid carried slot");
+                runtime.inventory.selectHotbar(slot);
                 completePlayHandshake();
                 return;
             }
@@ -766,7 +813,9 @@ public final class MinecraftConnection implements AutoCloseable {
             if (packetId == MinecraftPacketIds.PLAY_CLIENTBOUND_CUSTOM_PAYLOAD) {
                 MinecraftPackets.CustomPayload custom =
                         MinecraftPackets.readCustomPayload(packet);
-                if ("minecraft:brand".equals(custom.channel)) {
+                if ("forge:tier_sorting".equals(custom.channel)) {
+                    ForgeLogin.readTiers(custom.payload);
+                } else if ("minecraft:brand".equals(custom.channel)) {
                     runtime.debug.brand=BinaryCodec.readString(custom.payload,1024);
                 } else if (DisplayProtocol.CHANNEL.equals(custom.channel)) {
                     DisplayMessage message = DisplayProtocol.decode(custom.payload);
@@ -992,6 +1041,8 @@ public final class MinecraftConnection implements AutoCloseable {
         maybeSendWebDisplaysCompatibilityHellos();
     }
 
+    public boolean hasTabletSocial(){return forge.tabletSocial;}
+
     private void sendBrand() throws IOException, ProtocolException {
         ByteBuffer brand = ByteBuffer.allocate(64);
         BinaryCodec.writeString(brand, "newhorizon:thin", 64);
@@ -1011,7 +1062,7 @@ public final class MinecraftConnection implements AutoCloseable {
     private void sendChannelRegistration() throws IOException, ProtocolException {
         String channels = WorldProtocol.CHANNEL + '\0' + DisplayProtocol.CHANNEL
                 + '\0' + MCEF_GATE_CHANNEL + '\0' + WEBDISPLAYS_CHANNEL
-                + '\0' + InventoryProtocol.CHANNEL;
+                + '\0' + InventoryProtocol.CHANNEL + '\0' + com.newhorizon.thinclient.display.TabletSocialState.CHANNEL;
         ByteBuffer registration = ByteBuffer.wrap(
                 channels.getBytes(StandardCharsets.UTF_8));
         sendPacket(packet -> MinecraftPackets.writeCustomPayload(
@@ -1105,6 +1156,8 @@ public final class MinecraftConnection implements AutoCloseable {
                 runtime.inventory.clear(); runtime.workbench.clear();
         runtime.sounds.clear();
         runtime.itemUse.clear();
+        runtime.inventory.setNativeItems(null);
+        forge.close();
         frameCodec.close();
         if (channel != null) {
             try {

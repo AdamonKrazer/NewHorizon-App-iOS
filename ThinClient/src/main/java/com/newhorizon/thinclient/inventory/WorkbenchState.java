@@ -119,8 +119,12 @@ public final class WorkbenchState {
         writeMappedClick(out, window, serverSlot(slot), button, shift);
     }
 
+    public static void writePlayerClick(ByteBuffer out, int slot, int button, boolean shift) {
+        writeMappedClick(out, 0, InventoryState.menuSlot(slot), button, shift);
+    }
+
     private static void writeMappedClick(ByteBuffer out, int window, int menu, int button, boolean shift) {
-        if (window <= 0 || window > 127 || button < 0 || button > 1) throw new IllegalArgumentException("Menu click");
+        if (window < 0 || window > 127 || button < 0 || button > 1) throw new IllegalArgumentException("Menu click");
         VarInts.write(out, CLICK); out.put((byte)window);
         // No local recipe/stack prediction. Vanilla accepts a stale state id, applies the
         // click to its real menu and broadcasts the complete resulting slots and cursor.
@@ -132,7 +136,7 @@ public final class WorkbenchState {
     }
 
     public static void writeClose(ByteBuffer out, int window) {
-        if (window <= 0 || window > 127) throw new IllegalArgumentException("Crafting window");
+        if (window < 0 || window > 127) throw new IllegalArgumentException("Crafting window");
         VarInts.write(out, CLOSE); out.put((byte)window);
     }
 
@@ -154,8 +158,8 @@ public final class WorkbenchState {
 
     private static String material(Stack stack, InventoryState inventory) {
         if (stack.count == 0) return "";
-        String vanilla = vanillaMaterial(stack.id);
-        if (!vanilla.isEmpty()) return vanilla;
+        String vanilla = inventory.registryMaterial(stack.id);
+        if (!vanilla.isEmpty()) return vanilla.startsWith("minecraft:") ? vanilla.substring(10) : vanilla;
         return inventory.materialForProtocolId(stack.id);
     }
 

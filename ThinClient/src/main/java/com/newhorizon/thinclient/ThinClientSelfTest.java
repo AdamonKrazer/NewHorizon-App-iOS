@@ -51,6 +51,7 @@ public final class ThinClientSelfTest {
         com.newhorizon.thinclient.display.MinePadResourcesSelfTest.run();
         net.kdt.pojavlaunch.gecko.IOSMinePadPolicy.selfTest();
         net.kdt.pojavlaunch.gecko.IOSInventoryPresentation.selfTest();
+        IOSAndroidUpdateSelfTest.run();
         com.newhorizon.thinclient.world.HudCameraSelfTest.run();
         com.newhorizon.thinclient.world.LocalPlayerVisualSelfTest.run();
         com.newhorizon.thinclient.world.SprintInputSelfTest.run();

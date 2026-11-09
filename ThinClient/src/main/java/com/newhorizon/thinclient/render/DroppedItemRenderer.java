@@ -90,7 +90,7 @@ final class DroppedItemRenderer implements AutoCloseable {
             added++;
         }
         // Invisibility hides the body, not equipped items (including invisible armor stands).
-        for(int i=0;i<count;i++)if(!entities[i].sleeping)for(int hand=0;hand<2;hand++)held(entities[i],hand);
+        for(int i=0;i<count;i++)if(!entities[i].sleeping&&!entities[i].spectator)for(int hand=0;hand<2;hand++)held(entities[i],hand);
         int n=vertices.position()/STRIDE;if(n==0)return;vertices.flip();ScreenEffects.bind(program);
         GL33.glUniform1i(GL33.glGetUniformLocation(program,"uItems"),0);GL33.glUniform1i(GL33.glGetUniformLocation(program,"uBlocks"),1);
         GL33.glUniform3f(GL33.glGetUniformLocation(program,"uCamera"),x,y,z);GL33.glUniform2f(GL33.glGetUniformLocation(program,"uRotation"),yaw,pitch);

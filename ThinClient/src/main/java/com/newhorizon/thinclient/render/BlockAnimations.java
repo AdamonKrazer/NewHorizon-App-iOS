@@ -47,7 +47,9 @@ final class BlockAnimations implements AutoCloseable {
         GL33.glTexParameteri(GL33.GL_TEXTURE_2D,GL33.GL_TEXTURE_MAG_FILTER,GL33.GL_NEAREST);
         GL33.glTexParameteri(GL33.GL_TEXTURE_2D,GL33.GL_TEXTURE_WRAP_S,GL33.GL_CLAMP_TO_EDGE);
         GL33.glTexParameteri(GL33.GL_TEXTURE_2D,GL33.GL_TEXTURE_WRAP_T,GL33.GL_CLAMP_TO_EDGE);
-        GL33.glTexImage2D(GL33.GL_TEXTURE_2D,0,GL33.GL_RGBA8,width,height,0,GL33.GL_RGBA,GL33.GL_UNSIGNED_BYTE,pixels);return id;
+        if(unit==5)BlockMipmaps.upload(width,height,pixels);
+        else GL33.glTexImage2D(GL33.GL_TEXTURE_2D,0,GL33.GL_RGBA8,width,height,0,GL33.GL_RGBA,GL33.GL_UNSIGNED_BYTE,pixels);
+        return id;
     }
     void update(long now){
         long next=Math.max(0,(now-start)/50_000_000L);if(next==tick)return;tick=next;
@@ -85,14 +87,19 @@ final class BlockAnimations implements AutoCloseable {
                     +"int i=int(texelFetch(nhAnimationIndex,ivec2(nhBlockTile%32,nhBlockTile/32),0).r*255.+.5);"
                     +"if(i>0)nhBlockFrame=int(nhAnimationFrames[i-1]+.5);}}\n";
         }
-        if(!source.contains("texture(uBlockAtlas,")&&!source.contains("texture(uBlocks,"))return source;
+        if(!source.contains("texture(uBlockAtlas,")&&!source.contains("texture(uBlocks,")
+                &&!source.contains("textureGrad(uBlockAtlas,"))return source;
         String header="flat in int nhBlockTile;flat in int nhBlockFrame;\n"
                 +"#ifdef GL_ES\nuniform highp sampler2D nhAnimationAtlas;\n#else\nuniform sampler2D nhAnimationAtlas;\n#endif\n"
-                +"vec4 nhBlockSample(sampler2D base,vec2 uv){ivec2 p=ivec2(floor(uv*vec2(1024.,2048.)));"
-                +"int tile=(p.y/32)*32+p.x/32;if(nhBlockFrame<0||tile!=nhBlockTile)return texture(base,uv);"
-                +"return texelFetch(nhAnimationAtlas,ivec2(nhBlockFrame%64,nhBlockFrame/64)*32+(p%32),0);}\n";
+                +"vec4 nhBlockSampleGrad(sampler2D base,vec2 uv,vec2 dx,vec2 dy){vec2 pixel=uv*vec2(1024.,2048.);ivec2 p=ivec2(floor(pixel));"
+                +"int tile=(p.y/32)*32+p.x/32;if(nhBlockFrame<0||tile!=nhBlockTile)return textureGrad(base,uv,dx,dy);"
+                +"vec2 size=vec2(textureSize(nhAnimationAtlas,0));vec2 frame=vec2(nhBlockFrame%64,nhBlockFrame/64)*32.;"
+                +"vec2 local=clamp(pixel-vec2(p/32)*32.,vec2(.01),vec2(31.99));vec2 scale=vec2(1024.,2048.)/size;"
+                +"return textureGrad(nhAnimationAtlas,(frame+local)/size,dx*scale,dy*scale);}\n"
+                +"vec4 nhBlockSample(sampler2D base,vec2 uv){return nhBlockSampleGrad(base,uv,dFdx(uv),dFdy(uv));}\n";
         return source.replace("#version 150 core\n","#version 150 core\n"+header)
-                .replace("texture(uBlockAtlas,","nhBlockSample(uBlockAtlas,").replace("texture(uBlocks,","nhBlockSample(uBlocks,");
+                .replace("texture(uBlockAtlas,","nhBlockSample(uBlockAtlas,").replace("texture(uBlocks,","nhBlockSample(uBlocks,")
+                .replace("textureGrad(uBlockAtlas,","nhBlockSampleGrad(uBlockAtlas,");
     }
     public void close(){
         if(active==this)active=null;

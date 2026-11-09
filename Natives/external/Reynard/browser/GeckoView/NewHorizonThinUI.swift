@@ -83,6 +83,10 @@ final class NHThinInterface: NSObject, UITextFieldDelegate, UICollectionViewData
     private var menuKind = ""
     private var menuTitle = ""
     private var slotLore: [Int:String] = [:]
+    private var durability: [Int:Float] = [:]
+    private var tabletHome = false
+    private let tabletNotice = UILabel()
+    private var dismissNotice: DispatchWorkItem?
     private var lastDragSlot: Int?
     private var searchAliases: [String: String] = [:]
     private let pausePanel = UIScrollView()
@@ -193,6 +197,11 @@ final class NHThinInterface: NSObject, UITextFieldDelegate, UICollectionViewData
         padPanel.backgroundColor = UIColor(white: 0.1, alpha: 1)
         overlay.addSubview(padPanel)
         padPanel.isHidden = true
+        tabletNotice.textColor = .white; tabletNotice.numberOfLines = 3
+        tabletNotice.font = .systemFont(ofSize:14)
+        tabletNotice.backgroundColor = UIColor(red:0.06,green:0.10,blue:0.14,alpha:0.96)
+        tabletNotice.layer.cornerRadius = 12; tabletNotice.clipsToBounds = true; tabletNotice.isHidden = true
+        overlay.addSubview(tabletNotice)
         configurePauseMenu()
         padPanel.addSubview(padViewport)
         configureField(padAddress, placeholder: "Endereço")
@@ -202,10 +211,10 @@ final class NHThinInterface: NSObject, UITextFieldDelegate, UICollectionViewData
         padTabScroll.addSubview(padTabs)
         padTabScroll.showsHorizontalScrollIndicator = true
         padTabs.addTarget(self, action: #selector(selectPadTab), for: .valueChanged)
-        for (label, code) in [("‹",6),("›",7),("↻",8),("Início",0),("+ Aba",1),("− Aba",3),("Desligar",4),("Fechar",5)] {
+        for (label, code) in [("‹",6),("›",7),("↻",8),("Início",9),("+ Aba",1),("− Aba",3),("Desligar",4),("Fechar",5)] {
             let button = NHActionButton(label) { [weak self] in
                 guard let self else { return }
-                if code >= 6 { self.padNavigation?(self.padID, code) }
+                if (6...8).contains(code) { self.padNavigation?(self.padID, code) }
                 else { self.padAction(code, value: code < 2 ? "mod://webdisplays/main.html" : "") }
             }
             padPanel.addSubview(button); padControls.append(button)
@@ -342,6 +351,16 @@ final class NHThinInterface: NSObject, UITextFieldDelegate, UICollectionViewData
         padTabs.frame = CGRect(x:0,y:0,width:tabsWidth,height:28)
         padTabScroll.contentSize = padTabs.bounds.size
         padViewport.frame = CGRect(x:4,y:106,width:pw-8,height:max(1,padPanel.bounds.height-110))
+        padAddress.isHidden = tabletHome; padTabScroll.isHidden = tabletHome
+        for control in padControls { control.isHidden = tabletHome }
+        if tabletHome {
+            // Keyboard reduces height without rescaling the social app horizontally.
+            let panelWidth = max(1,min(width-12,(safe.height-12)*1.9666667))
+            let panelHeight = max(1,min(height-8,panelWidth/1.9666667))
+            padPanel.frame = CGRect(x:safe.midX-panelWidth/2,y:safe.minY+(height-panelHeight)/2,width:panelWidth,height:panelHeight)
+            padViewport.frame = padPanel.bounds.insetBy(dx:2,dy:2)
+        }
+        tabletNotice.frame = CGRect(x:safe.maxX-min(340,width-24)-12,y:safe.minY+46,width:min(340,width-24),height:80)
         padLayout?()
         pausePanel.frame = CGRect(x:safe.midX-min(380,width-24)/2,y:safe.minY+4,width:min(380,width-24),height:height-8)
         let menuWidth = pausePanel.bounds.width-24
@@ -429,6 +448,7 @@ final class NHThinInterface: NSObject, UITextFieldDelegate, UICollectionViewData
         let rows = menuKind == "chest" && header.count > 7 ? min(6,max(1,Int(header[7]) ?? 1)) : 0
         slots = Array(repeating:(0,"",""),count:rows > 0 ? 36+rows*9 : 46)
         slotLore.removeAll()
+        durability.removeAll()
         menuTitle = menuKind == "chest" && header.count > 8 ? Self.text(header[8]) : menuKind == "crafting" ? "Bancada de trabalho" : "Inventário"
         if !creative { creativeCatalog = false }
         for line in lines.dropFirst() {
@@ -436,6 +456,7 @@ final class NHThinInterface: NSObject, UITextFieldDelegate, UICollectionViewData
             if fields.count >= 4, let index = Int(fields[0]), slots.indices.contains(index) {
                 slots[index] = (Int(fields[1]) ?? 0,fields[2],Self.text(fields[3]))
                 if fields.count > 6 { slotLore[index] = fields[6].components(separatedBy:"\u{1f}").map { Self.text($0) }.joined(separator:"\n") }
+                if fields.count > 7, let value = Float(fields[7]), value >= 0, value <= 1 { durability[index] = value }
             }
         }
         for (index, view) in hotbar.arrangedSubviews.enumerated() {
@@ -447,6 +468,7 @@ final class NHThinInterface: NSObject, UITextFieldDelegate, UICollectionViewData
             button.layer.borderColor = (index==selected ? UIColor.white : UIColor.gray).cgColor
             button.layer.borderWidth = index==selected ? 3 : 1
             button.accessibilityLabel = slot.name.isEmpty ? slot.material : slot.name
+            addDurability(to:button,index:index)
         }
         updateInventoryTitle()
         if header.count > 3, (Int(header[1]) ?? 0)>0 { inventoryTitle.text = (inventoryTitle.text ?? "") + "  Cursor: \(header[3]) ×\(header[1])" }
@@ -499,6 +521,7 @@ final class NHThinInterface: NSObject, UITextFieldDelegate, UICollectionViewData
         let label=UILabel(frame:cell.bounds); label.autoresizingMask=[.flexibleWidth,.flexibleHeight]; label.textColor = .white; label.font = .systemFont(ofSize:10); label.numberOfLines=3; label.textAlignment = .right
         label.text = amount>0 ? (image.image==nil ? "\(material.replacingOccurrences(of:"minecraft:",with:""))\n×\(amount)" : "\(amount)") : "\(indexPath.item)"
         cell.contentView.addSubview(label)
+        addDurability(to:cell.contentView,index:creativeCatalog ? -1 : indexPath.item)
         let name = creativeCatalog ? filtered[indexPath.item].name : slots[indexPath.item].name
         cell.accessibilityLabel = name.isEmpty ? material : name
         cell.accessibilityHint = slotLore[indexPath.item]
@@ -534,6 +557,22 @@ final class NHThinInterface: NSObject, UITextFieldDelegate, UICollectionViewData
         }
         return nil
     }
+    private func addDurability(to view: UIView, index: Int) {
+        view.viewWithTag(17801)?.removeFromSuperview()
+        guard let remaining = durability[index] else { return }
+        let bar = UIProgressView(progressViewStyle:.bar); bar.tag = 17801
+        bar.progress = remaining; bar.trackTintColor = .black
+        bar.progressTintColor = UIColor(hue:CGFloat(remaining)/3,saturation:1,brightness:1,alpha:1)
+        bar.frame = CGRect(x:3,y:max(0,view.bounds.height-5),width:max(1,view.bounds.width-6),height:3)
+        bar.autoresizingMask = [.flexibleWidth,.flexibleTopMargin]; view.addSubview(bar)
+    }
+    func showTabletNotice(_ text: String) {
+        dismissNotice?.cancel(); tabletNotice.text = text; tabletNotice.isHidden = text.isEmpty
+        guard !text.isEmpty else { return }
+        layout(); overlay.bringSubviewToFront(tabletNotice)
+        let dismiss = DispatchWorkItem { [weak self] in self?.tabletNotice.isHidden = true }
+        dismissNotice = dismiss; DispatchQueue.main.asyncAfter(deadline:.now()+5,execute:dismiss)
+    }
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         if textField===input { let message=input.text ?? ""; hideChat(); emit(-1,message.isEmpty ? "nh-chat-close" : "nh-chat-send",message) }
         else if textField===padAddress { padAction(0,value:padAddress.text ?? ""); padAddress.resignFirstResponder() }
@@ -542,6 +581,7 @@ final class NHThinInterface: NSObject, UITextFieldDelegate, UICollectionViewData
     }
     private func hideChat() { input.resignFirstResponder(); input.text=""; input.isHidden=true }
     func showPad(id: Int32, url: String, selected: Int, urls: [String], editing: Bool) {
+        tabletHome = url == "mod://webdisplays/newhorizon-tablet.html"
         padID=id; padPanel.isHidden=false; overlay.bringSubviewToFront(padPanel)
         if !padAddress.isFirstResponder { padAddress.text=url }
         padTabs.removeAllSegments()
@@ -552,7 +592,7 @@ final class NHThinInterface: NSObject, UITextFieldDelegate, UICollectionViewData
             let tabWidth = padTabs.bounds.width / CGFloat(padTabs.numberOfSegments)
             padTabScroll.scrollRectToVisible(CGRect(x:CGFloat(selected)*tabWidth,y:0,width:tabWidth,height:28),animated:false)
         }
-        if editing { padAddress.becomeFirstResponder(); padAddress.selectAll(nil) }
+        if editing && !tabletHome { padAddress.becomeFirstResponder(); padAddress.selectAll(nil) }
     }
     func hidePad() { padAddress.resignFirstResponder(); padPanel.isHidden=true; padID = -1 }
     @objc private func selectPadTab() { padAction(2) }

@@ -7,7 +7,7 @@ import java.util.Arrays;
 
 /** Serves the original MinePad pages from the component JAR over a loopback socket. */
 final class MinePadResources {
-    private static final String[] FILES = {"main.html", "newhorizon.png", "blacklisted.html", "io.html", "jquery.js", "wdlib.js"};
+    private static final String[] FILES = {"main.html", "newhorizon-tablet.html", "newhorizon.png", "blacklisted.html", "io.html", "jquery.js", "wdlib.js"};
     private static MinePadResources instance;
     private final ServerSocket server;
     private final String origin;

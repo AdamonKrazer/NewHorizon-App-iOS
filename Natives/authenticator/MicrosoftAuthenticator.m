@@ -3,12 +3,77 @@
 #import "../ios_uikit_bridge.h"
 #import "../utils.h"
 #include "jni.h"
+#include <math.h>
 
 typedef void(^XSTSCallback)(NSString *xsts, NSString *uhs);
+
+static NSString *NHAuthHeader(NSHTTPURLResponse *response, NSString *name) {
+    for (NSString *key in response.allHeaderFields) {
+        if ([key caseInsensitiveCompare:name] == NSOrderedSame) return [response.allHeaderFields[key] description];
+    }
+    return nil;
+}
+
+static NSDate *NHAuthHTTPDate(NSString *value) {
+    if (!value || value.length > 128) return nil;
+    NSDateFormatter *parser = [NSDateFormatter new];
+    parser.locale = [NSLocale localeWithLocaleIdentifier:@"en_US_POSIX"];
+    parser.timeZone = [NSTimeZone timeZoneForSecondsFromGMT:0];
+    parser.lenient = NO;
+    for (NSString *format in @[@"EEE, dd MMM yyyy HH:mm:ss zzz", @"EEEE, dd-MMM-yy HH:mm:ss zzz", @"EEE MMM d HH:mm:ss yyyy"]) {
+        parser.dateFormat = format;
+        NSDate *date = [parser dateFromString:value];
+        if (date) return date;
+    }
+    return nil;
+}
+
+static NSError *NHAuthWaitError(NSString *service, NSTimeInterval delay) {
+    NSString *message = [NSString stringWithFormat:localize(@"login.msa.error.rate_limited", nil), service ?: @"Microsoft", ceil(MAX(0, delay))];
+    return [NSError errorWithDomain:@"NewHorizonAuthentication" code:429 userInfo:@{NSLocalizedDescriptionKey:message}];
+}
+
+static NSError *NHAuthCooldown(void) {
+    @synchronized (MicrosoftAuthenticator.class) {
+        NSUserDefaults *prefs = NSUserDefaults.standardUserDefaults;
+        NSTimeInterval remaining = [prefs doubleForKey:@"nh.auth.retryUntil"] - NSDate.date.timeIntervalSince1970;
+        return remaining > 0 ? NHAuthWaitError([prefs stringForKey:@"nh.auth.retryService"], remaining) : nil;
+    }
+}
+
+static NSError *NHAuthFailure(NSURLSessionDataTask *task, NSError *error) {
+    NSHTTPURLResponse *response = (NSHTTPURLResponse *)task.response;
+    if (![response isKindOfClass:NSHTTPURLResponse.class] || response.statusCode != 429) return error;
+    NSTimeInterval delay = 60;
+    NSString *retry = [NHAuthHeader(response, @"Retry-After") stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceAndNewlineCharacterSet];
+    NSCharacterSet *notDigits = [[NSCharacterSet characterSetWithCharactersInString:@"0123456789"] invertedSet];
+    if (retry.length && [retry rangeOfCharacterFromSet:notDigits].location == NSNotFound) {
+        double seconds = retry.doubleValue;
+        if (isfinite(seconds) && seconds <= 9223372036854775.0) delay = seconds;
+    } else {
+        NSDate *date = NHAuthHTTPDate(retry);
+        if (date) delay = MAX(0, [date timeIntervalSinceDate:NHAuthHTTPDate(NHAuthHeader(response, @"Date")) ?: NSDate.date]);
+    }
+    NSString *service = response.URL.host ?: @"Microsoft";
+    @synchronized (MicrosoftAuthenticator.class) {
+        NSUserDefaults *prefs = NSUserDefaults.standardUserDefaults;
+        NSTimeInterval now = NSDate.date.timeIntervalSince1970;
+        if (now + delay >= [prefs doubleForKey:@"nh.auth.retryUntil"]) {
+            [prefs setDouble:now + delay forKey:@"nh.auth.retryUntil"];
+            [prefs setObject:service forKey:@"nh.auth.retryService"];
+        } else {
+            delay = [prefs doubleForKey:@"nh.auth.retryUntil"] - now;
+            service = [prefs stringForKey:@"nh.auth.retryService"];
+        }
+    }
+    return NHAuthWaitError(service, delay);
+}
 
 @implementation MicrosoftAuthenticator
 
 - (void)acquireAccessToken:(NSString *)authcode refresh:(BOOL)refresh callback:(Callback)callback {
+    NSError *cooldown = NHAuthCooldown();
+    if (cooldown) { callback(cooldown, NO); return; }
     callback(localize(@"login.msa.progress.acquireAccessToken", nil), YES);
 
     NSDictionary *data = @{
@@ -29,12 +94,14 @@ typedef void(^XSTSCallback)(NSString *xsts, NSString *uhs);
             self.authData[@"accessToken"] = @"offline";
             callback(nil, YES);
         } else {
-            callback(error, NO);
+            callback(NHAuthFailure(task, error), NO);
         }
     }];
 }
 
 - (void)acquireXBLToken:(NSString *)accessToken callback:(Callback)callback {
+    NSError *cooldown = NHAuthCooldown();
+    if (cooldown) { callback(cooldown, NO); return; }
     callback(localize(@"login.msa.progress.acquireXBLToken", nil), YES);
 
     NSDictionary *data = @{
@@ -77,11 +144,13 @@ typedef void(^XSTSCallback)(NSString *xsts, NSString *uhs);
             [self acquireXboxProfile:uhs xstsToken:xsts callback:innerCallback];
         } callback:callback];
     } failure:^(NSURLSessionDataTask *task, NSError *error) {
-        callback(error, NO);
+        callback(NHAuthFailure(task, error), NO);
     }];
 }
 
 - (void)acquireXSTSFor:(NSString *)replyingParty token:(NSString *)xblToken xstsCallback:(XSTSCallback)xstsCallback callback:(Callback)callback {
+    NSError *cooldown = NHAuthCooldown();
+    if (cooldown) { callback(cooldown, NO); return; }
     callback(localize(@"login.msa.progress.acquireXSTS", nil), YES);
 
     NSDictionary *data = @{
@@ -102,6 +171,8 @@ typedef void(^XSTSCallback)(NSString *xsts, NSString *uhs);
         xstsCallback(response[@"Token"], uhs);
     } failure:^(NSURLSessionDataTask *task, NSError *error) {
         NSString *errorString;
+        NSError *failure = NHAuthFailure(task, error);
+        if (failure != error) { callback(failure, NO); return; }
         NSData *errorData = error.userInfo[AFNetworkingOperationFailingURLResponseDataErrorKey];
         if (errorData == nil) {
             callback(error, NO);
@@ -132,6 +203,8 @@ typedef void(^XSTSCallback)(NSString *xsts, NSString *uhs);
 
 
 - (void)acquireXboxProfile:(NSString *)xblUhs xstsToken:(NSString *)xblXsts callback:(Callback)callback {
+    NSError *cooldown = NHAuthCooldown();
+    if (cooldown) { callback(cooldown, NO); return; }
     callback(localize(@"login.msa.progress.acquireXboxProfile", nil), YES);
 
     NSDictionary *headers = @{
@@ -145,11 +218,13 @@ typedef void(^XSTSCallback)(NSString *xsts, NSString *uhs);
         self.authData[@"xboxGamertag"] = response[@"profileUsers"][0][@"settings"][1][@"value"];
         callback(nil, YES);
     } failure:^(NSURLSessionDataTask *task, NSError *error) {
-        callback(error, NO);
+        callback(NHAuthFailure(task, error), NO);
     }];
 }
 
 - (void)acquireMinecraftToken:(NSString *)xblUhs xstsToken:(NSString *)xblXsts callback:(Callback)callback {
+    NSError *cooldown = NHAuthCooldown();
+    if (cooldown) { callback(cooldown, NO); return; }
     callback(localize(@"login.msa.progress.acquireMCToken", nil), YES);
 
     NSDictionary *data = @{
@@ -159,15 +234,21 @@ typedef void(^XSTSCallback)(NSString *xsts, NSString *uhs);
     AFHTTPSessionManager *manager = AFHTTPSessionManager.manager;
     manager.requestSerializer = AFJSONRequestSerializer.serializer;
     [manager POST:@"https://api.minecraftservices.com/authentication/login_with_xbox" parameters:data headers:nil progress:nil success:^(NSURLSessionDataTask *task, NSDictionary *response) {
+        NSNumber *lifetime = response[@"expires_in"];
+        if (![lifetime isKindOfClass:NSNumber.class] || !isfinite(lifetime.doubleValue) || lifetime.doubleValue <= 0 || lifetime.doubleValue > 9223372036854775.0) {
+            callback([NSError errorWithDomain:@"NewHorizonAuthentication" code:1 userInfo:@{NSLocalizedDescriptionKey:@"Minecraft authentication returned an invalid token lifetime"}], NO); return;
+        }
+        self.authData[@"expiresAt"] = @(NSDate.date.timeIntervalSince1970 + lifetime.doubleValue);
         self.authData[@"accessToken"] = response[@"access_token"];
         [self checkMCProfile:response[@"access_token"] callback:callback];
     } failure:^(NSURLSessionDataTask *task, NSError *error) {
-        callback(error, NO);
+        callback(NHAuthFailure(task, error), NO);
     }];
 }
 
 - (void)checkMCProfile:(NSString *)mcAccessToken callback:(Callback)callback {
-    self.authData[@"expiresAt"] = @((long)[NSDate.date timeIntervalSince1970] + 86400);
+    NSError *cooldown = NHAuthCooldown();
+    if (cooldown) { callback(cooldown, NO); return; }
 
     callback(localize(@"login.msa.progress.checkMCProfile", nil), YES);
 
@@ -190,8 +271,10 @@ typedef void(^XSTSCallback)(NSString *xsts, NSString *uhs);
         self.authData[@"username"] = response[@"name"];
         callback(nil, [self saveChanges]);
     } failure:^(NSURLSessionDataTask *task, NSError *error) {
+        NSError *failure = NHAuthFailure(task, error);
+        if (failure != error) { callback(failure, NO); return; }
         NSData *errorData = error.userInfo[AFNetworkingOperationFailingURLResponseDataErrorKey];
-        NSDictionary *errorDict = [NSJSONSerialization JSONObjectWithData: errorData options:kNilOptions error:nil];
+        NSDictionary *errorDict = errorData ? [NSJSONSerialization JSONObjectWithData:errorData options:kNilOptions error:nil] : nil;
         if ([errorDict[@"error"] isEqualToString:@"NOT_FOUND"]) {
             // If there is no profile, use the Xbox gamertag as username with Demo mode
             self.authData[@"profileId"] = @"00000000-0000-0000-0000-000000000000";

@@ -25,11 +25,24 @@ public final class MinePadResourcesSelfTest {
             }
             check(new String(output.toByteArray(), StandardCharsets.UTF_8).contains("<html>"), "original bundled HTML");
         } finally { page.disconnect(); }
+        HttpURLConnection tablet = (HttpURLConnection)new URL(MinePadResources.resolve(MinePadController.TABLET_HOME)).openConnection();
+        tablet.setReadTimeout(3000);
+        try {
+            check(tablet.getResponseCode() == 200, "social tablet status");
+            ByteArrayOutputStream output = new ByteArrayOutputStream();
+            try (InputStream input = tablet.getInputStream()) {
+                byte[] buffer = new byte[8192]; int count;
+                while ((count = input.read(buffer)) != -1) output.write(buffer, 0, count);
+            }
+            String html = new String(output.toByteArray(), StandardCharsets.UTF_8);
+            check(html.contains("window.nhTabletQuery") && html.contains("window.nhReceive"), "social tablet bridge");
+            check(html.contains("notification_settings"), "tablet notification controls");
+        } finally { tablet.disconnect(); }
         HttpURLConnection denied = (HttpURLConnection)new URL(MinePadResources.resolve("mod://webdisplays/../secret")).openConnection();
         denied.setReadTimeout(3000);
         try { check(denied.getResponseCode() == 404, "resource allowlist"); }
         finally { denied.disconnect(); }
-        System.out.println("MinePad iOS resource tests passed: loopback HTTP, bundled HTML, MIME, canonical URLs, path allowlist");
+        System.out.println("MinePad iOS resource tests passed: loopback HTTP, bundled HTML/social tablet, MIME, canonical URLs, path allowlist");
     }
     private static void check(boolean value, String name) { if (!value) throw new AssertionError(name); }
 }

@@ -31,6 +31,9 @@ public final class MinePadSelfTest {
         InventoryState inv=new InventoryState();inv.setCreativeSlot(36,"webdisplays:minepad",1,1200,"");
         pads.update(inv,1_000_000_000L);pads.open(inv,0,false,1_000_000_000L);
         check(pads.isOpen()&&commands.get(0).startsWith("0:0:mod://"),"uninitialized item powers on via original custom packet");
+        int shell=port.shown;check(pads.isShell(shell),"new tablet opens on app home");
+        pads.launchBrowser();int browserView=port.shown;check(browserView!=shell&&!pads.isShell(browserView),"browser app has separate session");
+        pads.action(9,0,"");check(port.shown==shell&&port.live.contains(browserView),"home preserves playing browser");pads.launchBrowser();
         int first=port.shown;check(first!=worldSlot&&first>0,"native browser ids isolated from world displays");
         writeSlot(inv,initialized[0],new String[]{MinePadData.HOME},0);
         pads.update(inv,1_100_000_000L);check(pads.heldBrowser(false)==first,"ack preserves page instance");
@@ -38,8 +41,8 @@ public final class MinePadSelfTest {
         inv.selectHotbar(1);pads.update(inv,1_210_000_000L);
         check(pads.heldBrowser(false)<0&&port.live.contains(first)&&!port.visible.contains(first),"putting tablet away hides only its surface, retaining its page");
         inv.selectHotbar(0);pads.update(inv,1_220_000_000L);
-        check(pads.heldBrowser(false)==first&&port.visible.contains(first)&&port.creates==1,"taking tablet out restores the same page");
-        pads.open(inv,0,false,1_300_000_000L);check(port.shown==first&&port.creates==1,"reopen uses same Gecko session");
+        check(pads.heldBrowser(false)==first&&port.visible.contains(first)&&port.creates==2,"taking tablet out restores the same page");
+        pads.open(inv,0,false,1_300_000_000L);check(port.shown==first&&port.creates==2,"reopen uses same Gecko session");
         pads.action(1,0,"example.org");int second=port.shown;check(second!=first&&commands.get(commands.size()-1).startsWith("1:"),"new tab");
         pads.action(2,0,"");check(port.shown==first,"switch restores original page");
         pads.location(first,"https://example.org/final");pads.update(inv,2_200_000_000L);
@@ -71,6 +74,7 @@ public final class MinePadSelfTest {
         check(inv.pad(0)==null,"creative replacement cannot inherit a previous tablet identity");
         pads.close();displays.releaseAuxiliaryBrowser(worldSlot);displays.close();check(port.errors==0,"controller has no errors");
         displayLinks();
+        surviveInventoryTransitions();
         System.out.println("MinePadSelfTest passed: original NBT and packets, initialize/ack, retained pages, tabs, redirects, bounded sessions, shutdown, shared IDs");
     }
     private static void displayLinks(){
@@ -92,6 +96,35 @@ public final class MinePadSelfTest {
         check(!pads.receiveDisplayUrl(inv,"javascript:alert(1)",1_300_000_000L),"links cannot execute code");
         pads.close();displays.close();check(port.errors==0,"display link flow has no errors");
     }
+    private static void surviveInventoryTransitions()throws Exception{
+        Fake port=new Fake();ArrayList<String> commands=new ArrayList<>();
+        DisplayController displays=new DisplayController(MemoryBudget.lowRamDefaults(),port,8,32,48);
+        MinePadController pads=new MinePadController(displays,port,(id,action,index,url)->commands.add(action+":"+url));
+        InventoryState inv=new InventoryState();UUID id=UUID.randomUUID();
+        inv.setCreativeSlot(36,"webdisplays:minepad",1,1200,"");
+        writeSlot(inv,id,new String[]{"https://example.org/playing"},0);
+        pads.update(inv,1_000_000_000L);pads.open(inv,0,false,1_000_000_000L);pads.launchBrowser();
+        int page=port.shown,created=port.creates,navigated=port.navigations;
+        for(int transition=0;transition<3;transition++){
+            long now=10_000_000_000L+transition*120_000_000_000L;
+            inv.clear();pads.update(inv,now);pads.update(inv,now+60_000_000_000L);
+            check(!pads.isOpen()&&pads.heldBrowser(false)<0,"missing item detaches tablet UI");
+            check(port.live.contains(page)&&port.creates==created,"death/world/kit transition preserves browser indefinitely");
+            inv.setCreativeSlot(36,"webdisplays:minepad",1,1200,"");
+            writeSlot(inv,id,new String[]{"https://example.org/playing"},0);pads.update(inv,now+70_000_000_000L);
+            pads.open(inv,0,false,now+70_000_000_000L);
+            check(port.shown==page&&port.creates==created&&port.navigations==navigated,"returning item resumes same page without navigation");
+        }
+        inv.clear();pads.update(inv,400_000_000_000L);int sent=commands.size();
+        pads.location(page,"https://example.org/playing#chapter2");pads.update(inv,402_000_000_000L);
+        check(commands.size()==sent,"detached tablet does not send invalid inventory updates");
+        inv.setCreativeSlot(36,"webdisplays:minepad",1,1200,"");
+        writeSlot(inv,id,new String[]{"https://example.org/playing"},0);pads.update(inv,403_000_000_000L);
+        check(commands.size()==sent+1&&commands.get(sent).endsWith("#chapter2"),"deferred navigation syncs when item returns");
+        pads.open(inv,0,false,403_000_000_000L);pads.action(4,0,"");
+        check(port.live.isEmpty(),"explicit shutdown still releases retained pages");
+        pads.close();displays.close();check(port.errors==0,"retained tablet lifecycle has no errors");
+    }
     private static void writeSlot(InventoryState inv,UUID id,String[] tabs,int index)throws Exception{
         ByteBuffer packet=ByteBuffer.allocate(65536);packet.put((byte)0);VarInts.write(packet,1);packet.putShort((short)36);packet.put((byte)1);VarInts.write(packet,1200);packet.put((byte)1);packet.put(tag(id,tabs,index));packet.flip();inv.readVanillaContent(packet,true);
     }
@@ -105,7 +138,8 @@ public final class MinePadSelfTest {
         final Set<Integer> live=new HashSet<>(),visible=new HashSet<>();int shown=-1,creates,errors;
         public void create(int id,String url,boolean transparent){check(live.add(id),"duplicate browser id");visible.add(id);creates++;}
         public void resize(int id,int width,int height){}
-        public void navigate(int id,String url){}
+        int navigations;
+        public void navigate(int id,String url){navigations++;}
         public void setVisible(int id,boolean value){if(value)visible.add(id);else visible.remove(id);}
         public void setFocused(int id,boolean value){}
         public void destroy(int id){check(live.remove(id),"destroy live browser");visible.remove(id);}

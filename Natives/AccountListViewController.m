@@ -258,19 +258,20 @@
 }
 
 - (void)callbackMicrosoftAuth:(id)status success:(BOOL)success forCell:(UITableViewCell *)cell {
+    if (!success) {
+        self.modalInPresentation = NO;
+        self.tableView.userInteractionEnabled = YES;
+        [self removeActivityIndicatorFrom:cell];
+        NSString *message = [status isKindOfClass:NSError.class] ? [status localizedDescription]
+            : [status isKindOfClass:NSString.class] ? status : localize(@"Error", nil);
+        cell.detailTextLabel.text = message;
+        // Cooldown errors carry no HTTP response body. Display the actionable error,
+        // and never print raw authentication responses or tokens to the game log.
+        showDialog(localize(@"Error", nil), message);
+        return;
+    }
     if (status != nil) {
-        if (success) {
-            cell.detailTextLabel.text = status;
-        } else {
-            self.modalInPresentation = NO;
-            self.tableView.userInteractionEnabled = YES;
-            [self removeActivityIndicatorFrom:cell];
-            cell.detailTextLabel.text = [status localizedDescription];
-            NSData *errorData = ((NSError *)status).userInfo[AFNetworkingOperationFailingURLResponseDataErrorKey];
-            NSString *errorStr = [[NSString alloc] initWithData:errorData encoding:NSUTF8StringEncoding];
-            NSLog(@"[MSA] Error: %@", errorStr);
-            showDialog(localize(@"Error", nil), errorStr);
-        }
+        cell.detailTextLabel.text = status;
     } else if (success) {
         self.whenItemSelected();
         [self removeActivityIndicatorFrom:cell];

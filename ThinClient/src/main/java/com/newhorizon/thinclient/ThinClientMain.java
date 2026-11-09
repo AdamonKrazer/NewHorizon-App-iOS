@@ -131,6 +131,9 @@ public final class ThinClientMain {
 
         @Override
         public void onCustomPayload(String channel, ByteBuffer payload) {
+            if(com.newhorizon.thinclient.display.TabletSocialState.CHANNEL.equals(channel)){
+                try{runtime.tabletSocial.receive(payload);}catch(com.newhorizon.thinclient.protocol.ProtocolException error){System.out.println("[NH-TABLET] Invalid social response");}return;
+            }
             if (!com.newhorizon.thinclient.inventory.InventoryProtocol.CHANNEL.equals(channel)) {
                 return;
             }

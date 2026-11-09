@@ -217,8 +217,7 @@ int launchJVM(NSString *username, id launchTarget, int width, int height, int mi
     BOOL isJava8 = [fm fileExistsAtPath:libjlipath8];
     BOOL lowMemoryProfile = getPrefBool(@"java.newhorizon_low_memory");
     BOOL localTestProfile = !launchJar && getPrefBool(@"java.newhorizon_local_test");
-    BOOL thinClient = !launchJar && !localTestProfile &&
-        getPrefBool(@"java.newhorizon_thin_client");
+    BOOL thinClient = !launchJar && !localTestProfile;
 
     const char *rendererName = getenv("POJAV_RENDERER");
     if (rendererName && !strcmp(rendererName, RENDERER_NAME_LTW)) {

@@ -51,6 +51,7 @@ final class WorldLabelRenderer implements AutoCloseable {
         begin();camera(x,y,z,yaw,pitch,aspect,projection);int count=tracker.snapshotLabels(entities,now,x,y,z,64,local),drawn=0;
         for(int i=0;i<count&&drawn<64;i++){
             EntityTracker.Renderable e=entities[i];String text="";
+            if(e.player&&players.isSpectator(e.profileId)&&!players.isSpectator(players.localId()))continue;
             if(e.type==101)text=e.displayText;
             else if(e.nameVisible&&!e.customName.isEmpty())text=e.customName;
             else if(e.player&&!e.invisible){PlayerListState.Entry p=players.get(e.profileId);if(p!=null)text=hud.label(p.name,players.localName());}

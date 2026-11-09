@@ -66,7 +66,6 @@
                 !getEntitlementValue(@"com.apple.developer.kernel.increased-memory-limit")
             ),
             @"newhorizon_local_test": @NO,
-            @"newhorizon_thin_client": @NO,
             @"newhorizon_thin_server": @"127.0.0.1:9055",
             @"allocated_memory": [NSNumber numberWithFloat:roundf((NSProcessInfo.processInfo.physicalMemory / 1048576) * 0.25)]
         }.mutableCopy,

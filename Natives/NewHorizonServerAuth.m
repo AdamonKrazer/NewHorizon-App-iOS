@@ -144,8 +144,7 @@ void NHServerAuthPresentSetup(UIViewController *presenter, BOOL registration) {
         return;
     }
 
-    if (getPrefBool(@"java.newhorizon_thin_client") &&
-            !getPrefBool(@"java.newhorizon_local_test")) {
+    if (!getPrefBool(@"java.newhorizon_local_test")) {
         // The thin runtime owns chat input through UIKit rather than a Forge screen.
         typedef void (*NHSubmitEvent)(int32_t, const char *, const char *);
         NHSubmitEvent submit = (NHSubmitEvent)dlsym(RTLD_DEFAULT, "nh_reynard_submit_event");

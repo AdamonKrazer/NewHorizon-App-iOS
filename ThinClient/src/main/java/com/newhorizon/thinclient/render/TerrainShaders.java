@@ -18,8 +18,9 @@ final class TerrainShaders {
         + "in vec4 vColor;in vec3 vWorld;in vec2 vLight;in vec2 vModelUv;flat in int vTexture;flat in float vModelShade;out vec4 fragColor;\n"
         + "uniform vec3 uCamera;uniform float uMedium,uMaterialPass,uCrumbling;uniform int uCrackTile;uniform sampler2D uRailAtlas,uBlockAtlas,uBiomeTints;"
         + "uniform vec2 uBlockAtlasSize;uniform int uGrassSide,uGrassOverlay;\n"
-        + "vec4 blockTex(int tile,vec2 uv){vec2 cell=vec2(tile%32,tile/32)*32.;"
-        + "return texture(uBlockAtlas,(cell+clamp(fract(uv)*32.,vec2(.01),vec2(31.99)))/uBlockAtlasSize);}\n"
+        + "vec4 blockTex(int tile,vec2 uv,vec2 dx,vec2 dy){vec2 cell=vec2(tile%32,tile/32)*32.;vec2 scale=vec2(32.)/uBlockAtlasSize;"
+        + "return textureGrad(uBlockAtlas,(cell+clamp(fract(uv)*32.,vec2(.01),vec2(31.99)))/uBlockAtlasSize,dx*scale,dy*scale);}\n"
+        + "vec4 blockTex(int tile,vec2 uv){return blockTex(tile,uv,dFdx(uv),dFdy(uv));}\n"
         + "vec3 tint(int id){if(id>=1&&id<=3)return texelFetch(uBiomeTints,ivec2((vTexture>>23)&127,id-1),0).rgb;"
         + "if(id==4)return vec3(97.,153.,97.)/255.;"
         + "if(id==5)return vec3(128.,167.,85.)/255.;if(id==6)return vec3(1.,.08,0.);return vec3(1.);}\n"
@@ -34,8 +35,9 @@ final class TerrainShaders {
         + "else if(face==4)uv=vec2(vWorld.z,-vWorld.y);else if(face==5)uv=vec2(-vWorld.z,-vWorld.y);"
         + "else uv=vec2((fract(vWorld.x)-.15)/.7,-vWorld.y);"
         + "if(face==7){uv=clamp(vModelUv,vec2(.0001),vec2(.9999));if(vModelShade<0.)t=0;rot=0;}for(int i=0;i<rot;i++)uv=vec2(-uv.y,uv.x);"
-        + "if(tile=="+WATER_FLOW+"||tile=="+LAVA_FLOW+"){if(face<2)uv=vec2(.5)+(fract(uv)-vec2(.5))*.5;else uv=fract(uv)*.5;}"
-        + "vec4 texel=blockTex(tile,uv);"
+        + "vec2 uvDx=dFdx(uv),uvDy=dFdy(uv);"
+        + "if(tile=="+WATER_FLOW+"||tile=="+LAVA_FLOW+"){if(face<2)uv=vec2(.5)+(fract(uv)-vec2(.5))*.5;else uv=fract(uv)*.5;uvDx*=.5;uvDy*=.5;}"
+        + "vec4 texel=blockTex(tile,uv,uvDx,uvDy);"
         + "if(texel.a<.1)discard;"
         // Vanilla's crumbling blend multiplies the existing lit block by twice the
         // texture color. Lighting the cracks again or writing them opaque replaces

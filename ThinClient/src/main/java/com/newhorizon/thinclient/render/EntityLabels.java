@@ -14,6 +14,7 @@ public final class EntityLabels {
         StringBuilder out=new StringBuilder(2048);out.append('[');
         for(int i=0;i<count&&emitted<64;i++){
             EntityTracker.Renderable e=entities[i];String text="";double labelY=e.y+e.labelHeight+.5;
+            if(e.player&&players.isSpectator(e.profileId)&&!players.isSpectator(players.localId()))continue;
             if(e.type==101){text=e.displayText;labelY=e.y;}
             else if(e.nameVisible&&!e.customName.isEmpty()){text=e.customName;if(e.type==2)labelY=e.y+(e.appearance[15]%2==1?.9875:1.975)+.5;}
             else if(e.player&&!e.invisible){PlayerListState.Entry p=players.get(e.profileId);if(p!=null)text=hud.label(p.name,players.localName());}

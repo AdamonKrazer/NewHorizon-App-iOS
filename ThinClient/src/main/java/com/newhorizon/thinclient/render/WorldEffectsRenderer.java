@@ -78,7 +78,7 @@ final class WorldEffectsRenderer implements AutoCloseable {
         }
         int fire0=VanillaBlockTextures.tileId("fire_0"),fire1=VanillaBlockTextures.tileId("fire_1");
         if(fire0>=0&&fire1>=0)for(int i=0;i<count;i++) {
-            EntityTracker.Renderable e=entities[i];if(!e.burning)continue;
+            EntityTracker.Renderable e=entities[i];if(!e.burning||e.spectator)continue;
             double width=CombatHitboxes.width(e.type)*(e.baby?.5:1)*1.4,height=CombatHitboxes.height(e.type)*(e.baby?.5:1),remaining=height/Math.max(.1,width),offset=0,half=.5;
             double depth=-.3+(int)remaining*.02;
             for(int layer=0;remaining>0&&layer<12;layer++,remaining-=.45,offset+=.45,half*=.9,depth+=.03) {

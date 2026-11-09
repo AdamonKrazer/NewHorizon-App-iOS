@@ -152,6 +152,8 @@ public final class LtwScene implements AutoCloseable {
     private final float[] modBeamCorners=new float[24];
     private static final int[][] MOD_BEAM_FACES={{0,1,5,4},{0,3,7,4},{1,2,6,5},{3,2,6,7}};
     private final HitResult displayHit = new HitResult();
+    private final com.newhorizon.thinclient.display.DisplayRay.Hit displayPlaneHit=new com.newhorizon.thinclient.display.DisplayRay.Hit();
+    private final com.newhorizon.thinclient.world.WorldBlockRaycast.Hit displayOcclusion=new com.newhorizon.thinclient.world.WorldBlockRaycast.Hit();
     private final VanillaHitResult vanillaHit = new VanillaHitResult();
     private final VanillaHitResult heldHit = new VanillaHitResult();
     private final VanillaHitResult selectionHit = new VanillaHitResult();
@@ -295,6 +297,10 @@ public final class LtwScene implements AutoCloseable {
     private boolean minorHorizontalCollision;
     private boolean jumpWasPressed;
     private boolean sneaking;
+    private double fallDistance;
+    private final double[] sneakMovement=new double[2];
+    private final com.newhorizon.thinclient.world.SneakEdge.Support sneakSupport=
+            (dx,dz)->collidesAtHeight(cameraPosition[0]+dx,cameraPosition[1]-.6,cameraPosition[2]+dz,playerHeight());
     private boolean sprinting;
     private final com.newhorizon.thinclient.world.SwimmingState swimming = new com.newhorizon.thinclient.world.SwimmingState();
     private boolean sentSneaking;
@@ -335,6 +341,7 @@ public final class LtwScene implements AutoCloseable {
             public void setFocused(int id,boolean focused){new GeckoNativeBridge().setFocused(id,focused);}
             public void destroy(int id){new GeckoNativeBridge().destroy(id);}
             public void show(int id,String url,int index,String[] urls,boolean editing){GeckoNativeBridge.showMinePad(id,url,index,urls,editing);}
+            public void event(int id,String json){GeckoNativeBridge.tabletEvent(id,json);}
             public void hide(){GeckoNativeBridge.hideMinePad();}
             public void error(String message){GeckoNativeBridge.chatMessage("{\"text\":"+com.newhorizon.thinclient.protocol.ChatProtocol.quote(message)+",\"color\":\"red\"}");}
         },(id,action,index,url)->connection.sendCustomPayload("webdisplays:packetsystem",com.newhorizon.thinclient.display.MinePadData.request(id,action,index,url)));
@@ -407,6 +414,10 @@ public final class LtwScene implements AutoCloseable {
             }
             frameProfile.mark(0);
             updateInputAndMovement();frameProfile.mark(1);
+            // Vanilla sends cache-center packets, not periodic player teleports.
+            // Keep our bounded resident cache with the locally simulated player,
+            // including riding, flight and movement while a UI is open.
+            if (cameraInitialized) runtime.world.updateStreamingCenter(cameraPosition[0], cameraPosition[2]);
             updateUiCursor();
             // Keep input/network polling responsive while Gecko owns the visible tablet.
             // The dimmed world behind it needs only ten frames per second.
@@ -842,7 +853,11 @@ public final class LtwScene implements AutoCloseable {
             try { connection.closeWorkbench(workbenchWindow); }
             catch (IOException | ProtocolException error) { throw new IllegalStateException("Unable to close crafting table", error); }
             workbenchWindow = -1;
-        } else sendInventoryRequest(InventoryProtocol.closeRequest());
+        } else if(runtime.inventory.isCreativeMode()) sendInventoryRequest(InventoryProtocol.closeRequest());
+        else {
+            try { connection.closePlayerInventory(); }
+            catch(IOException | ProtocolException error) { throw new IllegalStateException("Unable to close inventory",error); }
+        }
         inventoryOpen = false;
         GeckoNativeBridge.hideInventory();
         GeckoNativeBridge.updateHotbar(runtime.inventory.encodeForUi());
@@ -893,10 +908,11 @@ public final class LtwScene implements AutoCloseable {
                 lastInventoryRevision = -1L;
                 GeckoNativeBridge.hideHotbar();
                 GeckoNativeBridge.showInventory(runtime.inventory.encodeForUi());
-                sendInventoryRequest(InventoryProtocol.openRequest());
+                if(runtime.inventory.isCreativeMode())sendInventoryRequest(InventoryProtocol.openRequest());
             }
         }
 
+        for(int social=0;social<16;social++){String message=runtime.tabletSocial.poll();if(message==null)break;GeckoNativeBridge.tabletNotification(String.valueOf(runtime.players.localId()),message);minePads.event(message);}
         for (int index = 0; index < 128; index++) {
             String[] event = GeckoNativeBridge.pollEvent();
             if (event == null) break;
@@ -919,7 +935,17 @@ public final class LtwScene implements AutoCloseable {
             if(event[1].startsWith("nh-pad-")){
                 try{
                     int browser=Integer.parseInt(event[0]);
-                    if("nh-pad-action".equals(event[1])){String[] args=event[2].split("\n",3);if(args.length==3)minePads.action(Integer.parseInt(args[0]),Integer.parseInt(args[1]),args[2]);}
+                    if("nh-pad-social".equals(event[1])&&minePads.isShell(browser)){
+                        String[] args=event[2].split("\n",3);if(args.length==3){String action=args[0];
+                        if(action.equals("ready")){GeckoNativeBridge.tabletEvent(browser,"{\"kind\":\"state\",\"self\":"+com.newhorizon.thinclient.protocol.ChatProtocol.quote(String.valueOf(runtime.players.localId()))+",\"name\":"+com.newhorizon.thinclient.protocol.ChatProtocol.quote(runtime.players.localName())+",\"available\":"+connection.hasTabletSocial()+"}");}
+                        else if(action.equals("browser"))minePads.launchBrowser();
+                        else if(action.equals("open_link"))minePads.openLink(args[2]);
+                        else if(action.equals("spotify")){minePads.launchBrowser();minePads.action(1,0,"https://open.spotify.com/");}
+                        else if(action.equals("close"))minePads.action(5,0,"");
+                        else if(action.equals("shutdown"))minePads.action(4,0,"");
+                        else if(connection.hasTabletSocial())try{connection.sendCustomPayload(com.newhorizon.thinclient.display.TabletSocialState.CHANNEL,com.newhorizon.thinclient.display.TabletSocialState.request(action,args[1],args[2]));}catch(Exception failure){GeckoNativeBridge.tabletEvent(browser,"{\"kind\":\"error\",\"action\":"+com.newhorizon.thinclient.protocol.ChatProtocol.quote(action)+",\"message\":\"Não foi possível enviar ao servidor.\"}");}
+                        }
+                    }else if("nh-pad-action".equals(event[1])){String[] args=event[2].split("\n",3);if(args.length==3)minePads.action(Integer.parseInt(args[0]),Integer.parseInt(args[1]),args[2]);}
                     else if("nh-pad-location".equals(event[1]))minePads.location(browser,event[2]);
                     else if("nh-pad-popup".equals(event[1]))minePads.popup(browser,event[2]);
                     else if(browser==minePads.activeBrowser()){
@@ -959,7 +985,11 @@ public final class LtwScene implements AutoCloseable {
                         if (workbenchWindow > 0) {
                             try { connection.clickWorkbench(workbenchWindow, slot, button, shift); }
                             catch (IOException | ProtocolException error) { throw new IllegalStateException("Unable to click crafting table", error); }
-                        } else sendInventoryRequest(InventoryProtocol.clickRequest(slot, button, shift));
+                        } else if(runtime.inventory.isCreativeMode()) sendInventoryRequest(InventoryProtocol.clickRequest(slot, button, shift));
+                        else {
+                            try { connection.clickPlayerInventory(slot,button,shift); }
+                            catch(IOException | ProtocolException error) { throw new IllegalStateException("Unable to click inventory",error); }
+                        }
                     }
                 } catch (IllegalArgumentException ignored) {
                     System.out.println("[NH-THIN] ignored invalid inventory click");
@@ -1093,6 +1123,7 @@ public final class LtwScene implements AutoCloseable {
     }
 
     private int playerPhysicsFlags() {
+        if(connection.isSpectator())return 0;
         double height = playerHeight();
         return runtime.world.physicsFlagsInBox(
                 cameraPosition[0] - PLAYER_RADIUS,
@@ -1134,6 +1165,7 @@ public final class LtwScene implements AutoCloseable {
 
         onGround = collidesAt(cameraPosition[0], cameraPosition[1] - 0.001,
                 cameraPosition[2]);
+        if(onGround)fallDistance=0;
         if (jumpPressed && !jumpWasPressed) {
             if (!inWater && !inLava && onGround) {
                 int supportY = (int) Math.floor(cameraPosition[1] - 0.5000001);
@@ -1372,6 +1404,11 @@ public final class LtwScene implements AutoCloseable {
         double baseX = cameraPosition[0];
         double baseY = cameraPosition[1];
         double baseZ = cameraPosition[2];
+        if(sneaking&&!connection.isFlying()&&verticalVelocity<=0
+                &&(onGround||(fallDistance<.6&&collidesAt(baseX,baseY-(.6-fallDistance),baseZ)))) {
+            com.newhorizon.thinclient.world.SneakEdge.clip(dx,dz,sneakSupport,sneakMovement);
+            dx=sneakMovement[0];dz=sneakMovement[1];
+        }
         double clippedX = dx;
         double clippedZ = dz;
         if (Math.abs(dx) < Math.abs(dz)) {
@@ -1433,11 +1470,6 @@ public final class LtwScene implements AutoCloseable {
         // A wall consumes the blocked-axis velocity, including a sprint jump impulse.
         if (blockedX) horizontalVelocityX = 0.0;
         if (blockedZ) horizontalVelocityZ = 0.0;
-    }
-
-    private boolean hasSneakSupport(double x, double z) {
-        return !sneaking || (!onGround && Math.abs(verticalVelocity) > 0.001)
-                || collidesAtHeight(x, cameraPosition[1] - 0.05, z, SNEAK_HEIGHT);
     }
 
     private void updateVerticalPhysics(double seconds, int physicsFlags) {
@@ -1584,6 +1616,8 @@ public final class LtwScene implements AutoCloseable {
         } else {
             onGround = false;
         }
+        if(onGround||connection.isFlying()||clipped>0)fallDistance=0;
+        else if(clipped<0)fallDistance-=clipped;
     }
 
     private boolean collidesAt(double x, double y, double z) {
@@ -1591,6 +1625,7 @@ public final class LtwScene implements AutoCloseable {
     }
 
     private boolean collidesAtHeight(double x, double y, double z, double height) {
+        if(connection.isSpectator())return false;
         return runtime.world.collidesBox(
                 x - PLAYER_RADIUS + COLLISION_EPSILON,
                 y + COLLISION_EPSILON,
@@ -1604,6 +1639,7 @@ public final class LtwScene implements AutoCloseable {
     }
 
     private double clipAxis(int axis, double movement) {
+        if(connection.isSpectator())return movement;
         double height = playerHeight();
         double clipped=runtime.world.clipMovement(axis,
                 cameraPosition[0] - PLAYER_RADIUS,
@@ -1867,6 +1903,7 @@ public final class LtwScene implements AutoCloseable {
                 int slot=pendingMesh.slot;
                 // Reject stale work before reserving or allocating any GPU memory.
                 if(slot>=count||pendingMesh.epoch!=epoch||pendingMesh.x!=meshVersions[slot*3]||pendingMesh.z!=meshVersions[slot*3+1]){
+                    runtime.world.requestMeshRefresh(pendingMesh.x,pendingMesh.z,pendingMesh.epoch);
                     meshWorker.release(pendingMesh);pendingMesh=null;return;
                 }
                 if(uploadGpu==null)uploadGpu=allocateGpuChunk();
@@ -1886,6 +1923,7 @@ public final class LtwScene implements AutoCloseable {
         if(pendingMesh==null)return;
         ChunkMeshWorker.Result mesh=pendingMesh;int slot=mesh.slot;
         if(slot>=count||mesh.epoch!=epoch||mesh.x!=meshVersions[slot*3]||mesh.z!=meshVersions[slot*3+1]) {
+            runtime.world.requestMeshRefresh(mesh.x,mesh.z,mesh.epoch);
             meshWorker.release(mesh);pendingMesh=null;return;
         }
         // At most 128 KiB of geometry plus 16 KiB of light per frame.
@@ -1977,9 +2015,12 @@ public final class LtwScene implements AutoCloseable {
         local.swimming=swimming.swimming;local.prone=swimming.prone;local.inWater=(playerPhysicsFlags()&BlockStatePhysics.WATER)!=0;
         local.riding=runtime.riding.vehicleOf(local.entityId)>=0;local.sleeping=runtime.riding.sleeping();local.burning=runtime.combat.burning();
         local.invisible=runtime.effects.level(14)>0;local.hurt=runtime.combat.hurtRoll(visualNow)!=0;local.onGround=onGround;
+        local.spectator=connection.isSpectator();
+        runtime.inventory.copyEquipment(local);
         local.swingProgress=currentSwingProgress();local.blocking=chargingItem && "SHIELD".equals(com.newhorizon.thinclient.world.ProjectileKind.materialKey(chargingMaterial));
         localVisual.update(visualNow,renderCameraPosition[0],renderCameraPosition[1],renderCameraPosition[2],cameraRotation[0],cameraRotation[1]);
         entityRenderer.localPlayer(viewCamera.mode==0?null:local);
+        entityRenderer.viewerSpectator(connection.isSpectator());
         float eyeX = (float) viewCamera.x;
         float eyeY = (float) viewCamera.y;
         float eyeZ = (float) viewCamera.z;
@@ -2079,7 +2120,7 @@ public final class LtwScene implements AutoCloseable {
         if(passFrames%100==0){System.out.println("[NH-PROFILE] frames="+passFrames+" window=100 solidMs="+passNanos[5]/1e8+" entitiesMs="+passNanos[0]/1e8+" translucentMs="+passNanos[1]/1e8+" browsersMs="+passNanos[2]/1e8+" mapsMs="+passNanos[3]/1e8+" labelsMs="+passNanos[4]/1e8+" maps="+passMaps/100.0+" uploads="+passUploads/100.0+" draws="+passDraws/100.0+" effectUniforms="+ScreenEffects.uniformUploads+" atmosphereUniforms="+SceneAtmosphere.uniformUploads+" terrainVertices="+terrainSubmittedVertices/100+" terrainSkipped="+terrainSkippedVertices/100+" terrainDraws="+terrainDrawCalls/100.0+" labels="+entityLabels.diagnosticLabels+" labelsCulled="+entityLabels.diagnosticCulled+" labelBuilds="+entityLabels.diagnosticBuilds);
             java.util.Arrays.fill(passNanos,0);passMaps=passUploads=passDraws=0;terrainSubmittedVertices=terrainSkippedVertices=terrainDrawCalls=0;ScreenEffects.uniformUploads=SceneAtmosphere.uniformUploads=0;}
         drawFirstPerson(width, height);
-        if(viewCamera.mode==0&&!hudHidden){blockAtlas.bind(1);entityRenderer.drawFireOverlay(runtime.combat.burning(),width/(float)height);}
+        if(viewCamera.mode==0&&!hudHidden&&!connection.isSpectator()){blockAtlas.bind(1);entityRenderer.drawFireOverlay(runtime.combat.burning(),width/(float)height);}
         if(!hudHidden && runtime.effects.level(com.newhorizon.thinclient.world.PlayerEffects.NAUSEA)==0) {
             blockAtlas.bind(1);entityRenderer.drawPortalOverlay(runtime.portal.progress());
         }
@@ -2118,6 +2159,7 @@ public final class LtwScene implements AutoCloseable {
     }
 
     private void drawFirstPerson(int framebufferWidth, int framebufferHeight) {
+        if(connection.isSpectator())return;
         if(viewCamera.mode!=0||hudHidden)return;
         if(runtime.effects.level(14)>0) return;
         if (pauseOpen || inventoryOpen || minePads.isOpen() || runtime.combat.dead() || runtime.riding.sleeping()) return;
@@ -2978,7 +3020,7 @@ public final class LtwScene implements AutoCloseable {
                     displayFrameLogCount++;
                     System.out.println("[NH-THIN] Gecko GPU display ready browser="
                             + gpu.browserId + " size=" + gpu.width + "x" + gpu.height);
-                    // iOS keeps browser pixels exclusively on the GPU, including diagnostics.
+                    // Browser pixels remain on the GPU, including diagnostics on iOS.
                 }
             }
             GL33.glBindTexture(GL33.GL_TEXTURE_2D, 0);
@@ -3098,13 +3140,13 @@ public final class LtwScene implements AutoCloseable {
         if (action == GLFW.GLFW_PRESS) {
             if (primary) primaryHeld = true;
             else secondaryHeld = true;
+            if (processDisplayMousePress(primary)) return;
             if(!primary){
                 System.out.println("[NH-USE] press slot="+runtime.inventory.selectedHotbar()+" material="+runtime.inventory.selectedHotbarMaterial()+" id="+runtime.inventory.selectedHotbarProtocolId());
                 int padSlot=isMinePad(runtime.inventory.selectedHotbarMaterial())?runtime.inventory.selectedHotbar():isMinePad(runtime.inventory.offhandMaterial())?40:-1;
                 if(padSlot>=0){minePads.open(runtime.inventory,padSlot,sneaking,System.nanoTime());
                     primaryHeld=secondaryHeld=false;releaseVanillaItem();stopVanillaAttack();java.util.Arrays.fill(pressedKeys,false);flightToggleRequested=false;return;}
             }
-            if (processDisplayMousePress(primary)) return;
             if (primary) beginVanillaAttack();
             else useVanillaTarget();
             return;
@@ -3180,8 +3222,7 @@ public final class LtwScene implements AutoCloseable {
                 if(primary)activePrimaryBrowser=-1;else activeSecondaryBrowser=-1;
                 return true;
             }
-            int x = primary ? activePrimaryX : activeSecondaryX;
-            int y = primary ? activePrimaryY : activeSecondaryY;
+            int x=-100,y=-100;
             if (findDisplayHit(displayHit) && displayHit.browserId == browser) {
                 x = displayHit.pixelX;
                 y = displayHit.pixelY;
@@ -3553,50 +3594,22 @@ public final class LtwScene implements AutoCloseable {
     }
 
     private boolean findDisplayHit(HitResult output) {
-        output.browserId = -1;
-        output.distance = DISPLAY_INTERACTION_RANGE + 1.0;
-        double yaw = Math.toRadians(cameraRotation[0]);
-        double pitch = Math.toRadians(cameraRotation[1]);
-        double horizontal = Math.cos(pitch);
-        double rayX = -Math.sin(yaw) * horizontal;
-        double rayY = -Math.sin(pitch);
-        double rayZ = Math.cos(yaw) * horizontal;
-        double originX = renderCameraPosition[0];
-        double originY = renderCameraPosition[1] + eyeHeight();
-        double originZ = renderCameraPosition[2];
-        double nearest = DISPLAY_INTERACTION_RANGE + 1.0;
-        for (int index = 0; index < displaySnapshotCount; index++) {
-            DisplayController.Renderable renderable = displaySnapshots[index];
-            VirtualDisplay display = renderable.display;
-            float[] right = rightAxis(display.side);
-            float[] up = upAxis(display.side);
-            float[] forward = forwardAxis(display.side);
-            double centerX = display.x + forward[0] * 0.008;
-            double centerY = display.y + forward[1] * 0.008;
-            double centerZ = display.z + forward[2] * 0.008;
-            double denominator = rayX * forward[0] + rayY * forward[1]
-                    + rayZ * forward[2];
-            if (Math.abs(denominator) < 1.0e-6) continue;
-            double distance = ((centerX - originX) * forward[0]
-                    + (centerY - originY) * forward[1]
-                    + (centerZ - originZ) * forward[2]) / denominator;
-            if (distance < 0.05 || distance > DISPLAY_INTERACTION_RANGE
-                    || distance >= nearest) continue;
-            double hitX = originX + rayX * distance - centerX;
-            double hitY = originY + rayY * distance - centerY;
-            double hitZ = originZ + rayZ * distance - centerZ;
-            double localRight = hitX * right[0] + hitY * right[1] + hitZ * right[2];
-            double localUp = hitX * up[0] + hitY * up[1] + hitZ * up[2];
-            if (Math.abs(localRight) > display.widthBlocks * 0.5
-                    || Math.abs(localUp) > display.heightBlocks * 0.5) continue;
-            nearest = distance;
-            output.browserId = renderable.browserId;
-            output.distance = distance;
-            float u=(float)(localRight/display.widthBlocks+.5),v=(float)(.5-localUp/display.heightBlocks);
-            output.pixelX=clamp((int)(ScreenUv.u(u,v,display.rotation)*display.pixelWidth),0,display.pixelWidth-1);
-            output.pixelY=clamp((int)(ScreenUv.v(u,v,display.rotation)*display.pixelHeight),0,display.pixelHeight-1);
+        output.browserId=-1;output.distance=DISPLAY_INTERACTION_RANGE+1;
+        double yaw=Math.toRadians(cameraRotation[0]),pitch=Math.toRadians(cameraRotation[1]),horizontal=Math.cos(pitch);
+        double rx=-Math.sin(yaw)*horizontal,ry=-Math.sin(pitch),rz=Math.cos(yaw)*horizontal;
+        double ox=renderCameraPosition[0],oy=renderCameraPosition[1]+eyeHeight(),oz=renderCameraPosition[2],nearest=DISPLAY_INTERACTION_RANGE;
+        for(int i=0;i<displaySnapshotCount;i++){
+            DisplayController.Renderable renderable=displaySnapshots[i];VirtualDisplay d=renderable.display;
+            if(!com.newhorizon.thinclient.display.DisplayRay.hit(ox,oy,oz,rx,ry,rz,d.x,d.y,d.z,d.widthBlocks,d.heightBlocks,d.side.ordinal(),nearest,displayPlaneHit))continue;
+            nearest=displayPlaneHit.distance;output.browserId=renderable.browserId;output.distance=nearest;
+            float u=(float)displayPlaneHit.u,v=(float)displayPlaneHit.v;
+            output.pixelX=com.newhorizon.thinclient.display.DisplayRay.pixel(ScreenUv.u(u,v,d.rotation),d.pixelWidth);
+            output.pixelY=com.newhorizon.thinclient.display.DisplayRay.pixel(ScreenUv.v(u,v,d.rotation),d.pixelHeight);
         }
-        return output.browserId >= 0;
+        // Trace only when a plane was hit; never click through the terrain behind which it is hidden.
+        if(output.browserId>=0&&com.newhorizon.thinclient.world.WorldBlockRaycast.trace(runtime.world,ox,oy,oz,rx,ry,rz,nearest,displayOcclusion)
+                &&displayOcclusion.distance<nearest-.001)output.browserId=-1;
+        return output.browserId>=0;
     }
 
     private static int clamp(int value, int minimum, int maximum) {

@@ -17,10 +17,23 @@ public final class InventoryState {
     private int cursorAmount;
     private String cursorMaterial = "";
     private String cursorName = "";
+    private String cursorTag = "";
+    private boolean nativeReady;
     private boolean creativeMode;
     private long revision;
+    private com.newhorizon.thinclient.protocol.ForgeItemRegistry nativeItems;
+    public synchronized void setNativeItems(com.newhorizon.thinclient.protocol.ForgeItemRegistry items) {
+        nativeItems = items;
+    }
+    public synchronized String registryMaterial(int id) {
+        if (nativeItems != null && nativeItems.ready()) return nativeItems.material(id);
+        String name = WorkbenchState.vanillaMaterial(id);
+        return name.isEmpty() ? "" : "minecraft:" + name;
+    }
+
 
     public synchronized void handle(ByteBuffer payload) throws ProtocolException {
+        if (nativeReady && !creativeMode) { payload.position(payload.limit()); return; }
         InventoryProtocol.decodeSnapshot(payload, this);
     }
 
@@ -33,6 +46,7 @@ public final class InventoryState {
         cursorAmount = carriedAmount;
         cursorMaterial = clean(carriedMaterial);
         cursorName = clean(carriedName);
+        cursorTag = "";
     }
 
     synchronized void setSlot(int slot, int amount, String material, String name) {
@@ -70,8 +84,17 @@ public final class InventoryState {
     public synchronized int selectedHotbarProtocolId(){return protocolIds[selectedHotbar()];}
     public synchronized String selectedHotbarTag() {return tags[selectedHotbar()];}
     public synchronized String offhandTag() {return tags[40];}
+    /** The server sends our equipment through the player inventory, not remote-entity equipment packets. */
+    public synchronized void copyEquipment(com.newhorizon.thinclient.world.EntityTracker.Renderable player) {
+        for(int equipment=0;equipment<6;equipment++) {
+            int slot=equipment==0?selectedHotbar():equipment==1?40:34+equipment;
+            player.equipment[equipment]=amounts[slot]>0?protocolIds[slot]:-1;
+            player.equipmentTags[equipment]=amounts[slot]>0&&tags[slot]!=null?tags[slot]:"";
+        }
+    }
     public synchronized String offhandMaterial() {return materials[40]==null?"":materials[40];}
     public synchronized String materialForProtocolId(int id) {
+        if (nativeItems != null && nativeItems.ready()) return nativeItems.material(id);
         for (int slot = 0; slot < protocolIds.length; slot++)
             if (id == protocolIds[slot] && amounts[slot] > 0 && materials[slot] != null) return materials[slot];
         return "";
@@ -131,15 +154,17 @@ public final class InventoryState {
         int window=in.get(); com.newhorizon.thinclient.protocol.VarInts.read(in);
         if(single) {
             com.newhorizon.thinclient.protocol.BinaryCodec.require(in,2); int menu=in.getShort();
-            int slot=window==0?uiSlotForPlayerMenu(menu):window==-2?menu:-1;
+            int slot=window==0?uiSlotForPlayerMenu(menu):window==-2?menu:
+                    window==-1&&menu==-1&&!creativeMode?-3:-1;
             readStack(in,slot);
         } else {
             int count=com.newhorizon.thinclient.protocol.VarInts.read(in);
             if(count<0 || count>256) throw new ProtocolException("Inventory size outside limit");
             for(int i=0;i<count;i++) readStack(in,window==0?uiSlotForPlayerMenu(i):-1);
-            readStack(in,-1); // The bridge owns the carried server stack.
+            readStack(in,window==0&&!creativeMode?-3:-1);
         }
         if(in.hasRemaining()) throw new ProtocolException("Trailing inventory bytes");
+        if(window==0)nativeReady=true;
         revision++;
     }
 
@@ -164,7 +189,10 @@ public final class InventoryState {
                 tag=hex.toString();
             } else tag=null;
         }
-        if(slot>=0 && slot<tags.length) {
+        if(slot==-3) {
+            cursorAmount=count; cursorMaterial=count==0?"":registryMaterial(id);
+            cursorName=""; cursorTag=tag;
+        } else if(slot>=0 && slot<tags.length) {
             int previousId=protocolIds[slot];
             protocolIds[slot]=id; tags[slot]=tag;
             pads[slot]=pad;
@@ -173,12 +201,15 @@ public final class InventoryState {
                 // Vanilla contents are authoritative even when the optional bridge is absent.
                 // Unknown Forge IDs keep a bridge-provided key only for the same item.
                 amounts[slot]=count;
-                String vanilla=WorkbenchState.vanillaMaterial(id);
+                String vanilla=registryMaterial(id);
+                if (nativeItems != null && nativeItems.ready()) {
+                    materials[slot]=vanilla; names[slot]=""; return;
+                }
                 boolean resolved=materials[slot]!=null&&!materials[slot].isEmpty()
                         &&(previousId==0||previousId==id);
                 // An explicit bridge key also wins over the bundled registry if Forge
                 // assigned that numeric ID differently on this server.
-                if(!resolved&&!vanilla.isEmpty()) materials[slot]="minecraft:"+vanilla;
+                if(!resolved&&!vanilla.isEmpty()) materials[slot]=vanilla;
                 else if(!resolved) materials[slot]="";
                 names[slot]=""; // Custom display names remain available in the original NBT.
             }
@@ -189,7 +220,7 @@ public final class InventoryState {
         Arrays.fill(materials,""); Arrays.fill(names,""); Arrays.fill(amounts,0);
         Arrays.fill(protocolIds,0); Arrays.fill(tags,null);
         Arrays.fill(pads,null);
-        cursorMaterial=""; cursorName=""; cursorAmount=0; revision++;
+        cursorMaterial=""; cursorName=""; cursorTag=""; cursorAmount=0; nativeReady=false; revision++;
     }
 
     private static int uiSlotForPlayerMenu(int menuSlot) {
@@ -200,7 +231,24 @@ public final class InventoryState {
         if (menuSlot == 7) return 37;
         if (menuSlot == 8) return 36;
         if (menuSlot == 45) return 40;
+        if (menuSlot == 0) return 45;
+        if (menuSlot >= 1 && menuSlot <= 4) return 40 + menuSlot;
         return -1;
+    }
+
+    public static int menuSlot(int slot) {
+        if(slot==InventoryProtocol.OUTSIDE_SLOT)return -999;
+        if(slot>=0&&slot<9)return slot+36;
+        if(slot>=9&&slot<36)return slot;
+        if(slot>=36&&slot<=39)return 44-slot;
+        if(slot==40)return 45;
+        if(slot>=41&&slot<=44)return slot-40;
+        if(slot==45)return 0;
+        throw new IllegalArgumentException("Player inventory slot");
+    }
+
+    public synchronized void clearCursor() {
+        cursorAmount=0;cursorMaterial="";cursorName="";cursorTag="";revision++;
     }
 
     /** Compact representation consumed by the Android vanilla inventory view. */
@@ -208,7 +256,7 @@ public final class InventoryState {
         StringBuilder output = new StringBuilder(1536);
         output.append(selectedHotbar).append('\t').append(cursorAmount).append('\t')
                 .append(cursorMaterial).append('\t').append(cursorName).append('\t')
-                .append(creativeMode ? 1 : 0).append('\n');
+                .append(creativeMode ? 1 : 0).append("\t\t").append(cursorTag==null?"?":cursorTag).append('\n');
         for (int slot = 0; slot < materials.length; slot++) {
             output.append(slot).append('\t').append(amounts[slot]).append('\t')
                     .append(materials[slot]).append('\t').append(names[slot]).append('\t')

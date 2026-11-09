@@ -5,7 +5,7 @@ import java.nio.charset.StandardCharsets;
 /** Bounded visual projection of a stack tag, preserving the original server tag. */
 final class ThinItemTag {
     int potionColor=0x385dc6,leatherColor=0xa06540,mapColor=0xffffff,fireworkColor=0x8a8a8a,damage;
-    boolean charged,firework;String trim,potionId,customName;private int customPotion=-1;
+    boolean charged,firework,unbreakable;String trim,potionId,customName;private int customPotion=-1;
     static ThinItemTag read(String hex) {
         ThinItemTag result=new ThinItemTag();if(hex==null||hex.length()>8192||(hex.length()&1)!=0)return result;
         try {
@@ -32,6 +32,7 @@ final class ThinItemTag {
                 else if(key.equals("material")&&context.equals("/Trim"))tag.trim=value.replace("minecraft:","");
                 else if(key.equals("id")&&context.equals("/ChargedProjectiles")&&value.equals("minecraft:firework_rocket"))tag.firework=true;
             }else if(type==1){boolean value=in.get()!=0;if(key.equals("Charged")&&context.isEmpty())tag.charged=value;
+                if(key.equals("Unbreakable")&&context.isEmpty())tag.unbreakable=value;
             }else if(type==9&&key.equals("ChargedProjectiles")&&context.isEmpty()) {
                 int child=in.get()&255,count=in.getInt();if(count<0||count>16)throw new IllegalArgumentException("Too many charged projectiles");
                 for(int i=0;i<count;i++)if(child==10)compound(in,tag,"/ChargedProjectiles",depth+1);else skip(in,child);

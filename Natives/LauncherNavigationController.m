@@ -295,8 +295,7 @@ static void *ProgressObserverContext = &ProgressObserverContext;
             localize(@"new_horizon.production_profile_missing", nil));
         return;
     }
-    BOOL thinClient = getPrefBool(@"java.newhorizon_thin_client") &&
-        !getPrefBool(@"java.newhorizon_local_test");
+    BOOL thinClient = !getPrefBool(@"java.newhorizon_local_test");
     NSString *selectedVersion = thinClient ? @"1.20.1" : NHProductionVersionID;
     if (![profile[@"lastVersionId"] isEqualToString:selectedVersion]) {
         NSLog(@"[NHClientBootstrap] Selecting profile from %@ to %@",
