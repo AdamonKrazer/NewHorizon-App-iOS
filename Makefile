@@ -10,6 +10,7 @@ WORKINGDIR  := $(SOURCEDIR)/Natives/build
 DETECTPLAT  := $(shell uname -s)
 DETECTARCH  := $(shell uname -m)
 VERSION     := 1.3
+PACKAGE_NAME := NewHorizonMinecraft
 BRANCH      := $(shell git branch --show-current)
 COMMIT      := $(shell git log --oneline | sed '2,10000000d' | cut -b 1-7)
 PLATFORM    ?= 2
@@ -150,10 +151,10 @@ METHOD_PACKAGE = \
 		IPA_SUFFIX=".ipa"; \
 	fi; \
 	if [ '$(SLIMMED_ONLY)' = '0' ]; then \
-		zip --symlinks -r $(OUTPUTDIR)/com.newhorizon.minecraft.ios-$(VERSION)-$(PLATFORM_NAME)$$IPA_SUFFIX Payload; \
+		zip --symlinks -r $(OUTPUTDIR)/$(PACKAGE_NAME)-$(VERSION)-$(PLATFORM_NAME)$$IPA_SUFFIX Payload; \
 	fi; \
 	if [ '$(SLIMMED)' = '1' ] || [ '$(SLIMMED_ONLY)' = '1' ]; then \
-		zip --symlinks -r $(OUTPUTDIR)/com.newhorizon.minecraft.ios.slimmed-$(VERSION)-$(PLATFORM_NAME)$$IPA_SUFFIX Payload --exclude='Payload/AngelAuraAmethyst.app/java_runtimes/*'; \
+		zip --symlinks -r $(OUTPUTDIR)/$(PACKAGE_NAME).slimmed-$(VERSION)-$(PLATFORM_NAME)$$IPA_SUFFIX Payload --exclude='Payload/AngelAuraAmethyst.app/java_runtimes/*'; \
 	fi
 
 # Function to download and unpack Java runtimes.
@@ -416,9 +417,9 @@ deploy:
 		else \
 			$(call METHOD_PACKAGE); \
 			if [ '$(SLIMMED_ONLY)' = '0' ]; then \
-				open $(OUTPUTDIR)/net.kdt.pojavlauncher-$(VERSION)-$(PLATFORM_NAME).ipa; \
+				open $(OUTPUTDIR)/$(PACKAGE_NAME)-$(VERSION)-$(PLATFORM_NAME).ipa; \
 			else \
-				open $(OUTPUTDIR)/net.kdt.pojavlauncher.slimmed-$(VERSION)-$(PLATFORM_NAME).ipa; \
+				open $(OUTPUTDIR)/$(PACKAGE_NAME).slimmed-$(VERSION)-$(PLATFORM_NAME).ipa; \
 			fi; \
 		fi; \
 	else \
@@ -446,8 +447,8 @@ dsym: payload
 dsym_after_payload:
 	echo '[Amethyst v$(VERSION)] dsym - start'
 	dsymutil --arch arm64 $(OUTPUTDIR)/Payload/AngelAuraAmethyst.app/AngelAuraAmethyst; \
-	rm -rf $(OUTPUTDIR)/AngelAuraAmethyst.dSYM; \
-	mv $(OUTPUTDIR)/Payload/AngelAuraAmethyst.app/AngelAuraAmethyst.dSYM $(OUTPUTDIR)/AngelAuraAmethyst.dSYM
+	rm -rf $(OUTPUTDIR)/$(PACKAGE_NAME).dSYM; \
+	mv $(OUTPUTDIR)/Payload/AngelAuraAmethyst.app/AngelAuraAmethyst.dSYM $(OUTPUTDIR)/$(PACKAGE_NAME).dSYM
 	echo '[Amethyst v$(VERSION)] dsym - end'
 	
 codesign:

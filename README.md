@@ -67,7 +67,7 @@ make all PLATFORM=2
 
 `make all` deliberately runs `clean` before the build as an ordered step, so parallel Make execution cannot race a clean against Gecko/native/Java compilation. Reynard's first build downloads the pinned Firefox source and is substantially longer than an ordinary launcher rebuild.
 
-The resulting IPA is written below `artifacts/`. JIT and increased-memory entitlements still depend on the chosen signing/install method, as with upstream Amethyst.
+The resulting IPA is written below `artifacts/` as `NewHorizonMinecraft-<version>-<platform>.ipa` (for example, `NewHorizonMinecraft-1.3-ios.ipa`). The development workflow's regular download is named `NewHorizonMinecraft.zip`; TrollStore, slimmed and debug-symbol downloads have corresponding suffixes. JIT and increased-memory entitlements still depend on the chosen signing/install method, as with upstream Amethyst.
 
 The Java build compiles `ThinClient` from source and runs its self-tests before Gecko. The Reynard script also parses the three iOS integration files and type-checks the standalone UIKit interface and notification adapter before the Firefox build. Local Windows validation covers the Java core, patcher and JavaScript; final Xcode compilation, IPA installation, GPU presentation, audio and touch behavior require the macOS/iOS build and a device.
 
